@@ -1,5 +1,6 @@
 package com.mz.imtaz.view;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,11 +12,13 @@ import org.vaadin.ui.NumberField;
 
 import com.mz.imtaz.entity.ClassRoom;
 import com.mz.imtaz.entity.ClassRoomDetail;
+import com.mz.imtaz.entity.GeneralCode;
 import com.mz.imtaz.entity.School;
 import com.mz.imtaz.entity.Teacher;
 import com.mz.imtaz.enums.Salutation;
 import com.mz.imtaz.repository.ClassRoomDetailRepository;
 import com.mz.imtaz.repository.ClassRoomRepository;
+import com.mz.imtaz.repository.GeneralCodeRepository;
 import com.mz.imtaz.repository.SchoolRepository;
 import com.mz.imtaz.repository.TeacherRepository;
 import com.vaadin.data.Binder;
@@ -44,6 +47,23 @@ public class ConfigureView extends VerticalLayout implements View {
 		SCHOOL, CLASSROOM, CLASSROOM_DETAIL, TEACHER, GENERAL;
 	}
 
+	enum GeneralCodeCategory {
+		STUDENT_STATUS("Status Pelajar"),
+		STUDENT_ACADEMIC_STATUS("Kod Status Pengajian Pelajar"),
+		STUDENT_GRADE_MONTHLY("Kod Penilaian Keputusan Bulanan"),
+		STUDENT_DICIPLINE("Kod Disiplin Pelajar") ;
+
+		private String description;
+
+		private GeneralCodeCategory(String description) {
+			this.description = description;
+		}
+
+		public String getDescription() {
+			return description;
+		}
+	}
+
 	public static final String NAME = "ConfigureView";
 	private final static float WIDTH = 500f;
 
@@ -55,6 +75,8 @@ public class ConfigureView extends VerticalLayout implements View {
 	private TeacherRepository teacherRepo;
 	@Autowired
 	private ClassRoomDetailRepository classRoomDetailRepo;
+	@Autowired
+	private GeneralCodeRepository generalCodeRepo;
 
 	@PostConstruct
     public void init() {
@@ -85,7 +107,7 @@ public class ConfigureView extends VerticalLayout implements View {
 		}else if(TabType.TEACHER.name().equalsIgnoreCase(id)) {
 			layout = configureTeacherTab();
 		}else if(TabType.GENERAL.name().equalsIgnoreCase(id)) {
-			layout = new VerticalLayout();
+			layout = configureGeneralTab();
 		}
 
 		layout.setId(id);
@@ -203,7 +225,7 @@ public class ConfigureView extends VerticalLayout implements View {
 
 		VerticalLayout mainLayout = new VerticalLayout();
 
-        Label label = new Label("Skrin untuk mengemaskini maklumat kategori kelas. Sila masukkan medan bertanda * dan tekan butang Kemaskini.");
+        Label label = new Label("Skrin untuk mengemaskini maklumat kategori kelas.");
 
         Button btnNew = new Button(VaadinIcons.PLUS);
         Button btnDelete = new Button(VaadinIcons.TRASH);
@@ -354,7 +376,7 @@ public class ConfigureView extends VerticalLayout implements View {
 
 		VerticalLayout mainLayout = new VerticalLayout();
 
-        Label label = new Label("Skrin untuk mengemaskini maklumat Kelas. Sila masukkan medan bertanda * dan tekan butang Kemaskini.");
+        Label label = new Label("Skrin untuk mengemaskini maklumat Kelas.");
 
         Button btnNew = new Button(VaadinIcons.PLUS);
         Button btnDelete = new Button(VaadinIcons.TRASH);
@@ -431,6 +453,114 @@ public class ConfigureView extends VerticalLayout implements View {
         });
 
         mainLayout.addComponent(label);
+        mainLayout.addComponent(buttonBar);
+        mainLayout.addComponent(grid);
+
+        return mainLayout;
+	}
+
+	private VerticalLayout configureGeneralTab() {
+
+		VerticalLayout mainLayout = new VerticalLayout();
+
+        Label label = new Label("Skrin untuk mengemaskini maklumat am.");
+
+        ComboBox<GeneralCodeCategory> cbCategory = new ComboBox<>("Kategori");
+        cbCategory.setWidth(WIDTH, Unit.PIXELS);
+        cbCategory.setItems(Arrays.asList(GeneralCodeCategory.values()));
+        cbCategory.setItemCaptionGenerator(item -> item.getDescription());
+
+        Button btnNew = new Button(VaadinIcons.PLUS);
+        Button btnDelete = new Button(VaadinIcons.TRASH);
+        btnDelete.setEnabled(false);
+        FormLayout cbBar = new FormLayout(cbCategory);
+        HorizontalLayout buttonBar = new HorizontalLayout(btnNew, btnDelete);
+
+        Grid<GeneralCode> grid = new Grid<>();
+        ListDataProvider<GeneralCode> dataProvider = DataProvider.ofCollection(new ArrayList<GeneralCode>());
+        grid.setDataProvider(dataProvider);
+        grid.getEditor().setEnabled(true);
+        grid.setSizeFull();
+
+        TextField tfCode = new TextField();
+        tfCode.setMaxLength(50);
+        tfCode.setRequiredIndicatorVisible(true);
+        grid.addColumn(GeneralCode::getCode).setCaption("Kod")
+        .setEditorComponent(tfCode, GeneralCode::setCode)
+        .setSortable(true);
+
+        TextField tfDesc = new TextField();
+        tfDesc.setMaxLength(200);
+        tfDesc.setRequiredIndicatorVisible(true);
+        grid.addColumn(GeneralCode::getDescription).setCaption("Perihal")
+        .setEditorComponent(tfDesc, GeneralCode::setDescription)
+        .setSortable(true);
+
+        NumberField nfLevel = new NumberField();
+        nfLevel.setMaxLength(8);
+        nfLevel.setRequiredIndicatorVisible(true);
+        nfLevel.setMaxLength(2);
+        grid.addColumn(GeneralCode::getLevel).setCaption("Jujukan")
+        .setEditorBinding(grid.getEditor().getBinder()
+        		.forField(nfLevel)
+    	    	.withConverter(Integer::valueOf, String::valueOf)
+    	    	.bind(GeneralCode::getLevel, GeneralCode::setLevel))
+        .setSortable(true);
+
+        cbCategory.addValueChangeListener(listener -> {
+        	GeneralCodeCategory codeCategory = listener.getValue();
+        	if(codeCategory != null) {
+        		List<GeneralCode> list = generalCodeRepo.findByCategoryOrderByLevelAsc(codeCategory.name());
+        		dataProvider.getItems().clear();
+        		dataProvider.getItems().addAll(list != null ? list : new ArrayList<GeneralCode>());
+        		dataProvider.refreshAll();
+        	}
+        });
+
+        grid.getEditor().addSaveListener(evt -> {
+        	try {
+                GeneralCode item = evt.getBean();
+                generalCodeRepo.save(item);
+                dataProvider.refreshAll();
+            } catch (Exception e) {
+                Notification.show("Rekod tidak berjaya dikemaskini.", Notification.Type.ERROR_MESSAGE);
+            }
+		});
+        grid.addSelectionListener(evt -> {
+        	if (evt.getFirstSelectedItem().isPresent()) {
+                btnDelete.setEnabled(true);
+            } else {
+                btnDelete.setEnabled(false);
+            }
+        });
+
+        btnDelete.addClickListener(evt -> {
+        	try {
+	        	if (!grid.getSelectedItems().isEmpty()) {
+	        		GeneralCode item = grid.getSelectedItems().iterator().next();
+	        		generalCodeRepo.delete(item);
+	                dataProvider.getItems().remove(item);
+	                dataProvider.refreshAll();
+	            }
+        	}catch (Exception e) {
+        		 Notification.show("Rekod tidak berjaya dipadam.", Notification.Type.ERROR_MESSAGE);
+			}
+        });
+
+        btnNew.addClickListener(evt -> {
+        	if(cbCategory.getSelectedItem() != null && cbCategory.getSelectedItem().get() != null) {
+	        	GeneralCode generalCode = new GeneralCode();
+	        	generalCode.setLevel(0);
+	        	generalCode.setCategory(cbCategory.getSelectedItem().get().name());
+	        	dataProvider.getItems().add(generalCode);
+	            dataProvider.refreshAll();
+        	}else {
+        		Notification.show("Sila pilih kategori kod.", Notification.Type.WARNING_MESSAGE);
+        	}
+        });
+
+        mainLayout.addComponent(label);
+        mainLayout.addComponent(cbBar);
         mainLayout.addComponent(buttonBar);
         mainLayout.addComponent(grid);
 
