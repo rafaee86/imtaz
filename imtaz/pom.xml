@@ -121,6 +121,11 @@
                     <artifactId>wizards-for-vaadin</artifactId>
                     <version>2.0.1</version>
                 </dependency>
+                <dependency>
+				   <groupId>com.vaadin.addon</groupId>
+				   <artifactId>pagination</artifactId>
+				   <version>8.0.6</version>
+				</dependency>
 	</dependencies>
 
 	<build>
