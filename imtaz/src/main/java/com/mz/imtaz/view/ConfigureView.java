@@ -12,12 +12,14 @@ import org.vaadin.ui.NumberField;
 
 import com.mz.imtaz.entity.ClassRoom;
 import com.mz.imtaz.entity.ClassRoomDetail;
+import com.mz.imtaz.entity.Dicipline;
 import com.mz.imtaz.entity.GeneralCode;
 import com.mz.imtaz.entity.School;
 import com.mz.imtaz.entity.Teacher;
 import com.mz.imtaz.enums.Salutation;
 import com.mz.imtaz.repository.ClassRoomDetailRepository;
 import com.mz.imtaz.repository.ClassRoomRepository;
+import com.mz.imtaz.repository.DiciplineRepository;
 import com.mz.imtaz.repository.GeneralCodeRepository;
 import com.mz.imtaz.repository.SchoolRepository;
 import com.mz.imtaz.repository.TeacherRepository;
@@ -44,14 +46,13 @@ import com.vaadin.ui.themes.ValoTheme;
 public class ConfigureView extends VerticalLayout implements View {
 
 	enum TabType {
-		SCHOOL, CLASSROOM, CLASSROOM_DETAIL, TEACHER, GENERAL;
+		SCHOOL, CLASSROOM, CLASSROOM_DETAIL, TEACHER, DICIPLINE, GENERAL;
 	}
 
 	enum GeneralCodeCategory {
 		STUDENT_STATUS("Status Pelajar"),
 		STUDENT_ACADEMIC_STATUS("Kod Status Pengajian Pelajar"),
-		STUDENT_GRADE_MONTHLY("Kod Penilaian Keputusan Bulanan"),
-		STUDENT_DICIPLINE("Kod Disiplin Pelajar") ;
+		STUDENT_GRADE_MONTHLY("Kod Penilaian Keputusan Bulanan");
 
 		private String description;
 
@@ -76,6 +77,8 @@ public class ConfigureView extends VerticalLayout implements View {
 	@Autowired
 	private ClassRoomDetailRepository classRoomDetailRepo;
 	@Autowired
+	private DiciplineRepository diciplineRepo;
+	@Autowired
 	private GeneralCodeRepository generalCodeRepo;
 
 	@PostConstruct
@@ -90,6 +93,7 @@ public class ConfigureView extends VerticalLayout implements View {
 		tab.addTab(getTabContent(TabType.CLASSROOM.name()), "Kategori Kelas").setId(TabType.CLASSROOM.name());
 		tab.addTab(getTabContent(TabType.TEACHER.name()), "Pengajar").setId(TabType.TEACHER.name());
 		tab.addTab(getTabContent(TabType.CLASSROOM_DETAIL.name()), "Kelas").setId(TabType.CLASSROOM_DETAIL.name());
+		tab.addTab(getTabContent(TabType.DICIPLINE.name()), "Disiplin").setId(TabType.DICIPLINE.name());
 		tab.addTab(getTabContent(TabType.GENERAL.name()), "Am").setId(TabType.GENERAL.name());
 
 		addComponent(tab);
@@ -106,6 +110,8 @@ public class ConfigureView extends VerticalLayout implements View {
 			layout = configureClassRoomDetailTab();
 		}else if(TabType.TEACHER.name().equalsIgnoreCase(id)) {
 			layout = configureTeacherTab();
+		}else if(TabType.DICIPLINE.name().equalsIgnoreCase(id)) {
+			layout = configureDiciplineTab();
 		}else if(TabType.GENERAL.name().equalsIgnoreCase(id)) {
 			layout = configureGeneralTab();
 		}
@@ -459,6 +465,73 @@ public class ConfigureView extends VerticalLayout implements View {
         return mainLayout;
 	}
 
+	private VerticalLayout configureDiciplineTab() {
+
+		VerticalLayout mainLayout = new VerticalLayout();
+
+        Label label = new Label("Skrin untuk mengemaskini maklumat kesalahan disiplin.");
+
+        Button btnNew = new Button(VaadinIcons.PLUS);
+        Button btnDelete = new Button(VaadinIcons.TRASH);
+        btnDelete.setEnabled(false);
+        HorizontalLayout buttonBar = new HorizontalLayout(btnNew, btnDelete);
+
+        Grid<Dicipline> grid = new Grid<>();
+        ListDataProvider<Dicipline> dataProvider = DataProvider.ofCollection(diciplineRepo.findAll());
+        grid.setDataProvider(dataProvider);
+        grid.getEditor().setEnabled(true);
+        grid.setSizeFull();
+
+        TextField tfDesc = new TextField();
+        tfDesc.setWidth(70, Unit.PERCENTAGE);
+        tfDesc.setMaxLength(50);
+        tfDesc.setRequiredIndicatorVisible(true);
+        grid.addColumn(Dicipline::getDescription).setCaption("Perihal")
+        .setEditorComponent(tfDesc, Dicipline::setDescription)
+        .setSortable(true);
+
+        grid.getEditor().addSaveListener(evt -> {
+        	try {
+                Dicipline item = evt.getBean();
+                diciplineRepo.save(item);
+                dataProvider.refreshAll();
+            } catch (Exception e) {
+                Notification.show("Rekod tidak berjaya dikemaskini.", Notification.Type.ERROR_MESSAGE);
+            }
+		});
+        grid.addSelectionListener(evt -> {
+        	if (evt.getFirstSelectedItem().isPresent()) {
+                btnDelete.setEnabled(true);
+            } else {
+                btnDelete.setEnabled(false);
+            }
+        });
+
+        btnDelete.addClickListener(evt -> {
+        	try {
+	        	if (!grid.getSelectedItems().isEmpty()) {
+	                Dicipline item = grid.getSelectedItems().iterator().next();
+	                diciplineRepo.delete(item);
+	                dataProvider.getItems().remove(item);
+	                dataProvider.refreshAll();
+	            }
+        	}catch (Exception e) {
+        		 Notification.show("Rekod tidak berjaya dipadam.", Notification.Type.ERROR_MESSAGE);
+			}
+        });
+
+        btnNew.addClickListener(evt -> {
+        	dataProvider.getItems().add(new Dicipline());
+            dataProvider.refreshAll();
+        });
+
+        mainLayout.addComponent(label);
+        mainLayout.addComponent(buttonBar);
+        mainLayout.addComponent(grid);
+
+        return mainLayout;
+	}
+
 	private VerticalLayout configureGeneralTab() {
 
 		VerticalLayout mainLayout = new VerticalLayout();
@@ -469,6 +542,7 @@ public class ConfigureView extends VerticalLayout implements View {
         cbCategory.setWidth(WIDTH, Unit.PIXELS);
         cbCategory.setItems(Arrays.asList(GeneralCodeCategory.values()));
         cbCategory.setItemCaptionGenerator(item -> item.getDescription());
+        cbCategory.setEmptySelectionAllowed(false);
 
         Button btnNew = new Button(VaadinIcons.PLUS);
         Button btnDelete = new Button(VaadinIcons.TRASH);

@@ -10,6 +10,11 @@ import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.Type;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 @Embeddable
 public class RecordUtility implements Serializable {
 
@@ -22,5 +27,12 @@ public class RecordUtility implements Serializable {
 	@Temporal(TemporalType.TIMESTAMP)
     @Column
 	private Date updatedDate = new Date();
+
+	public RecordUtility() {}
+
+	public RecordUtility(Boolean statusFlag, Integer userPkid) {
+		this.statusFlag = statusFlag;
+		this.userPkid = userPkid;
+	}
 
 }

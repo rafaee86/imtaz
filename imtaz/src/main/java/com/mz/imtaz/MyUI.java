@@ -3,6 +3,7 @@ package com.mz.imtaz;
 import org.vaadin.teemusa.sidemenu.SideMenu;
 
 import com.mz.imtaz.view.ConfigureView;
+import com.mz.imtaz.view.RecordsRegisterView;
 import com.mz.imtaz.view.StudentRegisterView;
 import com.vaadin.annotations.Theme;
 import com.vaadin.icons.VaadinIcons;
@@ -41,10 +42,9 @@ public class MyUI extends UI implements ViewDisplay{
         sideMenu.setCaption(menuCaption);
         sideMenu.addNavigation("Dashboard", VaadinIcons.HOME, "");
         sideMenu.addNavigation("Pendaftaran Pelajar", VaadinIcons.FORM, StudentRegisterView.NAME);
-        sideMenu.addNavigation("Pendaftaran Kelas", VaadinIcons.BUILDING, "");
+        sideMenu.addNavigation("Pendaftaran Kelas", VaadinIcons.BUILDING, RecordsRegisterView.NAME);
         sideMenu.addNavigation("Kemasukan Rekod Markah Pelajar", VaadinIcons.RECORDS, "");
         sideMenu.addNavigation("Aliran Tunai", VaadinIcons.MONEY_WITHDRAW, "");
-        sideMenu.addNavigation("Pendaftaran Pelajar Yaman", VaadinIcons.GLOBE, "");
         sideMenu.addNavigation("Tetapan", VaadinIcons.TOOLS, ConfigureView.NAME);
     }
 

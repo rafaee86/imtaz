@@ -102,6 +102,7 @@ public class Student implements Serializable {
 	@Column(nullable = false, length=250)
 	@Setter(value = AccessLevel.NONE)
 	private String registerJustification2;
+	private Integer status;
 	@Embedded
 	private RecordUtility recordInfo;
 
