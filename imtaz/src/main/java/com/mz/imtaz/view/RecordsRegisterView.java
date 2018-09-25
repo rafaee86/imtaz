@@ -44,9 +44,9 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
 
 	public static final String NAME = "RecordsRegisterView";
 	final int page = 0;
-	final int limit = 1;
+	final int limit = 10;
 	final int studentPage = 0;
-	final int studentLimit = 1;
+	final int studentLimit = 10;
 
 	private final static float WIDTH = 500f;
 

@@ -10,10 +10,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.apache.commons.lang3.text.WordUtils;
 import org.hibernate.annotations.Type;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,7 +19,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Table(name="MEMORIZE_TARGET")
-public class MemorizeTarget {
+public class MemorizeTarget{
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -35,41 +33,22 @@ public class MemorizeTarget {
 	private Integer year;
 	private Integer month;
 	@Column(nullable = false, length=50)
-	@Setter(value = AccessLevel.NONE)
-	private String dailyTarget;
+	private Juzuk dailyTarget;
 	@Column(nullable = false, length=50)
-	@Setter(value = AccessLevel.NONE)
-	private String startPage;
+	private Integer startPage;
 	@Column(nullable = false, length=50)
-	@Setter(value = AccessLevel.NONE)
-	private String lastPage;
+	private Integer lastPage;
 	@Column(nullable = false, length=50)
-	@Setter(value = AccessLevel.NONE)
-	private String totalDailyTarget;
+	private Juzuk totalDailyTarget;
 	@Column(nullable = false, length=50)
-	@Setter(value = AccessLevel.NONE)
-	private String totalMemorize;
+	private Juzuk totalMemorize;
 	@Column(nullable = false, length=50)
-	@Setter(value = AccessLevel.NONE)
-	private String totalBalance;
+	private Juzuk totalBalance;
 	private RecordUtility recordUtility;
 
-	public void setDailyTarget(String dailyTarget) {
-		this.dailyTarget = dailyTarget != null ? WordUtils.capitalizeFully(dailyTarget) : null;
-	}
-	public void setStartPage(String startPage) {
-		this.startPage = startPage != null ? WordUtils.capitalizeFully(startPage) : null;
-	}
-	public void setLastPage(String lastPage) {
-		this.lastPage = lastPage != null ? WordUtils.capitalizeFully(lastPage) : null;
-	}
-	public void setTotalDailyTarget(String totalDailyTarget) {
-		this.totalDailyTarget = totalDailyTarget != null ? WordUtils.capitalizeFully(totalDailyTarget) : null;
-	}
-	public void setTotalMemorize(String totalMemorize) {
-		this.totalMemorize = totalMemorize != null ? WordUtils.capitalizeFully(totalMemorize) : null;
-	}
-	public void setTotalBalance(String totalBalance) {
-		this.totalBalance = totalBalance != null ? WordUtils.capitalizeFully(totalBalance) : null;
+	public MemorizeTarget() {}
+
+	public MemorizeTarget(Records records) {
+		this.records = records;
 	}
 }

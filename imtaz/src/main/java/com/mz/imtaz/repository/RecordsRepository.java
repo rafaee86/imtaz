@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.mz.imtaz.entity.ClassRoomDetail;
 import com.mz.imtaz.entity.Records;
+import com.mz.imtaz.entity.Student;
 
 public interface RecordsRepository extends JpaRepository<Records, Integer> {
 
@@ -17,4 +18,7 @@ public interface RecordsRepository extends JpaRepository<Records, Integer> {
 
 	@Query("Select a from Records a where a.classRoomDetail = :classRoomDetail order by a.student.name asc")
 	List<Records> findRecordsByClassRoomDetailPageable(@Param("classRoomDetail") ClassRoomDetail classRoomDetail, Pageable page);
+
+	@Query("Select a from Records a where a.classRoomDetail = :classRoomDetail and a.student = :student order by a.student.name asc")
+	Records findRecordsByClassRoomDetailAndStudent(@Param("classRoomDetail") ClassRoomDetail classRoomDetail, @Param("student") Student student);
 }

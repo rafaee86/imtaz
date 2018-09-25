@@ -6,4 +6,5 @@ import com.mz.imtaz.entity.ClassRoom;
 
 public interface ClassRoomRepository extends JpaRepository<ClassRoom, Integer> {
 
+	ClassRoom findByNameIgnoreCase(String name);
 }
