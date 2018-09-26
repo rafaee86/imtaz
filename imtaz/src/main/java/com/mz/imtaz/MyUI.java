@@ -2,7 +2,9 @@ package com.mz.imtaz;
 
 import org.vaadin.teemusa.sidemenu.SideMenu;
 
+import com.mz.imtaz.view.CashFlowView;
 import com.mz.imtaz.view.ConfigureView;
+import com.mz.imtaz.view.DailyActivityRecordView;
 import com.mz.imtaz.view.MemorizeTargetView;
 import com.mz.imtaz.view.RecordsRegisterView;
 import com.mz.imtaz.view.StudentRegisterView;
@@ -32,11 +34,14 @@ public class MyUI extends UI implements ViewDisplay{
 
 	private SideMenu sideMenu = new SideMenu();
     private final String menuCaption = "<h1>Sistem Imtaz</h1>";
+    private final String mainTitle = "Imtaz";
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
 
     	setContent(sideMenu);
+    	getPage().setTitle(mainTitle);
+
         sideMenu.setSizeFull();
         sideMenu.setDefaultComponentAlignment(Alignment.TOP_CENTER);
         sideMenu.setCaptionAsHtml(true);
@@ -45,8 +50,8 @@ public class MyUI extends UI implements ViewDisplay{
         sideMenu.addNavigation("Pendaftaran Pelajar", VaadinIcons.FORM, StudentRegisterView.NAME);
         sideMenu.addNavigation("Pendaftaran Kelas", VaadinIcons.BUILDING, RecordsRegisterView.NAME);
         sideMenu.addNavigation("Kemasukan Target Hafazan", VaadinIcons.RECORDS, MemorizeTargetView.NAME);
-        sideMenu.addNavigation("Kemasukan Rekod Markah Pelajar", VaadinIcons.RECORDS, "");
-        sideMenu.addNavigation("Aliran Tunai", VaadinIcons.MONEY_WITHDRAW, "");
+        sideMenu.addNavigation("Rekod Harian Pelajar", VaadinIcons.RECORDS, DailyActivityRecordView.NAME);
+        sideMenu.addNavigation("Aliran Tunai", VaadinIcons.MONEY_WITHDRAW, CashFlowView.NAME);
         sideMenu.addNavigation("Tetapan", VaadinIcons.TOOLS, ConfigureView.NAME);
     }
 

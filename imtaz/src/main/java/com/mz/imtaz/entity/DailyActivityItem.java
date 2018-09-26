@@ -1,5 +1,7 @@
 package com.mz.imtaz.entity;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -8,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.apache.commons.lang3.text.WordUtils;
@@ -36,11 +39,14 @@ public class DailyActivityItem {
 	@ManyToOne(fetch = FetchType.EAGER)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private DailyRecordItem dailyRecordItem;
+	@Type(type = "org.hibernate.type.NumericBooleanType")
 	private Boolean done;
 	@Column(nullable = false, length=50)
 	@Setter(value = AccessLevel.NONE)
 	private String remarks;
-	private Integer diciplineIssue;
+	@JoinColumn(name = "DICIPLINE", referencedColumnName = "PKID")
+	@OneToMany(fetch = FetchType.EAGER)
+	private List<Dicipline> diciplineIssues;
 
 	public void setRemarks(String remarks) {
 		this.remarks = remarks != null ? WordUtils.capitalizeFully(remarks) : null;

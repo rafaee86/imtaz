@@ -8,10 +8,12 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.vaadin.ui.NumberField;
 
 import com.mz.imtaz.entity.ClassRoom;
 import com.mz.imtaz.entity.ClassRoomDetail;
+import com.mz.imtaz.entity.DailyRecordItem;
 import com.mz.imtaz.entity.Dicipline;
 import com.mz.imtaz.entity.GeneralCode;
 import com.mz.imtaz.entity.School;
@@ -19,6 +21,7 @@ import com.mz.imtaz.entity.Teacher;
 import com.mz.imtaz.enums.Salutation;
 import com.mz.imtaz.repository.ClassRoomDetailRepository;
 import com.mz.imtaz.repository.ClassRoomRepository;
+import com.mz.imtaz.repository.DailyRecordItemRepository;
 import com.mz.imtaz.repository.DiciplineRepository;
 import com.mz.imtaz.repository.GeneralCodeRepository;
 import com.mz.imtaz.repository.SchoolRepository;
@@ -46,7 +49,7 @@ import com.vaadin.ui.themes.ValoTheme;
 public class ConfigureView extends VerticalLayout implements View {
 
 	enum TabType {
-		SCHOOL, CLASSROOM, CLASSROOM_DETAIL, TEACHER, DICIPLINE, GENERAL;
+		SCHOOL, CLASSROOM, CLASSROOM_DETAIL, TEACHER, DICIPLINE, STUDENT_ACTIVITY, GENERAL;
 	}
 
 	enum GeneralCodeCategory {
@@ -79,6 +82,8 @@ public class ConfigureView extends VerticalLayout implements View {
 	@Autowired
 	private DiciplineRepository diciplineRepo;
 	@Autowired
+	private DailyRecordItemRepository dailyRecordItemRepo;
+	@Autowired
 	private GeneralCodeRepository generalCodeRepo;
 
 	@PostConstruct
@@ -94,6 +99,7 @@ public class ConfigureView extends VerticalLayout implements View {
 		tab.addTab(getTabContent(TabType.TEACHER.name()), "Pengajar").setId(TabType.TEACHER.name());
 		tab.addTab(getTabContent(TabType.CLASSROOM_DETAIL.name()), "Kelas").setId(TabType.CLASSROOM_DETAIL.name());
 		tab.addTab(getTabContent(TabType.DICIPLINE.name()), "Disiplin").setId(TabType.DICIPLINE.name());
+		tab.addTab(getTabContent(TabType.STUDENT_ACTIVITY.name()), "Item Rekod Harian Pelajar").setId(TabType.STUDENT_ACTIVITY.name());
 		tab.addTab(getTabContent(TabType.GENERAL.name()), "Am").setId(TabType.GENERAL.name());
 
 		addComponent(tab);
@@ -112,6 +118,8 @@ public class ConfigureView extends VerticalLayout implements View {
 			layout = configureTeacherTab();
 		}else if(TabType.DICIPLINE.name().equalsIgnoreCase(id)) {
 			layout = configureDiciplineTab();
+		}else if(TabType.STUDENT_ACTIVITY.name().equalsIgnoreCase(id)) {
+			layout = configureStudentActivityTab();
 		}else if(TabType.GENERAL.name().equalsIgnoreCase(id)) {
 			layout = configureGeneralTab();
 		}
@@ -522,6 +530,86 @@ public class ConfigureView extends VerticalLayout implements View {
 
         btnNew.addClickListener(evt -> {
         	dataProvider.getItems().add(new Dicipline());
+            dataProvider.refreshAll();
+        });
+
+        mainLayout.addComponent(label);
+        mainLayout.addComponent(buttonBar);
+        mainLayout.addComponent(grid);
+
+        return mainLayout;
+	}
+
+	private VerticalLayout configureStudentActivityTab(){
+
+		VerticalLayout mainLayout = new VerticalLayout();
+
+        Label label = new Label("Skrin untuk mengemaskini maklumat Item rekod harian pelajar.");
+
+        Button btnNew = new Button(VaadinIcons.PLUS);
+        Button btnDelete = new Button(VaadinIcons.TRASH);
+        btnDelete.setEnabled(false);
+        HorizontalLayout buttonBar = new HorizontalLayout(btnNew, btnDelete);
+
+        Grid<DailyRecordItem> grid = new Grid<>();
+        ListDataProvider<DailyRecordItem> dataProvider = DataProvider.ofCollection(dailyRecordItemRepo.findAll(Sort.by(Sort.Direction.ASC,"sequence")));
+        grid.setDataProvider(dataProvider);
+        grid.getEditor().setEnabled(true);
+        grid.setSizeFull();
+
+        TextField tfName = new TextField();
+        tfName.setWidth(70, Unit.PERCENTAGE);
+        tfName.setMaxLength(50);
+        tfName.setRequiredIndicatorVisible(true);
+        grid.addColumn(DailyRecordItem::getDescription).setCaption("Perihal")
+        .setEditorComponent(tfName, DailyRecordItem::setDescription)
+        .setSortable(true);
+
+        NumberField nfLevel = new NumberField();
+        nfLevel.setWidth(30, Unit.PERCENTAGE);
+        nfLevel.setRequiredIndicatorVisible(true);
+        nfLevel.setMaxLength(2);
+        grid.addColumn(DailyRecordItem::getSequence).setCaption("Susunan")
+        .setEditorBinding(grid.getEditor().getBinder()
+        		.forField(nfLevel)
+    	    	.withConverter(Integer::valueOf, String::valueOf)
+    	    	.bind(DailyRecordItem::getSequence, DailyRecordItem::setSequence))
+        .setSortable(true);
+
+        grid.getEditor().addSaveListener(evt -> {
+        	try {
+        		DailyRecordItem item = evt.getBean();
+        		dailyRecordItemRepo.save(item);
+                dataProvider.refreshAll();
+            } catch (Exception e) {
+                Notification.show("Rekod tidak berjaya dikemaskini.", Notification.Type.ERROR_MESSAGE);
+            }
+		});
+        grid.addSelectionListener(evt -> {
+        	if (evt.getFirstSelectedItem().isPresent()) {
+                btnDelete.setEnabled(true);
+            } else {
+                btnDelete.setEnabled(false);
+            }
+        });
+
+        btnDelete.addClickListener(evt -> {
+        	try {
+	        	if (!grid.getSelectedItems().isEmpty()) {
+	        		DailyRecordItem item = grid.getSelectedItems().iterator().next();
+	        		dailyRecordItemRepo.delete(item);
+	                dataProvider.getItems().remove(item);
+	                dataProvider.refreshAll();
+	            }
+        	}catch (Exception e) {
+        		 Notification.show("Rekod tidak berjaya dipadam.", Notification.Type.ERROR_MESSAGE);
+			}
+        });
+
+        btnNew.addClickListener(evt -> {
+        	DailyRecordItem dailyRecordItem = new DailyRecordItem();
+        	dailyRecordItem.setSequence(0);
+        	dataProvider.getItems().add(dailyRecordItem);
             dataProvider.refreshAll();
         });
 
