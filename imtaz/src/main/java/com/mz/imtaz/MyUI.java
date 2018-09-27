@@ -6,12 +6,14 @@ import com.mz.imtaz.view.CashFlowView;
 import com.mz.imtaz.view.ConfigureView;
 import com.mz.imtaz.view.DailyActivityRecordView;
 import com.mz.imtaz.view.MemorizeTargetView;
+import com.mz.imtaz.view.PaymentView;
 import com.mz.imtaz.view.RecordsRegisterView;
 import com.mz.imtaz.view.StudentRegisterView;
 import com.vaadin.annotations.Theme;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewDisplay;
+import com.vaadin.server.ClassResource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.spring.annotation.SpringViewDisplay;
@@ -34,11 +36,12 @@ public class MyUI extends UI implements ViewDisplay{
 
 	private SideMenu sideMenu = new SideMenu();
     private final String menuCaption = "<h1>Sistem Imtaz</h1>";
-    private final String mainTitle = "Imtaz";
+    private final String mainTitle = "Sistem Pengurusan IMTAZ";
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
 
+    	setIcon(new ClassResource("images/ImtazLogo.ico"));
     	setContent(sideMenu);
     	getPage().setTitle(mainTitle);
 
@@ -52,6 +55,7 @@ public class MyUI extends UI implements ViewDisplay{
         sideMenu.addNavigation("Kemasukan Target Hafazan", VaadinIcons.RECORDS, MemorizeTargetView.NAME);
         sideMenu.addNavigation("Rekod Harian Pelajar", VaadinIcons.RECORDS, DailyActivityRecordView.NAME);
         sideMenu.addNavigation("Aliran Tunai", VaadinIcons.MONEY_WITHDRAW, CashFlowView.NAME);
+        sideMenu.addNavigation("Bayaran", VaadinIcons.MONEY_DEPOSIT, PaymentView.NAME);
         sideMenu.addNavigation("Tetapan", VaadinIcons.TOOLS, ConfigureView.NAME);
     }
 
