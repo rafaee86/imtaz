@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.vaadin.ui.NumberField;
 
+import com.mz.imtaz.entity.Bank;
 import com.mz.imtaz.entity.ClassRoom;
 import com.mz.imtaz.entity.ClassRoomDetail;
 import com.mz.imtaz.entity.DailyRecordItem;
@@ -21,6 +22,7 @@ import com.mz.imtaz.entity.PaymentDescription;
 import com.mz.imtaz.entity.School;
 import com.mz.imtaz.entity.Teacher;
 import com.mz.imtaz.enums.Salutation;
+import com.mz.imtaz.repository.BankRepository;
 import com.mz.imtaz.repository.ClassRoomDetailRepository;
 import com.mz.imtaz.repository.ClassRoomRepository;
 import com.mz.imtaz.repository.DailyRecordItemRepository;
@@ -54,7 +56,7 @@ import com.vaadin.ui.themes.ValoTheme;
 public class ConfigureView extends VerticalLayout implements View {
 
 	enum TabType {
-		SCHOOL, CLASSROOM, CLASSROOM_DETAIL, TEACHER, DICIPLINE, STUDENT_ACTIVITY, PAYMENT_DESCRIPTION, GENERAL;
+		SCHOOL, CLASSROOM, CLASSROOM_DETAIL, TEACHER, DICIPLINE, STUDENT_ACTIVITY, PAYMENT_DESCRIPTION, BANK, GENERAL;
 	}
 
 	enum GeneralCodeCategory {
@@ -91,6 +93,8 @@ public class ConfigureView extends VerticalLayout implements View {
 	@Autowired
 	private PaymentDescriptionRepository paymentDescRepo;
 	@Autowired
+	private BankRepository bankRepo;
+	@Autowired
 	private GeneralCodeRepository generalCodeRepo;
 
 	@PostConstruct
@@ -108,6 +112,7 @@ public class ConfigureView extends VerticalLayout implements View {
 		tab.addTab(getTabContent(TabType.DICIPLINE.name()), "Disiplin").setId(TabType.DICIPLINE.name());
 		tab.addTab(getTabContent(TabType.STUDENT_ACTIVITY.name()), "Item Rekod Harian Pelajar").setId(TabType.STUDENT_ACTIVITY.name());
 		tab.addTab(getTabContent(TabType.PAYMENT_DESCRIPTION.name()), "Perihal Bayaran").setId(TabType.PAYMENT_DESCRIPTION.name());
+		tab.addTab(getTabContent(TabType.BANK.name()), "Bank").setId(TabType.BANK.name());
 		tab.addTab(getTabContent(TabType.GENERAL.name()), "Am").setId(TabType.GENERAL.name());
 
 		addComponent(tab);
@@ -130,6 +135,8 @@ public class ConfigureView extends VerticalLayout implements View {
 			layout = configureStudentActivityTab();
 		}else if(TabType.PAYMENT_DESCRIPTION.name().equalsIgnoreCase(id)) {
 			layout = configurePaymentDescriptionTab();
+		}else if(TabType.BANK.name().equalsIgnoreCase(id)) {
+			layout = configureBankTab();
 		}else if(TabType.GENERAL.name().equalsIgnoreCase(id)) {
 			layout = configureGeneralTab();
 		}
@@ -712,6 +719,73 @@ public class ConfigureView extends VerticalLayout implements View {
 
         btnNew.addClickListener(evt -> {
         	dataProvider.getItems().add(new PaymentDescription());
+            dataProvider.refreshAll();
+        });
+
+        mainLayout.addComponent(label);
+        mainLayout.addComponent(buttonBar);
+        mainLayout.addComponent(grid);
+
+        return mainLayout;
+	}
+	
+	private VerticalLayout configureBankTab() {
+
+		VerticalLayout mainLayout = new VerticalLayout();
+
+        Label label = new Label("Skrin untuk mengemaskini maklumat bank.");
+
+        Button btnNew = new Button(VaadinIcons.PLUS);
+        Button btnDelete = new Button(VaadinIcons.TRASH);
+        btnDelete.setEnabled(false);
+        HorizontalLayout buttonBar = new HorizontalLayout(btnNew, btnDelete);
+
+        Grid<Bank> grid = new Grid<>();
+        ListDataProvider<Bank> dataProvider = DataProvider.ofCollection(bankRepo.findAll());
+        grid.setDataProvider(dataProvider);
+        grid.getEditor().setEnabled(true);
+        grid.setSizeFull();
+
+        TextField tfName = new TextField();
+        tfName.setWidth(70, Unit.PERCENTAGE);
+        tfName.setMaxLength(50);
+        tfName.setRequiredIndicatorVisible(true);
+        grid.addColumn(Bank::getName).setCaption("Nama")
+        .setEditorComponent(tfName, Bank::setName)
+        .setSortable(true);
+
+        grid.getEditor().addSaveListener(evt -> {
+        	try {
+                Bank item = evt.getBean();
+                bankRepo.save(item);
+                dataProvider.refreshAll();
+            } catch (Exception e) {
+                Notification.show("Rekod tidak berjaya dikemaskini.", Notification.Type.ERROR_MESSAGE);
+            }
+		});
+        grid.addSelectionListener(evt -> {
+        	if (evt.getFirstSelectedItem().isPresent()) {
+                btnDelete.setEnabled(true);
+            } else {
+                btnDelete.setEnabled(false);
+            }
+        });
+
+        btnDelete.addClickListener(evt -> {
+        	try {
+	        	if (!grid.getSelectedItems().isEmpty()) {
+	                Bank item = grid.getSelectedItems().iterator().next();
+	                bankRepo.delete(item);
+	                dataProvider.getItems().remove(item);
+	                dataProvider.refreshAll();
+	            }
+        	}catch (Exception e) {
+        		 Notification.show("Rekod tidak berjaya dipadam.", Notification.Type.ERROR_MESSAGE);
+			}
+        });
+
+        btnNew.addClickListener(evt -> {
+        	dataProvider.getItems().add(new Bank());
             dataProvider.refreshAll();
         });
 

@@ -56,7 +56,7 @@ public class MyUI extends UI implements ViewDisplay{
         sideMenu.addNavigation("Rekod Harian Pelajar", VaadinIcons.RECORDS, DailyActivityRecordView.NAME);
         sideMenu.addNavigation("Aliran Tunai", VaadinIcons.MONEY_WITHDRAW, CashFlowView.NAME);
         sideMenu.addNavigation("Bayaran", VaadinIcons.MONEY_DEPOSIT, PaymentView.NAME);
-        sideMenu.addNavigation("Tetapan", VaadinIcons.TOOLS, ConfigureView.NAME);
+        sideMenu.addNavigation("Penyelenggaraan", VaadinIcons.TOOLS, ConfigureView.NAME);
     }
 
 	@Override

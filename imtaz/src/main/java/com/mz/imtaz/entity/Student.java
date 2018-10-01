@@ -35,6 +35,8 @@ public class Student implements Serializable {
 	@Column(nullable = false, length=8)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Integer pkid;
+	@Column(nullable = true, length=50)
+	private String studentNo;
 	private RegistrationType registrationType;
 	@Setter(value = AccessLevel.NONE)
 	@Column(nullable = false, length=250)
