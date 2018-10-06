@@ -300,7 +300,7 @@ public class StudentRegisterView extends VerticalLayout implements View{
 	    	.forField(cbGuardianType)
 	    	.bind(Student::getGuardianType, Student::setGuardianType);
 
-        TextField tfFatherName = new NumberField("Nama Bapa/Penjaga");
+        TextField tfFatherName = new TextField("Nama Bapa/Penjaga");
         tfFatherName.setRequiredIndicatorVisible(true);
         tfFatherName.setMaxLength(250);
         tfFatherName.setWidth(WIDTH, Unit.PIXELS);
@@ -316,7 +316,7 @@ public class StudentRegisterView extends VerticalLayout implements View{
 	    	.forField(tfFatherIcNo)
 	    	.bind(Student::getFatherIcNo, Student::setFatherIcNo);
 
-        TextField tfFatherJob = new NumberField("Pekerjaan Bapa/Penjaga");
+        TextField tfFatherJob = new TextField("Pekerjaan Bapa/Penjaga");
         tfFatherJob.setRequiredIndicatorVisible(false);
         tfFatherJob.setMaxLength(250);
         tfFatherJob.setWidth(WIDTH, Unit.PIXELS);
@@ -324,7 +324,7 @@ public class StudentRegisterView extends VerticalLayout implements View{
 	    	.forField(tfFatherJob)
 	    	.bind(Student::getFatherJob, Student::setFatherJob);
 
-        TextField tfMotherName = new NumberField("Nama Ibu");
+        TextField tfMotherName = new TextField("Nama Ibu");
         tfMotherName.setRequiredIndicatorVisible(false);
         tfMotherName.setMaxLength(250);
         tfMotherName.setWidth(WIDTH, Unit.PIXELS);
@@ -340,7 +340,7 @@ public class StudentRegisterView extends VerticalLayout implements View{
 	    	.forField(tfMotherIcNo)
 	    	.bind(Student::getMotherIcNo, Student::setMotherIcNo);
 
-        TextField tfMotherJob = new NumberField("Pekerjaan Ibu");
+        TextField tfMotherJob = new TextField("Pekerjaan Ibu");
         tfMotherJob.setRequiredIndicatorVisible(false);
         tfMotherJob.setMaxLength(250);
         tfMotherJob.setWidth(WIDTH, Unit.PIXELS);
@@ -348,7 +348,7 @@ public class StudentRegisterView extends VerticalLayout implements View{
 	    	.forField(tfMotherJob)
 	    	.bind(Student::getMotherJob, Student::setMotherJob);
 
-        TextField tfParentTelNo = new NumberField("No Telefon");
+        TextField tfParentTelNo = new TextField("No Telefon");
         tfParentTelNo.setRequiredIndicatorVisible(false);
         tfParentTelNo.setMaxLength(20);
         tfParentTelNo.setWidth(WIDTH, Unit.PIXELS);
@@ -356,7 +356,7 @@ public class StudentRegisterView extends VerticalLayout implements View{
 	    	.forField(tfParentTelNo)
 	    	.bind(Student::getParentTelNo, Student::setParentTelNo);
 
-        TextField tfParentHpNo = new NumberField("No HP");
+        TextField tfParentHpNo = new TextField("No HP");
         tfParentHpNo.setRequiredIndicatorVisible(false);
         tfParentHpNo.setMaxLength(20);
         tfParentHpNo.setWidth(WIDTH, Unit.PIXELS);

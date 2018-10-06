@@ -5,6 +5,7 @@ import org.vaadin.teemusa.sidemenu.SideMenu;
 import com.mz.imtaz.view.CashFlowView;
 import com.mz.imtaz.view.ConfigureView;
 import com.mz.imtaz.view.DailyActivityRecordView;
+import com.mz.imtaz.view.DiciplineRecordView;
 import com.mz.imtaz.view.MemorizeTargetView;
 import com.mz.imtaz.view.PaymentView;
 import com.mz.imtaz.view.RecordsRegisterView;
@@ -54,6 +55,7 @@ public class MyUI extends UI implements ViewDisplay{
         sideMenu.addNavigation("Pendaftaran Kelas", VaadinIcons.BUILDING, RecordsRegisterView.NAME);
         sideMenu.addNavigation("Kemasukan Target Hafazan", VaadinIcons.RECORDS, MemorizeTargetView.NAME);
         sideMenu.addNavigation("Rekod Harian Pelajar", VaadinIcons.RECORDS, DailyActivityRecordView.NAME);
+        sideMenu.addNavigation("Rekod Disiplin Pelajar", VaadinIcons.EXCLAMATION_CIRCLE, DiciplineRecordView.NAME);
         sideMenu.addNavigation("Aliran Tunai", VaadinIcons.MONEY_WITHDRAW, CashFlowView.NAME);
         sideMenu.addNavigation("Bayaran", VaadinIcons.MONEY_DEPOSIT, PaymentView.NAME);
         sideMenu.addNavigation("Penyelenggaraan", VaadinIcons.TOOLS, ConfigureView.NAME);

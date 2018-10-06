@@ -602,6 +602,7 @@ public class ConfigureView extends VerticalLayout implements View {
                 Notification.show("Rekod tidak berjaya dikemaskini.", Notification.Type.ERROR_MESSAGE);
             }
 		});
+        
         grid.addSelectionListener(evt -> {
         	if (evt.getFirstSelectedItem().isPresent()) {
                 btnDelete.setEnabled(true);

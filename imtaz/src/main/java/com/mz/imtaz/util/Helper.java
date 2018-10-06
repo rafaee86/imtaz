@@ -31,5 +31,13 @@ public class Helper {
 	public static String dateFormat(Date date) {
 		return dateFormat(date, DATE_FORMAT_DEFAULT);
 	}
+	
+	public static <T> T notNull(T t) {
+		try {
+			return t;
+		}catch (Exception e) {
+			return null;
+		}
+	}
 			
 }

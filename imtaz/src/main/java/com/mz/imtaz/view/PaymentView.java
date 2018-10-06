@@ -203,7 +203,9 @@ public class PaymentView extends VerticalLayout implements View {
 		List<PaymentDescription> paymentDescList = paymentDescRepo.findAll(Sort.by(Sort.Direction.ASC, "description"));
 		cbDescription.setItems(paymentDescList);
 		grid
-			.addColumn(PaymentItem::getDescription, itm -> itm != null ? itm.getDescription() : "").setCaption("Perihal Bayaran").setId("description")
+			.addColumn(PaymentItem::getDescription, itm -> itm != null ? itm.getDescription() : "")
+			.setCaption("Perihal Bayaran")
+			.setId("description")
 			.setEditorComponent(cbDescription, PaymentItem::setDescription)
 			.setExpandRatio(1)
 			.setSortable(true);
