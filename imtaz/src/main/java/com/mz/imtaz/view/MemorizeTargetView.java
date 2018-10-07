@@ -12,13 +12,16 @@ import org.springframework.data.domain.Pageable;
 import com.mz.imtaz.entity.ClassRoomDetail;
 import com.mz.imtaz.entity.Juzuk;
 import com.mz.imtaz.entity.MemorizeTarget;
+import com.mz.imtaz.entity.RecordUtility;
 import com.mz.imtaz.entity.Records;
 import com.mz.imtaz.entity.Student;
 import com.mz.imtaz.repository.ClassRoomDetailRepository;
 import com.mz.imtaz.repository.ClassRoomRepository;
 import com.mz.imtaz.repository.MemorizeTargetRepository;
+import com.mz.imtaz.repository.RecordsHistoryRepository;
 import com.mz.imtaz.repository.RecordsRepository;
 import com.mz.imtaz.repository.StudentRepository;
+import com.mz.imtaz.util.Helper;
 import com.vaadin.addon.pagination.Pagination;
 import com.vaadin.addon.pagination.PaginationResource;
 import com.vaadin.data.provider.DataProvider;
@@ -64,6 +67,8 @@ public class MemorizeTargetView extends VerticalLayout implements View {
 	private ClassRoomDetailRepository classRoomDetailRepo;
 	@Autowired
 	private ClassRoomRepository classRoomRepo;
+	@Autowired
+	private RecordsHistoryRepository recordsHistoryRepository;
 
 	@PostConstruct
     public void init() {
@@ -99,7 +104,7 @@ public class MemorizeTargetView extends VerticalLayout implements View {
         cbStudent.setEmptySelectionAllowed(false);
 
         cbClassRoomDetail.addSelectionListener(listener -> {
-        	if(listener.getSelectedItem() != null && listener.getSelectedItem().get() != null)
+        	if(Helper.notNull(listener.getSelectedItem().get()) != null)
         		cbStudent.setItems(studentRepo.findByClassRoomDetail(listener.getSelectedItem().get()));
         });
 
@@ -141,7 +146,11 @@ public class MemorizeTargetView extends VerticalLayout implements View {
         	try {
 	        	if (!grid.getSelectedItems().isEmpty()) {
 	                MemorizeTarget item = grid.getSelectedItems().iterator().next();
-	                targetRepo.delete(item);
+	                item.getRecordUtility().disabled();
+	                if(item.getPkid() != null) {
+	                	targetRepo.save(item);
+	            		Helper.setRecordsHistory(recordsHistoryRepository, "Memadam Target Hafazan Bulanan.", Helper.notNull(item.getRecords().getStudent().getPkid()));
+	                }
 	                dataProvider.getItems().remove(item);
 	                dataProvider.refreshAll();
 	            }
@@ -341,6 +350,8 @@ public class MemorizeTargetView extends VerticalLayout implements View {
         		target.setLastPage(Integer.parseInt(tfLastPage.getValue()));
         		target.setTotalDailyTarget(new Juzuk(Integer.parseInt(tfTotalTargetJuz.getValue()), Integer.parseInt(tfTotalTargetPage.getValue()), Integer.parseInt(tfTotalTargetLine.getValue())));
         		target.setTotalMemorize(new Juzuk(Integer.parseInt(tfTotalMemorizeJuz.getValue()), Integer.parseInt(tfTotalMemorizePage.getValue()), Integer.parseInt(tfTotalMemorizeLine.getValue())));
+
+        		target.setRecordUtility(new RecordUtility());
         		MemorizeTarget editedBean = targetRepo.save(target);
         		if(isNew) {
         			dataProvider.getItems().add(editedBean);
@@ -348,6 +359,8 @@ public class MemorizeTargetView extends VerticalLayout implements View {
         			dataProvider.getItems().remove(target);
         			dataProvider.getItems().add(editedBean);
         		}
+        		
+        		Helper.setRecordsHistory(recordsHistoryRepository, (isNew ? "Kemasukan" : "Mengemaskini") + " Target Hafazan Bulanan.", Helper.notNull(editedBean.getRecords().getStudent().getPkid()));
             	dataProvider.refreshAll();
             	modal.close();
         		Notification.show("Rekod kemasukan Hafazan Harian Telah Berjaya Di Kemaskini.", Type.HUMANIZED_MESSAGE);

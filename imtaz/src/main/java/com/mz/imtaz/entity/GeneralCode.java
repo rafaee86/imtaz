@@ -37,7 +37,7 @@ public class GeneralCode {
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Integer level;
 	@Embedded
-	private RecordUtility recordInfo;
+	private RecordUtility recordUtility;
 
 	public void setDescription(String description) {
 		this.description = description != null ? WordUtils.capitalizeFully(description) : null;

@@ -128,7 +128,7 @@ public class DailyActivityRecordView extends VerticalLayout implements View{
         	}
         });
 
-		List<DailyRecordItem> dailyItemList = dailyItemRepo.findAll(Sort.by(Sort.Direction.ASC, "sequence"));
+		List<DailyRecordItem> dailyItemList = dailyItemRepo.findAllActive(Sort.by(Sort.Direction.ASC, "sequence"));
 		if(dailyItemList == null) dailyItemList = new ArrayList<DailyRecordItem>();
 
 		Map<Integer, String> mapItem = dailyItemList.stream().collect(Collectors.toMap(DailyRecordItem::getPkid, DailyRecordItem::getDescription));
@@ -161,7 +161,8 @@ public class DailyActivityRecordView extends VerticalLayout implements View{
         	try {
 	        	if (!grid.getSelectedItems().isEmpty()) {
 //	                DailyActivity item = grid.getSelectedItems().iterator().next();
-//	                dailyActivityRepo.delete(item);
+//	                item.getRecordUtility().disabled();
+//	                if(item.getPkid() != null)dailyActivityRepo.save(item);
 //	                dataProvider.getItems().remove(item);
 //	                dataProvider.refreshAll();
 	            }

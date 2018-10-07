@@ -43,7 +43,7 @@ public class ClassRoomDetail implements Serializable {
 	@Setter(value = AccessLevel.NONE)
 	private String name;
 	@Embedded
-	private RecordUtility recordInfo;
+	private RecordUtility recordUtility;
 
 	public void setName(String name) {
 		this.name = name != null ? WordUtils.capitalizeFully(name) : null;

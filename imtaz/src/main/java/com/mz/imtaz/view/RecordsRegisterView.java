@@ -17,8 +17,10 @@ import com.mz.imtaz.entity.Records;
 import com.mz.imtaz.entity.Student;
 import com.mz.imtaz.repository.ClassRoomDetailRepository;
 import com.mz.imtaz.repository.ClassRoomRepository;
+import com.mz.imtaz.repository.RecordsHistoryRepository;
 import com.mz.imtaz.repository.RecordsRepository;
 import com.mz.imtaz.repository.StudentRepository;
+import com.mz.imtaz.util.Helper;
 import com.vaadin.addon.pagination.Pagination;
 import com.vaadin.addon.pagination.PaginationResource;
 import com.vaadin.data.provider.DataProvider;
@@ -58,6 +60,8 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
 	private ClassRoomDetailRepository classRoomDetailRepo;
 	@Autowired
 	private StudentRepository studentRepo;
+	@Autowired
+	private RecordsHistoryRepository recordsHistoryRepository;
 
 	private ListDataProvider<Records> dataProvider;
 	private Long total = 0L;
@@ -83,7 +87,7 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
 
         ComboBox<ClassRoom> cbClassRoom = new ComboBox<>("Kategori Kelas");
         cbClassRoom.setWidth(WIDTH, Unit.PIXELS);
-        cbClassRoom.setItems(classRoomRepo.findAll());
+        cbClassRoom.setItems(classRoomRepo.findAllActive(Sort.by(Sort.Direction.ASC, "level")));
         cbClassRoom.setItemCaptionGenerator(item -> item.getName());
         cbClassRoom.setEmptySelectionAllowed(false);
 
@@ -152,8 +156,9 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
         btnSave.addClickListener(evt -> {
         	for(Records item : dataProvider.getItems()) {
         		if(item.getRecordUtility() == null) {
-        			item.setRecordUtility(new RecordUtility(true, 0));
+        			item.setRecordUtility(new RecordUtility());
         			item = recordsRepo.save(item);
+            		Helper.setRecordsHistory(recordsHistoryRepository, "Kemaskini Pelajar Di Kelas Baru.", Helper.notNull(item.getStudent().getPkid()));
         		}
         	}
         	Notification.show("Rekod Kemasukan Pelajar Telah Berjaya Di Kemaskini.", Type.HUMANIZED_MESSAGE);
@@ -184,7 +189,7 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
 		grid.addColumn(Student::getName).setCaption("Nama");
 		grid.addColumn(Student::getIcNo).setCaption("No K/P");
 
-		List<Student> studentList = studentRepo.findAll();
+		List<Student> studentList = studentRepo.findAllActive(Sort.by(Sort.Direction.ASC, "name"));
 		List<Student> subStudentList = studentList != null && studentList.size() > studentLimit ? studentList.subList(0, studentLimit) : studentList;
 		Long total = Long.valueOf(subStudentList != null ? studentList.size() : 0);
         grid.addSelectionListener(listener -> {
@@ -202,7 +207,7 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
 		pagination.addPageChangeListener(event -> {
 			Pageable pageable = PageRequest.of(event.pageIndex(), event.limit());
 			String tfValue = tfSearch.getValue() != null ? tfSearch.getValue().toUpperCase() : "";
-			List<Student> pageStudAllList = studentRepo.findByName(tfValue);
+			List<Student> pageStudAllList = studentRepo.findByName(tfValue, Sort.by(Sort.Direction.ASC, "name"));
 			Long totalAll = Long.valueOf(pageStudAllList != null ? pageStudAllList.size() : 0);
 			List<Student> pageStudSubList = studentRepo.findByNamePageable(tfValue, pageable);
 			pagination.setTotalCount(totalAll);
@@ -212,7 +217,7 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
 		btnSearch.addClickListener(listener -> {
 			Pageable pageable = PageRequest.of(studentPage, studentLimit, Sort.Direction.ASC, "name");
 			String tfValue = tfSearch.getValue() != null ? tfSearch.getValue().toUpperCase() : "";
-			List<Student> pageStudAllList = studentRepo.findByName(tfValue);
+			List<Student> pageStudAllList = studentRepo.findByName(tfValue, Sort.by(Sort.Direction.ASC, "name"));
 			Long totalAll = Long.valueOf(pageStudAllList != null ? pageStudAllList.size() : 0);
 			List<Student> pageStudSubList = studentRepo.findByNamePageable(tfValue, pageable);
 			pagination.setTotalCount(totalAll);

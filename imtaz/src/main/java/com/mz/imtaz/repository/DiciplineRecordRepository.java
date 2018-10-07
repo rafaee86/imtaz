@@ -13,10 +13,10 @@ import com.mz.imtaz.entity.Student;
 
 public interface DiciplineRecordRepository extends JpaRepository<DiciplineRecord, Integer> {
 	
-	@Query("Select a from DiciplineRecord a where a.records.classRoomDetail = :classRoomDetail and a.records.student = :student order by a.records.student.name asc")
+	@Query("Select a from DiciplineRecord a where a.recordUtility.statusFlag = true and a.records.classRoomDetail = :classRoomDetail and a.records.student = :student order by a.records.student.name asc")
 	List<DiciplineRecord> findByClassRoomDetail(@Param("classRoomDetail") ClassRoomDetail classRoomDetail, @Param("student") Student student);
 	
-	@Query("Select a from DiciplineRecord a where a.records.classRoomDetail = :classRoomDetail and a.records.student = :student order by a.records.student.name asc")
+	@Query("Select a from DiciplineRecord a where a.recordUtility.statusFlag = true and a.records.classRoomDetail = :classRoomDetail and a.records.student = :student order by a.records.student.name asc")
 	List<DiciplineRecord> findByClassRoomDetailPageable(@Param("classRoomDetail") ClassRoomDetail classRoomDetail, @Param("student") Student student, Pageable pageable);
 
 }

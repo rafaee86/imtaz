@@ -26,13 +26,27 @@ public class RecordUtility implements Serializable {
 	private Integer userPkid;
 	@Temporal(TemporalType.TIMESTAMP)
     @Column
-	private Date updatedDate = new Date();
+	private Date createdDate;
+	@Temporal(TemporalType.TIMESTAMP)
+    @Column
+	private Date updatedDate;
+	@Temporal(TemporalType.TIMESTAMP)
+    @Column
+	private Date deletedDate;
+	public RecordUtility() {
+		this.statusFlag = true;
+		this.createdDate = new Date();
+	}
 
-	public RecordUtility() {}
-
-	public RecordUtility(Boolean statusFlag, Integer userPkid) {
-		this.statusFlag = statusFlag;
+	public RecordUtility(Integer userPkid) {
 		this.userPkid = userPkid;
+		this.statusFlag = true;
+		this.createdDate = new Date();
+	}
+	
+	public void disabled() {
+		this.statusFlag = false;
+		this.deletedDate = new Date();
 	}
 
 }

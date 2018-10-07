@@ -34,7 +34,7 @@ public class PaymentDescription {
 	@Column(nullable = true, precision = 10, scale = 2)
 	private BigDecimal amount;
 	@Embedded
-	private RecordUtility recordInfo;
+	private RecordUtility recordUtility;
 
 	public void setDescription(String description) {
 		this.description = description != null ? WordUtils.capitalizeFully(description) : null;

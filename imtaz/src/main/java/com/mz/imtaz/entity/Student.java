@@ -106,7 +106,7 @@ public class Student implements Serializable {
 	private String registerJustification2;
 	private Integer status;
 	@Embedded
-	private RecordUtility recordInfo;
+	private RecordUtility recordUtility;
 
 	public void setName(String name) {
 		this.name = name != null ? WordUtils.capitalizeFully(name) : null;

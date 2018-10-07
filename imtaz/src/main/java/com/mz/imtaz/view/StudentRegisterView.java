@@ -4,21 +4,22 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.vaadin.ui.NumberField;
 
+import com.mz.imtaz.entity.RecordUtility;
 import com.mz.imtaz.entity.Student;
 import com.mz.imtaz.enums.GuardianType;
 import com.mz.imtaz.enums.RegistrationType;
+import com.mz.imtaz.repository.RecordsHistoryRepository;
 import com.mz.imtaz.repository.StudentRepository;
+import com.mz.imtaz.util.Helper;
 import com.vaadin.addon.pagination.Pagination;
 import com.vaadin.addon.pagination.PaginationResource;
 import com.vaadin.data.Binder;
@@ -53,6 +54,8 @@ public class StudentRegisterView extends VerticalLayout implements View{
 
 	@Autowired
 	private StudentRepository studentRepo;
+	@Autowired
+	private RecordsHistoryRepository recordsHistoryRepository;
 
 	private ListDataProvider<Student> dataProvider;
 
@@ -85,7 +88,7 @@ public class StudentRegisterView extends VerticalLayout implements View{
 		grid.addColumn(Student::getName).setCaption("Nama");
 		grid.addColumn(Student::getIcNo).setCaption("No K/P");
 
-		List<Student> studentList = studentRepo.findAll();
+		List<Student> studentList = studentRepo.findAllActive(Sort.by(Sort.Direction.ASC, "name"));
 		List<Student> subStudentList = studentList != null && studentList.size() > limit ? studentList.subList(0, limit) : studentList;
 		Long total = Long.valueOf(subStudentList != null ? studentList.size() : 0);
         dataProvider = DataProvider.ofCollection(subStudentList != null ? subStudentList : new ArrayList<Student>());
@@ -101,11 +104,11 @@ public class StudentRegisterView extends VerticalLayout implements View{
 	    pagination.setItemsPerPage(10, 20, 50, 100);
 		pagination.addPageChangeListener(event -> {
 			Pageable pageable = PageRequest.of(event.pageIndex(), event.limit(), Sort.Direction.ASC,"name");
-			List<Student> pageStudAllList = studentRepo.findAll();
+			List<Student> pageStudAllList = studentRepo.findAllActive(Sort.by(Sort.Direction.ASC, "name"));
 			Long totalAll = Long.valueOf(pageStudAllList != null ? pageStudAllList.size() : 0);
-			Page<Student> pageStudSubList = studentRepo.findAll(pageable);
+			List<Student> pageStudSubList = studentRepo.findAllActive(pageable);
 			pagination.setTotalCount(totalAll);
-			grid.setItems(pageStudSubList.stream().collect(Collectors.toList()));
+			grid.setItems(pageStudSubList);
 		});
 
         btnNew.addClickListener(evt -> {
@@ -405,6 +408,7 @@ public class StudentRegisterView extends VerticalLayout implements View{
         btnSave.addClickListener(listener -> {
         	Boolean isValid = binder.writeBeanIfValid(student);
         	if(isValid != null && isValid) {
+        		student.setRecordUtility(new RecordUtility());
         		Student editedBean = studentRepo.save(student);
         		if(isNew) {
         			dataProvider.getItems().add(editedBean);
@@ -412,6 +416,7 @@ public class StudentRegisterView extends VerticalLayout implements View{
         			dataProvider.getItems().remove(student);
         			dataProvider.getItems().add(editedBean);
         		}
+        		Helper.setRecordsHistory(recordsHistoryRepository, (isNew ? "Mendaftar" : "Mengemaskini") + " Maklumat Pelajar", editedBean.getPkid());
             	dataProvider.refreshAll();
             	modal.close();
         	}else {
@@ -422,7 +427,11 @@ public class StudentRegisterView extends VerticalLayout implements View{
         	try {
 	        	if (binder.getBean() != null) {
 	                Student item = binder.getBean();
-	                studentRepo.delete(item);
+	                item.getRecordUtility().disabled();
+	                if(item.getPkid() != null) {
+	                	studentRepo.save(item);
+	                	Helper.setRecordsHistory(recordsHistoryRepository, "Memadam Maklumat Pelajar", item.getPkid());
+	                }
 	                dataProvider.getItems().remove(item);
 	                dataProvider.refreshAll();
 	            	modal.close();

@@ -22,6 +22,7 @@ import com.mz.imtaz.entity.Payment;
 import com.mz.imtaz.entity.PaymentDescription;
 import com.mz.imtaz.entity.PaymentItem;
 import com.mz.imtaz.entity.PaymentMonth;
+import com.mz.imtaz.entity.RecordUtility;
 import com.mz.imtaz.entity.Records;
 import com.mz.imtaz.entity.RunningNumber;
 import com.mz.imtaz.entity.Student;
@@ -93,8 +94,6 @@ public class PaymentView extends VerticalLayout implements View {
 
 	private ListDataProvider<PaymentItem> dataProvider;
 
-	@Autowired
-	private ClassRoomRepository classRoomRepo;
 	@Autowired
 	private ClassRoomDetailRepository classRoomDetailRepo;
 	@Autowired
@@ -176,7 +175,7 @@ public class PaymentView extends VerticalLayout implements View {
         cbBank.setWidth(50, Unit.PERCENTAGE);
         cbBank.setItemCaptionGenerator(item -> item.getName());
         cbBank.setEmptySelectionAllowed(false);
-        cbBank.setItems(bankRepo.findAll(Sort.by(Sort.Direction.ASC, "name")));
+        cbBank.setItems(bankRepo.findAllActive(Sort.by(Sort.Direction.ASC, "name")));
         
         TextField tfReferenceId = new TextField();
         tfReferenceId.setPlaceholder("No Rujukan");
@@ -200,7 +199,7 @@ public class PaymentView extends VerticalLayout implements View {
 		cbDescription.setItemCaptionGenerator(itm -> itm != null ? itm.getDescription() + " - RM" + (itm.getAmount() != null ? itm.getAmount().toPlainString() : "0.00") : "");
 		cbDescription.setRequiredIndicatorVisible(true);
 		cbDescription.setSizeFull();
-		List<PaymentDescription> paymentDescList = paymentDescRepo.findAll(Sort.by(Sort.Direction.ASC, "description"));
+		List<PaymentDescription> paymentDescList = paymentDescRepo.findAllActive(Sort.by(Sort.Direction.ASC, "description"));
 		cbDescription.setItems(paymentDescList);
 		grid
 			.addColumn(PaymentItem::getDescription, itm -> itm != null ? itm.getDescription() : "")
@@ -317,7 +316,7 @@ public class PaymentView extends VerticalLayout implements View {
 			payment.setReferenceId(tfReferenceId.getValue());
 			payment.setTransactionId(generateTransactionId());
 			payment.setTotalAmount(BigDecimal.ZERO);
-
+			payment.setRecordUtility(new RecordUtility());
 			payment = paymentRepo.save(payment);
 			
 			if(cbMonth.getValue() != null)

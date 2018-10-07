@@ -5,6 +5,10 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 
+import com.mz.imtaz.entity.RecordUtility;
+import com.mz.imtaz.entity.RecordsHistory;
+import com.mz.imtaz.repository.RecordsHistoryRepository;
+
 public class Helper {
 	
 	private static final String DATE_FORMAT_DEFAULT = "dd/MM/yyyy";
@@ -39,5 +43,14 @@ public class Helper {
 			return null;
 		}
 	}
-			
+	
+	public static void setRecordsHistory(RecordsHistoryRepository repo, String description, Integer studentPkid) {
+		if(repo != null) {
+			RecordsHistory recordsHistory = new RecordsHistory();
+			recordsHistory.setTransactionDate(new Date());
+			recordsHistory.setDescription(description);
+			recordsHistory.setStudentPkid(studentPkid);
+			repo.save(recordsHistory);
+		}
+	}
 }

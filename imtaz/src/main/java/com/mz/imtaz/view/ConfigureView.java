@@ -3,13 +3,18 @@ package com.mz.imtaz.view;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.vaadin.ui.NumberField;
 
 import com.mz.imtaz.entity.Bank;
@@ -19,6 +24,7 @@ import com.mz.imtaz.entity.DailyRecordItem;
 import com.mz.imtaz.entity.Dicipline;
 import com.mz.imtaz.entity.GeneralCode;
 import com.mz.imtaz.entity.PaymentDescription;
+import com.mz.imtaz.entity.RecordUtility;
 import com.mz.imtaz.entity.School;
 import com.mz.imtaz.entity.Teacher;
 import com.mz.imtaz.enums.Salutation;
@@ -96,6 +102,8 @@ public class ConfigureView extends VerticalLayout implements View {
 	private BankRepository bankRepo;
 	@Autowired
 	private GeneralCodeRepository generalCodeRepo;
+	
+	private Map<String, Object> dataProviderMap = new HashMap<String, Object>();
 
 	@PostConstruct
     public void init() {
@@ -114,8 +122,33 @@ public class ConfigureView extends VerticalLayout implements View {
 		tab.addTab(getTabContent(TabType.PAYMENT_DESCRIPTION.name()), "Perihal Bayaran").setId(TabType.PAYMENT_DESCRIPTION.name());
 		tab.addTab(getTabContent(TabType.BANK.name()), "Bank").setId(TabType.BANK.name());
 		tab.addTab(getTabContent(TabType.GENERAL.name()), "Am").setId(TabType.GENERAL.name());
+		
+		tab.addSelectedTabChangeListener(listener -> {
+			String id = listener.getTabSheet().getId();
+			tabListener(id);
+		});
 
 		addComponent(tab);
+	}
+	
+	private void tabListener(String id) {
+		if(TabType.CLASSROOM.name().equals(id)) {
+			dataProviderMap.put(id, DataProvider.ofCollection(classRoomRepo.findAllActive(Sort.by(Sort.Direction.ASC, "level"))));
+		}else if(TabType.TEACHER.name().equals(id)) {
+			dataProviderMap.put(id, DataProvider.ofCollection(teacherRepo.findAllActive(Sort.by(Sort.Direction.ASC, "name"))));
+		}else if(TabType.CLASSROOM_DETAIL.name().equals(id)) {
+			dataProviderMap.put(id, DataProvider.ofCollection(classRoomDetailRepo.findAllWithOrder()));
+		}else if(TabType.DICIPLINE.name().equals(id)) {
+			dataProviderMap.put(id, DataProvider.ofCollection(diciplineRepo.findAllActive(Sort.by(Sort.Direction.ASC, "description"))));
+		}else if(TabType.STUDENT_ACTIVITY.name().equals(id)) {
+			dataProviderMap.put(id, DataProvider.ofCollection(dailyRecordItemRepo.findAllActive(Sort.by(Sort.Direction.ASC,"sequence"))));
+		}else if(TabType.PAYMENT_DESCRIPTION.name().equals(id)) {
+			dataProviderMap.put(id, DataProvider.ofCollection(paymentDescRepo.findAllActive(Sort.by(Sort.Direction.ASC, "description"))));
+		}else if(TabType.BANK.name().equals(id)) {
+			dataProviderMap.put(id, DataProvider.ofCollection(bankRepo.findAllActive(Sort.by(Sort.Direction.ASC, "name"))));
+		}else if(TabType.GENERAL.name().equals(id)) {
+			dataProviderMap.put(id, DataProvider.ofCollection(new ArrayList<GeneralCode>()));
+		}
 	}
 
 	private VerticalLayout getTabContent(String id) {
@@ -155,6 +188,9 @@ public class ConfigureView extends VerticalLayout implements View {
 
         List<School> schoolList = schoolRepo.findAll();
         School school = schoolList != null && schoolList.size() > 0 ? schoolList.get(0) : new School();
+        if(school.getPoscode() == null)
+        	school.setPoscode(0);
+        
         Binder<School> binder = new Binder<>();
         binder.setBean(school);
 
@@ -229,6 +265,7 @@ public class ConfigureView extends VerticalLayout implements View {
         btnSave.addClickListener(evt ->{
         	Boolean isValid = binder.writeBeanIfValid(school);
         	if(isValid != null && isValid) {
+        		school.setRecordUtility(new RecordUtility());
         		School saveItem = schoolRepo.save(school);
         		binder.setBean(saveItem);
         		Notification.show("Kemaskini maklumat sekolah telah berjaya.", Type.HUMANIZED_MESSAGE);
@@ -252,6 +289,7 @@ public class ConfigureView extends VerticalLayout implements View {
 		return mainLayout;
 	}
 
+	@SuppressWarnings("unchecked")
 	private VerticalLayout configureClassRoomTab() {
 
 		VerticalLayout mainLayout = new VerticalLayout();
@@ -264,7 +302,8 @@ public class ConfigureView extends VerticalLayout implements View {
         HorizontalLayout buttonBar = new HorizontalLayout(btnNew, btnDelete);
 
         Grid<ClassRoom> grid = new Grid<>();
-        ListDataProvider<ClassRoom> dataProvider = DataProvider.ofCollection(classRoomRepo.findAll());
+        tabListener(TabType.CLASSROOM.name());
+        ListDataProvider<ClassRoom> dataProvider = (ListDataProvider<ClassRoom>) dataProviderMap.get(TabType.CLASSROOM.name());
         grid.setDataProvider(dataProvider);
         grid.getEditor().setEnabled(true);
         grid.setSizeFull();
@@ -291,6 +330,7 @@ public class ConfigureView extends VerticalLayout implements View {
         grid.getEditor().addSaveListener(evt -> {
         	try {
                 ClassRoom item = evt.getBean();
+        		item.setRecordUtility(new RecordUtility());
                 classRoomRepo.save(item);
                 dataProvider.refreshAll();
             } catch (Exception e) {
@@ -309,7 +349,8 @@ public class ConfigureView extends VerticalLayout implements View {
         	try {
 	        	if (!grid.getSelectedItems().isEmpty()) {
 	                ClassRoom item = grid.getSelectedItems().iterator().next();
-	                classRoomRepo.delete(item);
+	                item.getRecordUtility().disabled();
+	                if(item.getPkid() != null)classRoomRepo.save(item);
 	                dataProvider.getItems().remove(item);
 	                dataProvider.refreshAll();
 	            }
@@ -332,6 +373,7 @@ public class ConfigureView extends VerticalLayout implements View {
         return mainLayout;
 	}
 
+	@SuppressWarnings("unchecked")
 	private VerticalLayout configureTeacherTab() {
 
 		VerticalLayout mainLayout = new VerticalLayout();
@@ -344,7 +386,8 @@ public class ConfigureView extends VerticalLayout implements View {
         HorizontalLayout buttonBar = new HorizontalLayout(btnNew, btnDelete);
 
         Grid<Teacher> grid = new Grid<>();
-        ListDataProvider<Teacher> dataProvider = DataProvider.ofCollection(teacherRepo.findAll());
+        tabListener(TabType.TEACHER.name());
+        ListDataProvider<Teacher> dataProvider = (ListDataProvider<Teacher>) dataProviderMap.get(TabType.TEACHER.name());
         grid.setDataProvider(dataProvider);
         grid.getEditor().setEnabled(true);
         grid.setSizeFull();
@@ -364,6 +407,7 @@ public class ConfigureView extends VerticalLayout implements View {
         grid.getEditor().addSaveListener(evt -> {
         	try {
                 Teacher item = evt.getBean();
+                item.setRecordUtility(new RecordUtility());
                 teacherRepo.save(item);
                 dataProvider.refreshAll();
             } catch (Exception e) {
@@ -382,7 +426,8 @@ public class ConfigureView extends VerticalLayout implements View {
         	try {
 	        	if (!grid.getSelectedItems().isEmpty()) {
 	                Teacher item = grid.getSelectedItems().iterator().next();
-	                teacherRepo.delete(item);
+	                item.getRecordUtility().disabled();
+	                if(item.getPkid() != null)teacherRepo.save(item);
 	                dataProvider.getItems().remove(item);
 	                dataProvider.refreshAll();
 	            }
@@ -403,6 +448,7 @@ public class ConfigureView extends VerticalLayout implements View {
         return mainLayout;
 	}
 
+	@SuppressWarnings("unchecked")
 	private VerticalLayout configureClassRoomDetailTab() {
 
 		VerticalLayout mainLayout = new VerticalLayout();
@@ -414,9 +460,10 @@ public class ConfigureView extends VerticalLayout implements View {
         Button btnRefresh = new Button(VaadinIcons.REFRESH);
         btnDelete.setEnabled(false);
         HorizontalLayout buttonBar = new HorizontalLayout(btnNew, btnDelete, btnRefresh);
-
+        
         Grid<ClassRoomDetail> grid = new Grid<>();
-        ListDataProvider<ClassRoomDetail> dataProvider = DataProvider.ofCollection(classRoomDetailRepo.findAllWithOrder());
+        tabListener(TabType.CLASSROOM_DETAIL.name());
+        ListDataProvider<ClassRoomDetail> dataProvider = (ListDataProvider<ClassRoomDetail>) dataProviderMap.get(TabType.CLASSROOM_DETAIL.name());;
         grid.setDataProvider(dataProvider);
         grid.getEditor().setEnabled(true);
         grid.setSizeFull();
@@ -429,13 +476,13 @@ public class ConfigureView extends VerticalLayout implements View {
         .setSortable(true);
 
         ComboBox<ClassRoom> cbClassRoom = new ComboBox<>();
-        cbClassRoom.setDataProvider(DataProvider.ofCollection(classRoomRepo.findAll()));
+        cbClassRoom.setDataProvider(DataProvider.ofCollection(classRoomRepo.findAllActive(Sort.by(Direction.ASC, "level"))));
         cbClassRoom.setItemCaptionGenerator(item -> item.getName());
         grid.addColumn(ClassRoomDetail::getClassRoom, item -> item !=  null ? item.getName() : "").setCaption("Kategori Kelas")
         .setEditorComponent(cbClassRoom, ClassRoomDetail::setClassRoom);
 
         ComboBox<Teacher> cbTeacher = new ComboBox<>();
-        cbTeacher.setDataProvider(DataProvider.ofCollection(teacherRepo.findAll()));
+        cbTeacher.setDataProvider(DataProvider.ofCollection(teacherRepo.findAllActive(Sort.by(Direction.ASC, "name"))));
         cbTeacher.setItemCaptionGenerator(item -> item.getSalutation() + " " + item.getName());
         grid.addColumn(ClassRoomDetail::getTeacher, item -> item !=  null ? item.getSalutation() + " " + item.getName() : "").setCaption("Pengajar")
         .setEditorComponent(cbTeacher, ClassRoomDetail::setTeacher)
@@ -443,14 +490,14 @@ public class ConfigureView extends VerticalLayout implements View {
 
 
 		btnRefresh.addClickListener(listener -> {
-			cbClassRoom.setDataProvider(DataProvider.ofCollection(classRoomRepo.findAll()));
-			cbTeacher.setDataProvider(DataProvider.ofCollection(teacherRepo.findAll()));
-			grid.setDataProvider(DataProvider.ofCollection(classRoomDetailRepo.findAllWithOrder()));
+			cbClassRoom.setDataProvider(DataProvider.ofCollection(classRoomRepo.findAllActive(Sort.by(Direction.ASC, "level"))));
+			cbTeacher.setDataProvider(DataProvider.ofCollection(teacherRepo.findAllActive(Sort.by(Direction.ASC, "name"))));
 		});
 
         grid.getEditor().addSaveListener(evt -> {
         	try {
         		ClassRoomDetail item = evt.getBean();
+        		item.setRecordUtility(new RecordUtility());
                 classRoomDetailRepo.save(item);
                 dataProvider.refreshAll();
             } catch (Exception e) {
@@ -469,7 +516,8 @@ public class ConfigureView extends VerticalLayout implements View {
         	try {
 	        	if (!grid.getSelectedItems().isEmpty()) {
 	        		ClassRoomDetail item = grid.getSelectedItems().iterator().next();
-	                classRoomDetailRepo.delete(item);
+	        		item.getRecordUtility().disabled();
+	                if(item.getPkid() != null)classRoomDetailRepo.save(item);
 	                dataProvider.getItems().remove(item);
 	                dataProvider.refreshAll();
 	            }
@@ -490,6 +538,7 @@ public class ConfigureView extends VerticalLayout implements View {
         return mainLayout;
 	}
 
+	@SuppressWarnings("unchecked")
 	private VerticalLayout configureDiciplineTab() {
 
 		VerticalLayout mainLayout = new VerticalLayout();
@@ -502,11 +551,12 @@ public class ConfigureView extends VerticalLayout implements View {
         HorizontalLayout buttonBar = new HorizontalLayout(btnNew, btnDelete);
 
         Grid<Dicipline> grid = new Grid<>();
-        ListDataProvider<Dicipline> dataProvider = DataProvider.ofCollection(diciplineRepo.findAll());
+        tabListener(TabType.DICIPLINE.name());
+        ListDataProvider<Dicipline> dataProvider = (ListDataProvider<Dicipline>) dataProviderMap.get(TabType.DICIPLINE.name());
         grid.setDataProvider(dataProvider);
         grid.getEditor().setEnabled(true);
         grid.setSizeFull();
-
+        
         TextField tfDesc = new TextField();
         tfDesc.setWidth(70, Unit.PERCENTAGE);
         tfDesc.setMaxLength(50);
@@ -518,6 +568,7 @@ public class ConfigureView extends VerticalLayout implements View {
         grid.getEditor().addSaveListener(evt -> {
         	try {
                 Dicipline item = evt.getBean();
+        		item.setRecordUtility(new RecordUtility());
                 diciplineRepo.save(item);
                 dataProvider.refreshAll();
             } catch (Exception e) {
@@ -536,7 +587,8 @@ public class ConfigureView extends VerticalLayout implements View {
         	try {
 	        	if (!grid.getSelectedItems().isEmpty()) {
 	                Dicipline item = grid.getSelectedItems().iterator().next();
-	                diciplineRepo.delete(item);
+	        		item.getRecordUtility().disabled();
+	                if(item.getPkid() != null)diciplineRepo.save(item);
 	                dataProvider.getItems().remove(item);
 	                dataProvider.refreshAll();
 	            }
@@ -557,6 +609,7 @@ public class ConfigureView extends VerticalLayout implements View {
         return mainLayout;
 	}
 
+	@SuppressWarnings("unchecked")
 	private VerticalLayout configureStudentActivityTab(){
 
 		VerticalLayout mainLayout = new VerticalLayout();
@@ -569,7 +622,8 @@ public class ConfigureView extends VerticalLayout implements View {
         HorizontalLayout buttonBar = new HorizontalLayout(btnNew, btnDelete);
 
         Grid<DailyRecordItem> grid = new Grid<>();
-        ListDataProvider<DailyRecordItem> dataProvider = DataProvider.ofCollection(dailyRecordItemRepo.findAll(Sort.by(Sort.Direction.ASC,"sequence")));
+        tabListener(TabType.STUDENT_ACTIVITY.name());
+        ListDataProvider<DailyRecordItem> dataProvider = (ListDataProvider<DailyRecordItem>) dataProviderMap.get(TabType.STUDENT_ACTIVITY.name());
         grid.setDataProvider(dataProvider);
         grid.getEditor().setEnabled(true);
         grid.setSizeFull();
@@ -596,6 +650,7 @@ public class ConfigureView extends VerticalLayout implements View {
         grid.getEditor().addSaveListener(evt -> {
         	try {
         		DailyRecordItem item = evt.getBean();
+        		item.setRecordUtility(new RecordUtility());
         		dailyRecordItemRepo.save(item);
                 dataProvider.refreshAll();
             } catch (Exception e) {
@@ -615,7 +670,8 @@ public class ConfigureView extends VerticalLayout implements View {
         	try {
 	        	if (!grid.getSelectedItems().isEmpty()) {
 	        		DailyRecordItem item = grid.getSelectedItems().iterator().next();
-	        		dailyRecordItemRepo.delete(item);
+	        		item.getRecordUtility().disabled();
+	                if(item.getPkid() != null)dailyRecordItemRepo.save(item);
 	                dataProvider.getItems().remove(item);
 	                dataProvider.refreshAll();
 	            }
@@ -638,6 +694,7 @@ public class ConfigureView extends VerticalLayout implements View {
         return mainLayout;
 	}
 
+	@SuppressWarnings("unchecked")
 	private VerticalLayout configurePaymentDescriptionTab() {
 
 
@@ -653,7 +710,8 @@ public class ConfigureView extends VerticalLayout implements View {
         HorizontalLayout buttonBar = new HorizontalLayout(btnNew, btnDelete);
 
         Grid<PaymentDescription> grid = new Grid<>();
-        ListDataProvider<PaymentDescription> dataProvider = DataProvider.ofCollection(paymentDescRepo.findAll(Sort.by(Sort.Direction.ASC, "description")));
+        tabListener(TabType.PAYMENT_DESCRIPTION.name());
+        ListDataProvider<PaymentDescription> dataProvider = (ListDataProvider<PaymentDescription>) dataProviderMap.get(TabType.PAYMENT_DESCRIPTION.name());
         grid.setDataProvider(dataProvider);
         grid.getEditor().setEnabled(true);
         grid.setSizeFull();
@@ -691,6 +749,7 @@ public class ConfigureView extends VerticalLayout implements View {
         grid.getEditor().addSaveListener(evt -> {
         	try {
         		PaymentDescription item = evt.getBean();
+        		item.setRecordUtility(new RecordUtility());
                 paymentDescRepo.save(item);
                 dataProvider.refreshAll();
             } catch (Exception e) {
@@ -709,7 +768,8 @@ public class ConfigureView extends VerticalLayout implements View {
         	try {
 	        	if (!grid.getSelectedItems().isEmpty()) {
 	        		PaymentDescription item = grid.getSelectedItems().iterator().next();
-	                paymentDescRepo.delete(item);
+	                item.getRecordUtility().disabled();
+	                if(item.getPkid() != null)paymentDescRepo.save(item);
 	                dataProvider.getItems().remove(item);
 	                dataProvider.refreshAll();
 	            }
@@ -730,6 +790,7 @@ public class ConfigureView extends VerticalLayout implements View {
         return mainLayout;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private VerticalLayout configureBankTab() {
 
 		VerticalLayout mainLayout = new VerticalLayout();
@@ -742,7 +803,8 @@ public class ConfigureView extends VerticalLayout implements View {
         HorizontalLayout buttonBar = new HorizontalLayout(btnNew, btnDelete);
 
         Grid<Bank> grid = new Grid<>();
-        ListDataProvider<Bank> dataProvider = DataProvider.ofCollection(bankRepo.findAll());
+        tabListener(TabType.BANK.name());
+        ListDataProvider<Bank> dataProvider = (ListDataProvider<Bank>) dataProviderMap.get(TabType.BANK.name());
         grid.setDataProvider(dataProvider);
         grid.getEditor().setEnabled(true);
         grid.setSizeFull();
@@ -758,6 +820,7 @@ public class ConfigureView extends VerticalLayout implements View {
         grid.getEditor().addSaveListener(evt -> {
         	try {
                 Bank item = evt.getBean();
+        		item.setRecordUtility(new RecordUtility());
                 bankRepo.save(item);
                 dataProvider.refreshAll();
             } catch (Exception e) {
@@ -776,7 +839,8 @@ public class ConfigureView extends VerticalLayout implements View {
         	try {
 	        	if (!grid.getSelectedItems().isEmpty()) {
 	                Bank item = grid.getSelectedItems().iterator().next();
-	                bankRepo.delete(item);
+	                item.getRecordUtility().disabled();
+	                if(item.getPkid() != null)bankRepo.save(item);
 	                dataProvider.getItems().remove(item);
 	                dataProvider.refreshAll();
 	            }
@@ -797,6 +861,7 @@ public class ConfigureView extends VerticalLayout implements View {
         return mainLayout;
 	}
 
+	@SuppressWarnings("unchecked")
 	private VerticalLayout configureGeneralTab() {
 
 		VerticalLayout mainLayout = new VerticalLayout();
@@ -816,7 +881,8 @@ public class ConfigureView extends VerticalLayout implements View {
         HorizontalLayout buttonBar = new HorizontalLayout(btnNew, btnDelete);
 
         Grid<GeneralCode> grid = new Grid<>();
-        ListDataProvider<GeneralCode> dataProvider = DataProvider.ofCollection(new ArrayList<GeneralCode>());
+        tabListener(TabType.GENERAL.name());
+        ListDataProvider<GeneralCode> dataProvider = (ListDataProvider<GeneralCode>) dataProviderMap.get(TabType.GENERAL.name());
         grid.setDataProvider(dataProvider);
         grid.getEditor().setEnabled(true);
         grid.setSizeFull();
@@ -849,7 +915,7 @@ public class ConfigureView extends VerticalLayout implements View {
         cbCategory.addValueChangeListener(listener -> {
         	GeneralCodeCategory codeCategory = listener.getValue();
         	if(codeCategory != null) {
-        		List<GeneralCode> list = generalCodeRepo.findByCategoryOrderByLevelAsc(codeCategory.name());
+        		List<GeneralCode> list = generalCodeRepo.findByCategory(codeCategory.name(), Sort.by(Sort.Direction.ASC, "level"));
         		dataProvider.getItems().clear();
         		dataProvider.getItems().addAll(list != null ? list : new ArrayList<GeneralCode>());
         		dataProvider.refreshAll();
@@ -859,6 +925,7 @@ public class ConfigureView extends VerticalLayout implements View {
         grid.getEditor().addSaveListener(evt -> {
         	try {
                 GeneralCode item = evt.getBean();
+        		item.setRecordUtility(new RecordUtility());
                 generalCodeRepo.save(item);
                 dataProvider.refreshAll();
             } catch (Exception e) {
@@ -877,7 +944,8 @@ public class ConfigureView extends VerticalLayout implements View {
         	try {
 	        	if (!grid.getSelectedItems().isEmpty()) {
 	        		GeneralCode item = grid.getSelectedItems().iterator().next();
-	        		generalCodeRepo.delete(item);
+	                item.getRecordUtility().disabled();
+	                if(item.getPkid() != null)generalCodeRepo.save(item);
 	                dataProvider.getItems().remove(item);
 	                dataProvider.refreshAll();
 	            }

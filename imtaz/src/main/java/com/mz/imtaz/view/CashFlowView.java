@@ -13,7 +13,9 @@ import org.springframework.data.domain.Sort;
 import org.vaadin.ui.NumberField;
 
 import com.mz.imtaz.entity.CashFlow;
+import com.mz.imtaz.entity.RecordUtility;
 import com.mz.imtaz.repository.CashFlowRepository;
+import com.mz.imtaz.repository.RecordsHistoryRepository;
 import com.mz.imtaz.util.Helper;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.data.converter.StringToBigDecimalConverter;
@@ -117,6 +119,7 @@ public class CashFlowView extends VerticalLayout implements View {
 		grid.getEditor().addSaveListener(evt -> {
         	try {
         		CashFlow item = evt.getBean();
+        		item.setRecordUtility(new RecordUtility());
         		cashFlowRepo.save(item);
                 dataProvider.refreshAll();
             } catch (Exception e) {
@@ -136,7 +139,8 @@ public class CashFlowView extends VerticalLayout implements View {
         	try {
 	        	if (!grid.getSelectedItems().isEmpty()) {
 	                CashFlow item = grid.getSelectedItems().iterator().next();
-	                cashFlowRepo.delete(item);
+	                item.getRecordUtility().disabled();
+	                if(item.getPkid() != null)cashFlowRepo.save(item);
 	                dataProvider.getItems().remove(item);
 	                dataProvider.refreshAll();
 	            }

@@ -32,7 +32,7 @@ public class Dicipline implements Serializable{
 	@Setter(value = AccessLevel.NONE)
 	private String description;
 	@Embedded
-	private RecordUtility recordInfo;
+	private RecordUtility recordUtility;
 
 	public void setDescription(String description) {
 		this.description = description != null ? WordUtils.capitalizeFully(description) : null;

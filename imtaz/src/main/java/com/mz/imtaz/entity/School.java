@@ -50,7 +50,7 @@ public class School implements Serializable {
 	@Setter(value = AccessLevel.NONE)
 	private String state;
 	@Embedded
-	private RecordUtility recordInfo;
+	private RecordUtility recordUtility;
 
 	public void setName(String name) {
 		this.name = name != null ? WordUtils.capitalizeFully(name) : null;

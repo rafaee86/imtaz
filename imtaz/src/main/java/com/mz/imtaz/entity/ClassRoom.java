@@ -34,7 +34,7 @@ public class ClassRoom implements Serializable{
 	@Column(nullable = false, length=2)
 	private Integer level;
 	@Embedded
-	private RecordUtility recordInfo;
+	private RecordUtility recordUtility;
 
 	public void setName(String name) {
 		this.name = name != null ? WordUtils.capitalizeFully(name) : null;
