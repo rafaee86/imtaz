@@ -131,7 +131,7 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
 		});
 
 		Pagination pagination = new Pagination(PaginationResource.newBuilder().setTotal(total).setPage(page).setLimit(limit).build());
-	    pagination.setItemsPerPage(1,10, 20, 50, 100);
+	    pagination.setItemsPerPage(10, 20, 50, 100);
 		pagination.addPageChangeListener(event -> {
 			Pageable pageable = PageRequest.of(event.pageIndex(), event.limit());
 			List<Records> pageRecordsAllList = null;
@@ -203,7 +203,7 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
         });
 
 		Pagination pagination = new Pagination(PaginationResource.newBuilder().setTotal(total).setPage(studentPage).setLimit(studentLimit).build());
-	    pagination.setItemsPerPage(1,10, 20, 50, 100);
+	    pagination.setItemsPerPage(10, 20, 50, 100);
 		pagination.addPageChangeListener(event -> {
 			Pageable pageable = PageRequest.of(event.pageIndex(), event.limit());
 			String tfValue = tfSearch.getValue() != null ? tfSearch.getValue().toUpperCase() : "";

@@ -173,14 +173,14 @@ public class MemorizeTargetView extends VerticalLayout implements View {
         	if(classRoomDetail != null && student != null) {
 				List<MemorizeTarget> targetList = targetRepo.findByClassRoomDetail(classRoomDetail, student);
 				List<MemorizeTarget> subTargetList = targetList != null && targetList.size() > limit ? targetList.subList(0, limit) : targetList;
-				total = Long.valueOf(subTargetList != null ? targetList.size() : 0);
+				total = Long.valueOf(targetList != null ? targetList.size() : 0);
 		        dataProvider = DataProvider.ofCollection(subTargetList != null ? subTargetList : new ArrayList<MemorizeTarget>());
 		        grid.setDataProvider(dataProvider);
 			}
 		});
 
 		Pagination pagination = new Pagination(PaginationResource.newBuilder().setTotal(total).setPage(page).setLimit(limit).build());
-	    pagination.setItemsPerPage(1,10, 20, 50, 100);
+	    pagination.setItemsPerPage(10, 20, 50, 100);
 		pagination.addPageChangeListener(event -> {
 			Pageable pageable = PageRequest.of(event.pageIndex(), event.limit());
 			List<MemorizeTarget> pageTargetAllList = null;

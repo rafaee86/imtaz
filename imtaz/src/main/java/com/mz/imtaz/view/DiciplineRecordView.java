@@ -190,7 +190,7 @@ public class DiciplineRecordView extends VerticalLayout implements View {
 		});
 
 		Pagination pagination = new Pagination(PaginationResource.newBuilder().setTotal(total).setPage(page).setLimit(limit).build());
-	    pagination.setItemsPerPage(1,10, 20, 50, 100);
+	    pagination.setItemsPerPage(10, 20, 50, 100);
 		pagination.addPageChangeListener(event -> {
 			Pageable pageable = PageRequest.of(event.pageIndex(), event.limit());
 			List<DiciplineRecord> pageTargetAllList = null;
