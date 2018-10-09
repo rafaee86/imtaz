@@ -94,7 +94,7 @@ public class StudentRegisterView extends VerticalLayout implements View{
         dataProvider = DataProvider.ofCollection(subStudentList != null ? subStudentList : new ArrayList<Student>());
         grid.setDataProvider(dataProvider);
         grid.addSelectionListener(listener -> {
-        	Student student = listener.getFirstSelectedItem() != null ? listener.getFirstSelectedItem().get() : null;
+        	Student student = Helper.notNull(listener.getFirstSelectedItem()) != null ? listener.getFirstSelectedItem().get() : null;
         	if(student != null) {
         		createWindow(student, false);
         	}

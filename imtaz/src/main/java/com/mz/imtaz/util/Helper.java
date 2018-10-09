@@ -1,9 +1,11 @@
 package com.mz.imtaz.util;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.Optional;
 
 import com.mz.imtaz.entity.RecordUtility;
 import com.mz.imtaz.entity.RecordsHistory;
@@ -44,13 +46,37 @@ public class Helper {
 		}
 	}
 	
-	public static void setRecordsHistory(RecordsHistoryRepository repo, String description, Integer studentPkid) {
+	public static <T> T notNull(Optional<T> x) {
+		try {
+			return x.isPresent() ? x.get() : null;
+		}catch (Exception e) {
+			return null;
+		}
+	}
+	
+	public static void setRecordsHistory(RecordsHistoryRepository repo, String description, Integer studentPkid, String classRoomDescription) {
 		if(repo != null) {
 			RecordsHistory recordsHistory = new RecordsHistory();
 			recordsHistory.setTransactionDate(new Date());
 			recordsHistory.setDescription(description);
 			recordsHistory.setStudentPkid(studentPkid);
+			recordsHistory.setClassRoomDescription(classRoomDescription);
 			repo.save(recordsHistory);
 		}
+	}
+	
+	public static void setRecordsHistory(RecordsHistoryRepository repo, String description, Integer studentPkid) {
+		setRecordsHistory(repo, description, studentPkid, null);
+	}
+	
+	public static String formatBigDecimal(BigDecimal source) {
+		String result = null;
+		if(source != null) {
+			source = source.setScale(2, BigDecimal.ROUND_HALF_UP);
+			result = source.toPlainString();
+		}else {
+			result = "0.00";
+		}
+		return result;
 	}
 }

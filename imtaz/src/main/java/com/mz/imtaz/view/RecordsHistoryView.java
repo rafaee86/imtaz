@@ -90,16 +90,14 @@ public class RecordsHistoryView extends VerticalLayout implements View {
         cbStudent.setEmptySelectionAllowed(false);
 
         cbClassRoomDetail.addSelectionListener(listener -> {
-        	if(Helper.notNull(listener.getSelectedItem().get()) != null)
+        	if(Helper.notNull(listener.getSelectedItem()) != null)
         		cbStudent.setItems(studentRepo.findByClassRoomDetail(listener.getSelectedItem().get()));
         });
         
         DateField dfFromDate = new DateField("Tarikh Dari");
-        dfFromDate.setValue(LocalDate.now());
         dfFromDate.setRangeEnd(LocalDate.now());
         
         DateField dfToDate = new DateField();
-        dfToDate.setValue(LocalDate.now());
         dfToDate.setRangeEnd(LocalDate.now());
         
         Button btnSearch = new Button(VaadinIcons.SEARCH);
@@ -115,15 +113,20 @@ public class RecordsHistoryView extends VerticalLayout implements View {
 		grid.setSizeFull();
 		grid.setHeightUndefined();
 
-		grid.addColumn(RecordsHistory::getTransactionDate, item -> Helper.dateFormat(item))
-		.setMaximumWidth(300)
+		grid.addColumn(RecordsHistory::getTransactionDate, item -> Helper.dateFormat(item, "dd/MM/yyyy hh:mm:ss a"))
+		.setSortable(true)
+		.setWidth(250)
 		.setCaption("Tarikh");
 
+		grid.addColumn(RecordsHistory::getClassRoomDescription)
+		.setWidth(300)
+		.setCaption("Kelas");
+		
 		grid.addColumn(RecordsHistory::getDescription)
 		.setCaption("Keterangan");
 		
 		btnSearch.addClickListener(listener -> {
-        	Student student = Helper.notNull(cbStudent.getSelectedItem().get());
+        	Student student = Helper.notNull(cbStudent.getSelectedItem());
         	List<RecordsHistory> historyList = null;
         	if(student != null) {
         		Date dateFrom = Helper.notNull(dfFromDate.getValue()) != null ? Helper.localDateToDate(Helper.notNull(dfFromDate.getValue())) : null;
@@ -157,7 +160,7 @@ public class RecordsHistoryView extends VerticalLayout implements View {
 			Pageable pageable = PageRequest.of(event.pageIndex(), event.limit());
 			List<RecordsHistory> pageTargetAllList = null;
 			List<RecordsHistory> pageTargetList = null;
-			Student student = cbStudent.getSelectedItem() != null && cbStudent.getSelectedItem().get() != null ? cbStudent.getSelectedItem().get() : null;
+			Student student = Helper.notNull(cbStudent.getSelectedItem()) != null ? cbStudent.getSelectedItem().get() : null;
 			if(student != null) {
         		Date dateFrom = Helper.notNull(dfFromDate.getValue()) != null ? Helper.localDateToDate(Helper.notNull(dfFromDate.getValue())) : null;
         		Date dateTo = Helper.notNull(dfToDate.getValue()) != null ? Helper.localDateToDate(Helper.notNull(dfToDate.getValue())) : null;
@@ -172,6 +175,8 @@ public class RecordsHistoryView extends VerticalLayout implements View {
         		}
 			}
 			if(pageTargetList != null && pageTargetAllList != null) {
+				 dfFromDate.setValue(LocalDate.now());
+				 dfToDate.setValue(LocalDate.now());
 				Long totalAll = Long.valueOf(pageTargetAllList != null ? pageTargetAllList.size() : 0);
 				pagination.setTotalCount(totalAll);
 				grid.setItems(pageTargetList);

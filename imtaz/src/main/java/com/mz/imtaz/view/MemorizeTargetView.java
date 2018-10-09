@@ -104,7 +104,7 @@ public class MemorizeTargetView extends VerticalLayout implements View {
         cbStudent.setEmptySelectionAllowed(false);
 
         cbClassRoomDetail.addSelectionListener(listener -> {
-        	if(Helper.notNull(listener.getSelectedItem().get()) != null)
+        	if(Helper.notNull(listener.getSelectedItem()) != null)
         		cbStudent.setItems(studentRepo.findByClassRoomDetail(listener.getSelectedItem().get()));
         });
 
@@ -149,7 +149,13 @@ public class MemorizeTargetView extends VerticalLayout implements View {
 	                item.getRecordUtility().disabled();
 	                if(item.getPkid() != null) {
 	                	targetRepo.save(item);
-	            		Helper.setRecordsHistory(recordsHistoryRepository, "Memadam Target Hafazan Bulanan.", Helper.notNull(item.getRecords().getStudent().getPkid()));
+	            		Helper.setRecordsHistory(
+	            			recordsHistoryRepository, 
+	            			"Memadam Target Hafazan Bulanan.", 
+	            			Helper.notNull(item.getRecords().getStudent().getPkid()),
+	            			Helper.notNull(item.getRecords().getClassRoomDetail().getClassRoom().getName()) + " - " + 
+	                        Helper.notNull(item.getRecords().getClassRoomDetail().getName())
+	            		);
 	                }
 	                dataProvider.getItems().remove(item);
 	                dataProvider.refreshAll();
@@ -160,15 +166,15 @@ public class MemorizeTargetView extends VerticalLayout implements View {
         });
 
         grid.addSelectionListener(listener -> {
-        	MemorizeTarget target = listener.getFirstSelectedItem() != null ? listener.getFirstSelectedItem().get() : null;
+        	MemorizeTarget target = Helper.notNull(listener.getFirstSelectedItem()) != null ? listener.getFirstSelectedItem().get() : null;
         	if(target != null) {
         		createWindow(target, false);
         	}
         });
 
         cbStudent.addSelectionListener(listener -> {
-        	ClassRoomDetail classRoomDetail = cbClassRoomDetail.getSelectedItem() != null && cbClassRoomDetail.getSelectedItem().get() != null ? cbClassRoomDetail.getSelectedItem().get() : null;
-        	Student student = listener.getSelectedItem() != null && listener.getSelectedItem().get() != null ? listener.getSelectedItem().get() : null;
+        	ClassRoomDetail classRoomDetail = Helper.notNull(cbClassRoomDetail.getSelectedItem()) != null ? cbClassRoomDetail.getSelectedItem().get() : null;
+        	Student student = Helper.notNull(listener.getSelectedItem()) != null ? listener.getSelectedItem().get() : null;
 
         	if(classRoomDetail != null && student != null) {
 				List<MemorizeTarget> targetList = targetRepo.findByClassRoomDetail(classRoomDetail, student);
@@ -185,7 +191,7 @@ public class MemorizeTargetView extends VerticalLayout implements View {
 			Pageable pageable = PageRequest.of(event.pageIndex(), event.limit());
 			List<MemorizeTarget> pageTargetAllList = null;
 			ClassRoomDetail classRoomDetail = cbClassRoomDetail.getSelectedItem() != null && cbClassRoomDetail.getSelectedItem().get() != null ? cbClassRoomDetail.getSelectedItem().get() : null;
-        	Student student = cbStudent.getSelectedItem() != null && cbStudent.getSelectedItem().get() != null ? cbStudent.getSelectedItem().get() : null;
+        	Student student = Helper.notNull(cbStudent.getSelectedItem()) != null ? cbStudent.getSelectedItem().get() : null;
 			if(classRoomDetail != null && student != null)
 				pageTargetAllList = targetRepo.findByClassRoomDetail(classRoomDetail, student);
 			Long totalAll = Long.valueOf(pageTargetAllList != null ? pageTargetAllList.size() : 0);
@@ -360,7 +366,13 @@ public class MemorizeTargetView extends VerticalLayout implements View {
         			dataProvider.getItems().add(editedBean);
         		}
         		
-        		Helper.setRecordsHistory(recordsHistoryRepository, (isNew ? "Kemasukan" : "Mengemaskini") + " Target Hafazan Bulanan.", Helper.notNull(editedBean.getRecords().getStudent().getPkid()));
+        		Helper.setRecordsHistory(
+        			recordsHistoryRepository, 
+        			(isNew ? "Kemasukan" : "Mengemaskini") + " Target Hafazan Bulanan.", 
+        			Helper.notNull(editedBean.getRecords().getStudent().getPkid()),
+        			Helper.notNull(editedBean.getRecords().getClassRoomDetail().getClassRoom().getName()) + " - " + 
+                    Helper.notNull(editedBean.getRecords().getClassRoomDetail().getName())
+        		);
             	dataProvider.refreshAll();
             	modal.close();
         		Notification.show("Rekod kemasukan Hafazan Harian Telah Berjaya Di Kemaskini.", Type.HUMANIZED_MESSAGE);

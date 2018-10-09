@@ -37,6 +37,7 @@ import com.mz.imtaz.repository.GeneralCodeRepository;
 import com.mz.imtaz.repository.PaymentDescriptionRepository;
 import com.mz.imtaz.repository.SchoolRepository;
 import com.mz.imtaz.repository.TeacherRepository;
+import com.mz.imtaz.util.Helper;
 import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.data.converter.StringToBigDecimalConverter;
@@ -731,7 +732,7 @@ public class ConfigureView extends VerticalLayout implements View {
         nfAmount.setMinimumFractionDigits(2);
         nfAmount.setNegativeAllowed(false);
         nfAmount.setGroupingSeparator(',');
-        grid.addColumn(PaymentDescription::getAmount).setCaption("Amaun(RM)")
+        grid.addColumn(PaymentDescription::getAmount, item -> Helper.formatBigDecimal(item)).setCaption("Amaun(RM)")
         .setEditorBinding(grid.getEditor().getBinder()
     		.forField(nfAmount)
     		.withValidator((s,a) -> {
@@ -955,10 +956,10 @@ public class ConfigureView extends VerticalLayout implements View {
         });
 
         btnNew.addClickListener(evt -> {
-        	if(cbCategory.getSelectedItem() != null && cbCategory.getSelectedItem().get() != null) {
+        	if(Helper.notNull(cbCategory.getSelectedItem()) != null) {
 	        	GeneralCode generalCode = new GeneralCode();
 	        	generalCode.setLevel(0);
-	        	generalCode.setCategory(cbCategory.getSelectedItem().get().name());
+	        	generalCode.setCategory(Helper.notNull(cbCategory.getSelectedItem()).name());
 	        	dataProvider.getItems().add(generalCode);
 	            dataProvider.refreshAll();
         	}else {

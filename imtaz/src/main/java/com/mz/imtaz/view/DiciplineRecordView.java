@@ -117,7 +117,7 @@ public class DiciplineRecordView extends VerticalLayout implements View {
         cbStudent.setEmptySelectionAllowed(false);
 
         cbClassRoomDetail.addSelectionListener(listener -> {
-        	if(listener.getSelectedItem() != null && listener.getSelectedItem().get() != null)
+        	if(Helper.notNull(listener.getSelectedItem()) != null)
         		cbStudent.setItems(studentRepo.findByClassRoomDetail(listener.getSelectedItem().get()));
         });
 
@@ -159,7 +159,13 @@ public class DiciplineRecordView extends VerticalLayout implements View {
 	                item.getRecordUtility().disabled();
 	                if(item.getPkid() != null) {
 	                	diciplineRecordRepo.save(item);
-	                	Helper.setRecordsHistory(recordsHistoryRepository, "Memadam Maklumat Pelajar", item.getPkid());
+	                	Helper.setRecordsHistory(
+                			recordsHistoryRepository, 
+                			"Memadam Maklumat Pelajar", 
+                			Helper.notNull(item.getRecords().getStudent().getPkid()), 
+                			Helper.notNull(item.getRecords().getClassRoomDetail().getClassRoom().getName()) + " - " + 
+                			Helper.notNull(item.getRecords().getClassRoomDetail().getName())
+	                	);
 	                }
 	                dataProvider.getItems().remove(item);
 	                dataProvider.refreshAll();
@@ -178,7 +184,7 @@ public class DiciplineRecordView extends VerticalLayout implements View {
 
         cbStudent.addSelectionListener(listener -> {
         	ClassRoomDetail classRoomDetail = cbClassRoomDetail.getSelectedItem() != null && cbClassRoomDetail.getSelectedItem().get() != null ? cbClassRoomDetail.getSelectedItem().get() : null;
-        	Student student = listener.getSelectedItem() != null && listener.getSelectedItem().get() != null ? listener.getSelectedItem().get() : null;
+        	Student student = Helper.notNull(listener.getSelectedItem()) != null ? listener.getSelectedItem().get() : null;
 
         	if(classRoomDetail != null && student != null) {
 				List<DiciplineRecord> targetList = diciplineRecordRepo.findByClassRoomDetail(classRoomDetail, student);
@@ -194,8 +200,8 @@ public class DiciplineRecordView extends VerticalLayout implements View {
 		pagination.addPageChangeListener(event -> {
 			Pageable pageable = PageRequest.of(event.pageIndex(), event.limit());
 			List<DiciplineRecord> pageTargetAllList = null;
-			ClassRoomDetail classRoomDetail = cbClassRoomDetail.getSelectedItem() != null && cbClassRoomDetail.getSelectedItem().get() != null ? cbClassRoomDetail.getSelectedItem().get() : null;
-        	Student student = cbStudent.getSelectedItem() != null && cbStudent.getSelectedItem().get() != null ? cbStudent.getSelectedItem().get() : null;
+			ClassRoomDetail classRoomDetail = Helper.notNull(cbClassRoomDetail.getSelectedItem()) != null ? cbClassRoomDetail.getSelectedItem().get() : null;
+        	Student student = Helper.notNull(cbStudent.getSelectedItem()) != null ? cbStudent.getSelectedItem().get() : null;
 			if(classRoomDetail != null && student != null)
 				pageTargetAllList = diciplineRecordRepo.findByClassRoomDetail(classRoomDetail, student);
 			Long totalAll = Long.valueOf(pageTargetAllList != null ? pageTargetAllList.size() : 0);
@@ -207,8 +213,8 @@ public class DiciplineRecordView extends VerticalLayout implements View {
 		});
 
         btnNew.addClickListener(evt -> {
-        	ClassRoomDetail detail = Helper.notNull(cbClassRoomDetail.getSelectedItem().get());
-        	Student student = Helper.notNull(cbStudent.getSelectedItem().get());
+        	ClassRoomDetail detail = Helper.notNull(cbClassRoomDetail.getSelectedItem());
+        	Student student = Helper.notNull(cbStudent.getSelectedItem());
 
         	if(detail != null && student != null) {
         		Records records = recordsRepo.findRecordsByClassRoomDetailAndStudent(detail, student);
@@ -299,7 +305,13 @@ public class DiciplineRecordView extends VerticalLayout implements View {
             	}
         		diciplineRecord.setRecordUtility(new RecordUtility());
         		DiciplineRecord editedBean = diciplineRecordRepo.save(diciplineRecord);
-        		Helper.setRecordsHistory(recordsHistoryRepository, (isNew ? "Menambah" : "Mengemaskini") + " Maklumat Disiplin.", Helper.notNull(editedBean.getRecords().getStudent().getPkid()));
+        		Helper.setRecordsHistory(
+        			recordsHistoryRepository, 
+        			(isNew ? "Menambah" : "Mengemaskini") + " Maklumat Disiplin.", 
+        			Helper.notNull(editedBean.getRecords().getStudent().getPkid()),
+        			Helper.notNull(editedBean.getRecords().getClassRoomDetail().getClassRoom().getName()) + " - " + 
+                	Helper.notNull(editedBean.getRecords().getClassRoomDetail().getName())
+        		);
         		Set<Dicipline> cbOffendedTypeSet = cbOffendedType.getSelectedItems();
         		for(Dicipline dicipline : cbOffendedTypeSet) {
         			DiciplineRecordItem diciplineItem  = new DiciplineRecordItem();

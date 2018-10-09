@@ -97,7 +97,7 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
         cbClassRoomDetail.setEmptySelectionAllowed(false);
 
         cbClassRoom.addSelectionListener(listener -> {
-        	if(listener.getSelectedItem() != null && listener.getSelectedItem().get() != null)
+        	if(Helper.notNull(listener.getSelectedItem()) != null)
         		cbClassRoomDetail.setItems(classRoomDetailRepo.findByClassRoom(listener.getSelectedItem().get()));
         });
 
@@ -114,14 +114,14 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
 		dataProvider = DataProvider.ofCollection(new ArrayList<Records>());
         grid.setDataProvider(dataProvider);
         grid.addSelectionListener(listener -> {
-        	Records records = listener.getFirstSelectedItem() != null ? listener.getFirstSelectedItem().get() : null;
+        	Records records = Helper.notNull(listener.getFirstSelectedItem()) != null ? listener.getFirstSelectedItem().get() : null;
         	if(records != null) {
         		createWindow(records, false);
         	}
         });
 
         cbClassRoomDetail.addSelectionListener(listener -> {
-			if(listener.getSelectedItem() != null && listener.getSelectedItem().get() != null) {
+			if(Helper.notNull(listener.getSelectedItem()) != null) {
 				List<Records> recordsList = recordsRepo.findRecordsByClassRoomDetail(listener.getSelectedItem().get());
 				List<Records> subRecordsList = recordsList != null && recordsList.size() > limit ? recordsList.subList(0, limit) : recordsList;
 				total = Long.valueOf(subRecordsList != null ? recordsList.size() : 0);
@@ -135,18 +135,18 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
 		pagination.addPageChangeListener(event -> {
 			Pageable pageable = PageRequest.of(event.pageIndex(), event.limit());
 			List<Records> pageRecordsAllList = null;
-			if(cbClassRoomDetail.getSelectedItem() != null && cbClassRoomDetail.getSelectedItem().get() != null)
+			if(Helper.notNull(cbClassRoomDetail.getSelectedItem()) != null)
 				pageRecordsAllList = recordsRepo.findRecordsByClassRoomDetail(cbClassRoomDetail.getSelectedItem().get());
 			Long totalAll = Long.valueOf(pageRecordsAllList != null ? pageRecordsAllList.size() : 0);
 			List<Records> pageRecordsSubList = null;
-			if(cbClassRoomDetail.getSelectedItem() != null && cbClassRoomDetail.getSelectedItem().get() != null)
+			if(Helper.notNull(cbClassRoomDetail.getSelectedItem()) != null)
 				pageRecordsSubList = recordsRepo.findRecordsByClassRoomDetailPageable(cbClassRoomDetail.getSelectedItem().get(), pageable);
 			pagination.setTotalCount(totalAll);
 			grid.setItems(pageRecordsSubList);
 		});
 
         btnNew.addClickListener(evt -> {
-        	ClassRoomDetail detail = cbClassRoomDetail.getSelectedItem() != null && cbClassRoomDetail.getSelectedItem().get() != null ? cbClassRoomDetail.getSelectedItem().get() : null;
+        	ClassRoomDetail detail = Helper.notNull(cbClassRoomDetail.getSelectedItem()) != null ? cbClassRoomDetail.getSelectedItem().get() : null;
         	if(detail != null)
         		createWindow(new Records(detail), true);
         	else
@@ -158,7 +158,13 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
         		if(item.getRecordUtility() == null) {
         			item.setRecordUtility(new RecordUtility());
         			item = recordsRepo.save(item);
-            		Helper.setRecordsHistory(recordsHistoryRepository, "Kemaskini Pelajar Di Kelas Baru.", Helper.notNull(item.getStudent().getPkid()));
+            		Helper.setRecordsHistory(
+            			recordsHistoryRepository, 
+            			"Kemaskini Pelajar Di Kelas Baru.", 
+            			Helper.notNull(item.getStudent().getPkid()),
+            			Helper.notNull(item.getClassRoomDetail().getClassRoom().getName()) + " - " + 
+                        Helper.notNull(item.getClassRoomDetail().getName())
+            		);
         		}
         	}
         	Notification.show("Rekod Kemasukan Pelajar Telah Berjaya Di Kemaskini.", Type.HUMANIZED_MESSAGE);
@@ -193,7 +199,7 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
 		List<Student> subStudentList = studentList != null && studentList.size() > studentLimit ? studentList.subList(0, studentLimit) : studentList;
 		Long total = Long.valueOf(subStudentList != null ? studentList.size() : 0);
         grid.addSelectionListener(listener -> {
-        	Student student = listener.getFirstSelectedItem() != null ? listener.getFirstSelectedItem().get() : null;
+        	Student student = Helper.notNull(listener.getFirstSelectedItem()) != null ? listener.getFirstSelectedItem().get() : null;
         	if(student != null) {
         		records.setStudent(student);
         		dataProvider.getItems().add(records);

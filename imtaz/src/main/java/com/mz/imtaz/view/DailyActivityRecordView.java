@@ -23,6 +23,7 @@ import com.mz.imtaz.repository.DailyActivityItemRepository;
 import com.mz.imtaz.repository.DailyActivityRepository;
 import com.mz.imtaz.repository.DailyRecordItemRepository;
 import com.mz.imtaz.repository.StudentRepository;
+import com.mz.imtaz.util.Helper;
 import com.vaadin.addon.pagination.Pagination;
 import com.vaadin.addon.pagination.PaginationResource;
 import com.vaadin.data.provider.DataProvider;
@@ -123,7 +124,7 @@ public class DailyActivityRecordView extends VerticalLayout implements View{
         Button btnRefresh = new Button(VaadinIcons.REFRESH);
 
         cbClassRoomDetail.addSelectionListener(listener -> {
-        	if(listener.getSelectedItem() != null && listener.getSelectedItem().get() != null){
+        	if(Helper.notNull(listener.getSelectedItem()) != null){
         		cbStudent.setItems(studentRepo.findByClassRoomDetail(listener.getSelectedItem().get()));
         	}
         });
@@ -193,8 +194,8 @@ public class DailyActivityRecordView extends VerticalLayout implements View{
 		pagination.addPageChangeListener(event -> {
 			Pageable pageable = PageRequest.of(event.pageIndex(), event.limit());
 			List<DailyActivity> pageTargetAllList = null;
-			ClassRoomDetail classRoomDetail = cbClassRoomDetail.getSelectedItem() != null && cbClassRoomDetail.getSelectedItem().get() != null ? cbClassRoomDetail.getSelectedItem().get() : null;
-        	Student student = cbStudent.getSelectedItem() != null && cbStudent.getSelectedItem().get() != null ? cbStudent.getSelectedItem().get() : null;
+			ClassRoomDetail classRoomDetail = Helper.notNull(cbClassRoomDetail.getSelectedItem()) != null ? cbClassRoomDetail.getSelectedItem().get() : null;
+        	Student student = Helper.notNull(cbStudent.getSelectedItem()) != null ? cbStudent.getSelectedItem().get() : null;
 			if(classRoomDetail != null && student != null)
 				pageTargetAllList = dailyActivityRepo.findByClassRoomDetail(classRoomDetail, student);
 			Long totalAll = Long.valueOf(pageTargetAllList != null ? pageTargetAllList.size() : 0);
@@ -206,8 +207,8 @@ public class DailyActivityRecordView extends VerticalLayout implements View{
 		});
 
         btnNew.addClickListener(evt -> {
-        	ClassRoomDetail detail = cbClassRoomDetail.getSelectedItem() != null && cbClassRoomDetail.getSelectedItem().get() != null ? cbClassRoomDetail.getSelectedItem().get() : null;
-        	Student student = cbStudent.getSelectedItem() != null && cbStudent.getSelectedItem().get() != null ? cbStudent.getSelectedItem().get() : null;
+        	ClassRoomDetail detail = Helper.notNull(cbClassRoomDetail.getSelectedItem()) != null ? cbClassRoomDetail.getSelectedItem().get() : null;
+        	Student student = Helper.notNull(cbStudent.getSelectedItem()) != null ? cbStudent.getSelectedItem().get() : null;
 
 
         });

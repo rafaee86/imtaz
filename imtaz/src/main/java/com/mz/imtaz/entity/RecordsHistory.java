@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import org.apache.commons.lang3.text.WordUtils;
 import org.hibernate.annotations.Type;
@@ -31,10 +32,13 @@ public class RecordsHistory implements Serializable{
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Integer pkid;
 	@Column(nullable = false, length=8)
-	private Integer studentPkid;
+	private Integer studentPkid;	
+	@Column(nullable = true, length=200)
+	private String classRoomDescription;
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date transactionDate;
 	@Setter(value = AccessLevel.NONE)
+	@Column(nullable = true, length=200)
 	private String description;
 	private Integer transactionPkid;
 	

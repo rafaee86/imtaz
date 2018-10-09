@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -35,6 +36,7 @@ import com.mz.imtaz.repository.PaymentDescriptionRepository;
 import com.mz.imtaz.repository.PaymentItemRepository;
 import com.mz.imtaz.repository.PaymentMonthRepository;
 import com.mz.imtaz.repository.PaymentRepository;
+import com.mz.imtaz.repository.RecordsHistoryRepository;
 import com.mz.imtaz.repository.RecordsRepository;
 import com.mz.imtaz.repository.RunningNumberRepository;
 import com.mz.imtaz.repository.StudentRepository;
@@ -112,7 +114,9 @@ public class PaymentView extends VerticalLayout implements View {
 	private BankRepository bankRepo;
 	@Autowired
 	private PaymentMonthRepository paymentMonthRepo;
-
+	@Autowired
+	private RecordsHistoryRepository recordsHistoryRepository;
+	
 	@PostConstruct
     public void init() {
 		headerSection();
@@ -160,7 +164,7 @@ public class PaymentView extends VerticalLayout implements View {
         cbStudent.setEmptySelectionAllowed(false);
 
         cbClassRoomDetail.addSelectionListener(listener -> {
-        	if(listener.getSelectedItem() != null && listener.getSelectedItem().get() != null)
+        	if(Helper.notNull(listener.getSelectedItem()) != null)
         		cbStudent.setItems(studentRepo.findByClassRoomDetail(listener.getSelectedItem().get()));
         });
 
@@ -293,8 +297,8 @@ public class PaymentView extends VerticalLayout implements View {
 			BigDecimal totalAmount = BigDecimal.ZERO;
 			Payment payment = new Payment();
 			Records records = recordsRepo.findRecordsByClassRoomDetailAndStudent(
-				cbClassRoomDetail.getSelectedItem().get(),
-				cbStudent.getSelectedItem().get()
+				Helper.notNull(cbClassRoomDetail.getSelectedItem()),
+				Helper.notNull(cbStudent.getSelectedItem())
 			);
 
 			if(nfYear.getValue() == null)message = "Maklumat tahun bayaran tidak wujud.";
@@ -349,6 +353,14 @@ public class PaymentView extends VerticalLayout implements View {
 				cbBank.setEnabled(false);
 				tfReferenceId.setEnabled(false);
 				grid.setEnabled(false);
+				
+				Helper.setRecordsHistory(
+        			recordsHistoryRepository,
+        			"Bayaran Yuran Bulanan Bagi " + cbMonth.getValue().stream().map(itm ->itm.monthDesc).collect(Collectors.joining(", ")) + " " + payment.getYear() + " Sebanyak RM" + payment.getTotalAmount().toPlainString(), 
+        			Helper.notNull(payment.getRecords().getStudent().getPkid()),
+        			Helper.notNull(payment.getRecords().getClassRoomDetail().getClassRoom().getName()) + " - " + 
+                    Helper.notNull(payment.getRecords().getClassRoomDetail().getName())
+        		);
 			}else {
 				Notification.show("Rekod tidak berjaya dikemaskini.", Notification.Type.ERROR_MESSAGE);
 			}
