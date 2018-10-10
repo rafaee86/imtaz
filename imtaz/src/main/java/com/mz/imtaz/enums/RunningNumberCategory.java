@@ -2,5 +2,15 @@ package com.mz.imtaz.enums;
 
 public enum RunningNumberCategory {
 
-	STUDENT, PAYMENT;
+	STUDENT("S"), PAYMENT("P");
+	
+	private String code;
+	
+	private RunningNumberCategory(String code) {
+		this.code = code;
+	}
+	
+	public String getCode() {
+		return code;
+	}
 }

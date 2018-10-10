@@ -19,7 +19,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Table(name="RECORDS")
-public class Records{
+public class Records implements Cloneable{
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -40,6 +40,10 @@ public class Records{
 
 	public Records(ClassRoomDetail classRoomDetail) {
 		this.classRoomDetail = classRoomDetail;
+	}
+	
+	public Records clone() throws CloneNotSupportedException {
+		return (Records) super.clone();
 	}
 
 }

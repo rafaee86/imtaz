@@ -34,7 +34,6 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.TextField;
@@ -50,9 +49,9 @@ public class MemorizeTargetView extends VerticalLayout implements View {
 	private final static float JUZUK_WIDTH = 80f;
 
 	final int page = 0;
-	final int limit = 1;
+	final int limit = 10;
 	final int targetPage = 0;
-	final int targetLimit = 1;
+	final int targetLimit = 10;
 
 	private ListDataProvider<MemorizeTarget> dataProvider;
 	private Long total = 0L;
@@ -80,9 +79,7 @@ public class MemorizeTargetView extends VerticalLayout implements View {
 
 		setCaption("<h3>Kemasukan Target Hafazan</h3>");
 		setCaptionAsHtml(true);
-		Label label = new Label("Skrin untuk kemasukan target hafazan bulanan. Sila tekan butang Tambah untuk menambah rekod baru.");
-
-		addComponent(label);
+		setDescription("Skrin untuk kemasukan target hafazan bulanan. Sila tekan butang Tambah untuk menambah rekod baru.");
 	}
 
 	private void bodySection() {

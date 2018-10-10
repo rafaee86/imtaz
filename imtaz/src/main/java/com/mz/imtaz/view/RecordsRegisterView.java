@@ -1,6 +1,7 @@
 package com.mz.imtaz.view;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -12,15 +13,18 @@ import org.springframework.data.domain.Sort;
 
 import com.mz.imtaz.entity.ClassRoom;
 import com.mz.imtaz.entity.ClassRoomDetail;
+import com.mz.imtaz.entity.GeneralCode;
 import com.mz.imtaz.entity.RecordUtility;
 import com.mz.imtaz.entity.Records;
 import com.mz.imtaz.entity.Student;
 import com.mz.imtaz.repository.ClassRoomDetailRepository;
 import com.mz.imtaz.repository.ClassRoomRepository;
+import com.mz.imtaz.repository.GeneralCodeRepository;
 import com.mz.imtaz.repository.RecordsHistoryRepository;
 import com.mz.imtaz.repository.RecordsRepository;
 import com.mz.imtaz.repository.StudentRepository;
 import com.mz.imtaz.util.Helper;
+import com.mz.imtaz.view.ConfigureView.GeneralCodeCategory;
 import com.vaadin.addon.pagination.Pagination;
 import com.vaadin.addon.pagination.PaginationResource;
 import com.vaadin.data.provider.DataProvider;
@@ -29,13 +33,14 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
@@ -62,6 +67,8 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
 	private StudentRepository studentRepo;
 	@Autowired
 	private RecordsHistoryRepository recordsHistoryRepository;
+	@Autowired
+	private GeneralCodeRepository generalCodeRepo;
 
 	private ListDataProvider<Records> dataProvider;
 	private Long total = 0L;
@@ -75,9 +82,7 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
 	private void headerSection() {
 		setCaption("<h3>Pendaftaran Kelas</h3>");
 		setCaptionAsHtml(true);
-		Label label = new Label("Skrin untuk mendaftar pelajar di kelas baru. Sila tekan butang Tambah untuk menambah kelas baru.");
-
-		addComponent(label);
+		setDescription("Skrin untuk mendaftar pelajar di kelas baru. Sila tekan butang Tambah untuk menambah kelas baru.");
 	}
 
 	private void bodySection() {
@@ -116,7 +121,7 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
         grid.addSelectionListener(listener -> {
         	Records records = Helper.notNull(listener.getFirstSelectedItem()) != null ? listener.getFirstSelectedItem().get() : null;
         	if(records != null) {
-        		createWindow(records, false);
+        		createEditWindow(records);
         	}
         });
 
@@ -148,7 +153,7 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
         btnNew.addClickListener(evt -> {
         	ClassRoomDetail detail = Helper.notNull(cbClassRoomDetail.getSelectedItem()) != null ? cbClassRoomDetail.getSelectedItem().get() : null;
         	if(detail != null)
-        		createWindow(new Records(detail), true);
+        		createWindow(new Records(detail));
         	else
         		Notification.show("Kelas tidak dipilih.", Type.ERROR_MESSAGE);
         });
@@ -176,7 +181,7 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
 		addComponent(pagination);
 	}
 
-	private void createWindow(Records records, boolean isNew) {
+	private void createWindow(Records records) {
 
 		Window modal = new Window("Carian Pelajar");
         modal.center();
@@ -238,5 +243,150 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
 
         modal.setContent(mainLayout);
    	 	UI.getCurrent().addWindow(modal);
+	}
+	
+	private void createEditWindow(Records records) {
+
+		if(records != null) {
+			Window modal = new Window("Skrin Pindah Kelas");
+	        modal.center();
+	        modal.setModal(true);
+	        modal.setSizeUndefined();
+	        
+	        TextField tfCurrClassRoom = new TextField("Kategori Kelas");
+	        tfCurrClassRoom.setWidth(WIDTH, Unit.PIXELS);
+	        tfCurrClassRoom.setEnabled(false);
+	        tfCurrClassRoom.setValue(Helper.notNull(records.getClassRoomDetail().getClassRoom().getName()));
+	        
+	        TextField tfCurrClassRoomDetail = new TextField("Kelas");
+	        tfCurrClassRoomDetail.setWidth(WIDTH, Unit.PIXELS);
+	        tfCurrClassRoomDetail.setEnabled(false);
+	        tfCurrClassRoomDetail.setValue(Helper.notNull(records.getClassRoomDetail().getName()));
+	        
+	        TextField tfCurrStudent = new TextField("Nama Pelajar");
+	        tfCurrStudent.setWidth(WIDTH, Unit.PIXELS);
+	        tfCurrStudent.setEnabled(false);
+	        tfCurrStudent.setValue(Helper.notNull(records.getStudent().getName()));
+	        
+	        ComboBox<ClassRoom> cbClassRoom = new ComboBox<>("Kategori Kelas");
+	        cbClassRoom.setWidth(WIDTH, Unit.PIXELS);
+	        cbClassRoom.setItems(classRoomRepo.findAllActive(Sort.by(Sort.Direction.ASC, "level")));
+	        cbClassRoom.setItemCaptionGenerator(item -> item.getName());
+	        cbClassRoom.setEmptySelectionAllowed(false);
+
+	        ComboBox<ClassRoomDetail> cbClassRoomDetail = new ComboBox<>("Kelas");
+	        cbClassRoomDetail.setWidth(WIDTH, Unit.PIXELS);
+	        cbClassRoomDetail.setItemCaptionGenerator(item -> item.getName() + " - " + (item.getTeacher() != null ? item.getTeacher().getSalutation() + " " +item.getTeacher().getName() : "<Tiada Pengajar>"));
+	        cbClassRoomDetail.setEmptySelectionAllowed(false);
+
+	        cbClassRoom.addSelectionListener(listener -> {
+	        	if(Helper.notNull(listener.getSelectedItem()) != null)
+	        		cbClassRoomDetail.setItems(classRoomDetailRepo.findByClassRoom(listener.getSelectedItem().get()));
+	        });
+	        	        
+	        ComboBox<GeneralCode> cbStatus = new ComboBox<>("Status Pelajar");
+	        cbStatus.setWidth(WIDTH, Unit.PIXELS);
+	        cbStatus.setItemCaptionGenerator(item -> item.getCode() + " - " + item.getDescription());
+	        cbStatus.setEmptySelectionAllowed(false);
+	        cbStatus.setItems(generalCodeRepo.findByCategory(GeneralCodeCategory.STUDENT_STATUS.name(), Sort.by(Sort.Direction.ASC, "level")));
+
+	        CheckBox ckbClassRoom = new CheckBox("", false);
+	        CheckBox ckbStatus = new CheckBox("", false);
+	        
+	        cbClassRoom.setEnabled(false);
+        	cbClassRoomDetail.setEnabled(false);
+        	cbStatus.setEnabled(!false);
+	        
+	        ckbStatus.addValueChangeListener(listener -> {
+	        	Boolean _status = !listener.getValue();
+	        	ckbClassRoom.setValue(_status);
+	        	cbClassRoom.setEnabled(_status);
+	        	cbClassRoomDetail.setEnabled(_status);
+	        	cbStatus.setEnabled(!_status);
+	        });
+	        ckbClassRoom.addValueChangeListener(listener -> {
+	        	Boolean _status = !listener.getValue();
+	        	ckbStatus.setValue(!listener.getValue());
+	        	cbClassRoom.setEnabled(!_status);
+	        	cbClassRoomDetail.setEnabled(!_status);
+	        	cbStatus.setEnabled(_status);
+	        });
+	        
+	        Button btnSave = new Button("Kemaskini");
+	        
+	        btnSave.addClickListener(listener -> {
+	        	try {
+	        		if(ckbClassRoom.getValue()) {
+		        		ClassRoomDetail classRoomDetail = Helper.notNull(cbClassRoomDetail.getValue());
+		        			        		
+						Records newRecords = records.clone();
+						newRecords.setClassRoomDetail(classRoomDetail);
+						newRecords.setPkid(null);
+						newRecords.getRecordUtility().setCreatedDate(new Date());
+						newRecords.getRecordUtility().enabled();
+						
+						newRecords = recordsRepo.save(newRecords);
+						recordsRepo.save(records);
+						
+						Helper.setRecordsHistory(
+							recordsHistoryRepository, 
+							"Pindah Kelas Ke " +
+							Helper.notNull(newRecords.getClassRoomDetail().getClassRoom().getName()) + " - " + 
+			                Helper.notNull(newRecords.getClassRoomDetail().getName()),
+							newRecords.getStudent().getPkid(),
+							Helper.notNull(records.getClassRoomDetail().getClassRoom().getName()) + " - " + 
+			                Helper.notNull(records.getClassRoomDetail().getName())
+						);
+						
+						dataProvider.getItems().remove(records);
+		        		dataProvider.refreshAll();
+		        		Notification.show("Proses Pindahan Kelas Telah Berjaya.", Type.HUMANIZED_MESSAGE);
+		        		modal.close();
+	        		}else if(ckbStatus.getValue()) {
+	        			GeneralCode status = Helper.notNull(cbStatus.getValue());
+	        			if(status != null) {
+	        				records.getStudent().setStatus(status.getPkid());
+	        				recordsRepo.save(records);
+	        				Notification.show("Proses Kemaskini Status Pelajar Telah Berjaya.", Type.HUMANIZED_MESSAGE);
+			        		modal.close();
+	        			}
+	        		}
+				} catch (Exception e) {
+					e.printStackTrace();
+					Notification.show("Proses Tidak Berjaya.", Type.ERROR_MESSAGE);
+					modal.close();
+				}
+	        	
+	        });
+	        
+	        VerticalLayout mainLayout = new VerticalLayout();
+	        FormLayout formLayout = new FormLayout();
+	        Panel panel = new Panel("Kemaskini Kelas Baru");
+	        Panel panelStatus = new Panel("Kemaskini Status Pelajar");
+	        FormLayout panelLayout = new FormLayout();
+	        FormLayout panelLayoutStatus = new FormLayout();
+	        
+	        formLayout.addComponent(tfCurrClassRoom);
+	        formLayout.addComponent(tfCurrClassRoomDetail);
+	        formLayout.addComponent(tfCurrStudent);
+	        
+	        panelLayout.addComponent(cbClassRoom);
+	        panelLayout.addComponent(cbClassRoomDetail);
+	        panelLayoutStatus.addComponent(cbStatus);
+	        
+	        panel.setContent(panelLayout);
+	        mainLayout.addComponent(formLayout);
+	        mainLayout.addComponent(ckbClassRoom);
+	        mainLayout.addComponent(panel);
+	        
+	        mainLayout.addComponent(ckbStatus);
+	        panelStatus.setContent(panelLayoutStatus);
+	        mainLayout.addComponent(panelStatus);
+	        
+	        mainLayout.addComponent(btnSave);
+	        
+	        modal.setContent(mainLayout);
+	   	 	UI.getCurrent().addWindow(modal);
+		}
 	}
 }

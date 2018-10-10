@@ -55,7 +55,6 @@ import com.vaadin.ui.DateField;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
@@ -127,9 +126,7 @@ public class PaymentView extends VerticalLayout implements View {
 
 		setCaption("<h3>Bayaran</h3>");
 		setCaptionAsHtml(true);
-		Label label = new Label("Skrin untuk merekod bayaran pelajar. Sila masukkan bayaran baru pelajar. Setiap rekod tidak boleh dikemaskini setelah di kunci masuk.");
-
-		addComponent(label);
+		setDescription("Skrin untuk merekod bayaran pelajar. Sila masukkan bayaran baru pelajar. Setiap rekod tidak boleh dikemaskini setelah di kunci masuk.");
 	}
 
 	private void bodySection() {
@@ -397,7 +394,7 @@ public class PaymentView extends VerticalLayout implements View {
 		}
 
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
-		result =  "P"+sdf.format(new Date())+String.format("%05d", runningNumber.getRunning());
+		result =  RunningNumberCategory.PAYMENT.getCode() + sdf.format(new Date()) + String.format("%05d", runningNumber.getRunning());
 		runningNumber.incrementOne();
 		runningNumberRepo.save(runningNumber);
 

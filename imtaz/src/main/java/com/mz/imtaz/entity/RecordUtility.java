@@ -49,4 +49,8 @@ public class RecordUtility implements Serializable {
 		this.deletedDate = new Date();
 	}
 
+	public void enabled() {
+		this.statusFlag = true;
+		this.createdDate = new Date();
+	}
 }

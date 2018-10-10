@@ -1,8 +1,10 @@
 package com.mz.imtaz.view;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -14,10 +16,13 @@ import org.springframework.data.domain.Sort;
 import org.vaadin.ui.NumberField;
 
 import com.mz.imtaz.entity.RecordUtility;
+import com.mz.imtaz.entity.RunningNumber;
 import com.mz.imtaz.entity.Student;
 import com.mz.imtaz.enums.GuardianType;
 import com.mz.imtaz.enums.RegistrationType;
+import com.mz.imtaz.enums.RunningNumberCategory;
 import com.mz.imtaz.repository.RecordsHistoryRepository;
+import com.mz.imtaz.repository.RunningNumberRepository;
 import com.mz.imtaz.repository.StudentRepository;
 import com.mz.imtaz.util.Helper;
 import com.vaadin.addon.pagination.Pagination;
@@ -36,7 +41,6 @@ import com.vaadin.ui.DateField;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Panel;
@@ -56,6 +60,8 @@ public class StudentRegisterView extends VerticalLayout implements View{
 	private StudentRepository studentRepo;
 	@Autowired
 	private RecordsHistoryRepository recordsHistoryRepository;
+	@Autowired
+	private RunningNumberRepository runningNumberRepo;
 
 	private ListDataProvider<Student> dataProvider;
 
@@ -70,9 +76,7 @@ public class StudentRegisterView extends VerticalLayout implements View{
 
 		setCaption("<h3>Pendaftaran Pelajar</h3>");
 		setCaptionAsHtml(true);
-		Label label = new Label("Skrin untuk mendaftar pelajar baru. Sila tekan butang Tambah untuk menambah pelajar baru.");
-
-		addComponent(label);
+		setDescription("Skrin untuk mendaftar pelajar baru. Sila tekan butang Tambah untuk menambah pelajar baru.");
 	}
 
 	private void bodySection() {
@@ -409,6 +413,7 @@ public class StudentRegisterView extends VerticalLayout implements View{
         	Boolean isValid = binder.writeBeanIfValid(student);
         	if(isValid != null && isValid) {
         		student.setRecordUtility(new RecordUtility());
+        		student.setStudentNo(generateTransactionId());
         		Student editedBean = studentRepo.save(student);
         		if(isNew) {
         			dataProvider.getItems().add(editedBean);
@@ -449,6 +454,26 @@ public class StudentRegisterView extends VerticalLayout implements View{
 
         modal.setContent(mainLayout);
    	 	UI.getCurrent().addWindow(modal);
+	}
+	
+	private String generateTransactionId() {
+
+		String result = null;
+		RunningNumber runningNumber = runningNumberRepo.findByCategory(RunningNumberCategory.STUDENT);
+		if(runningNumber == null) {
+			runningNumber = new RunningNumber(RunningNumberCategory.STUDENT, 1);
+		}else {
+			if(runningNumber.getRunning() == null) {
+				runningNumber.setRunning(1);
+			}
+		}
+
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
+		result =  RunningNumberCategory.STUDENT.getCode() + sdf.format(new Date()) + String.format("%05d", runningNumber.getRunning());
+		runningNumber.incrementOne();
+		runningNumberRepo.save(runningNumber);
+
+		return result;
 	}
 
 }

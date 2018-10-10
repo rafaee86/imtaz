@@ -37,7 +37,6 @@ import com.vaadin.ui.DateField;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.RadioButtonGroup;
 import com.vaadin.ui.VerticalLayout;
@@ -67,7 +66,7 @@ public class DailyActivityRecordView extends VerticalLayout implements View{
 
 	private final static float WIDTH = 500f;
 	final int page = 0;
-	final int limit = 1;
+	final int limit = 10;
 
 	private ListDataProvider<DailyActivity> dataProvider;
 	private Long total = 0L;
@@ -93,9 +92,7 @@ public class DailyActivityRecordView extends VerticalLayout implements View{
 
 		setCaption("<h3>Rekod Aktiviti Harian Pelajar</h3>");
 		setCaptionAsHtml(true);
-		Label label = new Label("Skrin untuk merekod aktiviti harian pelajar. Sila tekan butang Tambah untuk menambah rekod baru.");
-
-		addComponent(label);
+		setDescription("Skrin untuk merekod aktiviti harian pelajar. Sila tekan butang Tambah untuk menambah rekod baru.");
 	}
 
 	private void bodySection() {

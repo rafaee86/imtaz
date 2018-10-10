@@ -45,7 +45,6 @@ import com.vaadin.ui.DateField;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
@@ -61,9 +60,9 @@ public class DiciplineRecordView extends VerticalLayout implements View {
 	private final static float WIDTH = 500f;
 
 	final int page = 0;
-	final int limit = 1;
+	final int limit = 10;
 	final int targetPage = 0;
-	final int targetLimit = 1;
+	final int targetLimit = 10;
 
 	private ListDataProvider<DiciplineRecord> dataProvider;
 	private Long total = 0L;
@@ -93,9 +92,7 @@ public class DiciplineRecordView extends VerticalLayout implements View {
 
 		setCaption("<h3>Kemasukan Rekod Disiplin Pelajar</h3>");
 		setCaptionAsHtml(true);
-		Label label = new Label("Skrin untuk kemasukan rekod disiplin pelajar. Sila tekan butang Tambah untuk menambah rekod baru.");
-
-		addComponent(label);
+		setDescription("Skrin untuk kemasukan rekod disiplin pelajar. Sila tekan butang Tambah untuk menambah rekod baru.");
 	}
 
 	private void bodySection() {

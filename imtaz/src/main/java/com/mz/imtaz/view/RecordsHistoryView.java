@@ -12,11 +12,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import com.mz.imtaz.entity.ClassRoomDetail;
-import com.mz.imtaz.entity.MemorizeTarget;
 import com.mz.imtaz.entity.RecordsHistory;
 import com.mz.imtaz.entity.Student;
 import com.mz.imtaz.repository.ClassRoomDetailRepository;
-import com.mz.imtaz.repository.ClassRoomRepository;
 import com.mz.imtaz.repository.RecordsHistoryRepository;
 import com.mz.imtaz.repository.StudentRepository;
 import com.mz.imtaz.util.Helper;
@@ -26,7 +24,6 @@ import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
-import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
@@ -34,7 +31,6 @@ import com.vaadin.ui.DateField;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 @SpringView(name = RecordsHistoryView.NAME)
@@ -44,14 +40,12 @@ public class RecordsHistoryView extends VerticalLayout implements View {
 	private final static float WIDTH = 500f;
 	
 	final int page = 0;
-	final int limit = 1;
+	final int limit = 10;
 	private ListDataProvider<RecordsHistory> dataProvider;
 	private Long total = 0L;
 	
 	@Autowired
 	private RecordsHistoryRepository recordsHistoryRepository;
-	@Autowired
-	private ClassRoomRepository classRoomRepo;
 	@Autowired
 	private ClassRoomDetailRepository classRoomDetailRepo;
 	@Autowired
@@ -67,9 +61,7 @@ public class RecordsHistoryView extends VerticalLayout implements View {
 
 		setCaption("<h3>Semakan Sejarah Pelajar</h3>");
 		setCaptionAsHtml(true);
-		Label label = new Label("Skrin untuk melihat sejarah pelajar. ");
-
-		addComponent(label);
+		setDescription("Skrin untuk melihat sejarah pelajar. ");
 	}
 	
 	private void bodySection() {

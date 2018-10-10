@@ -51,7 +51,6 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.TabSheet;
@@ -66,7 +65,7 @@ public class ConfigureView extends VerticalLayout implements View {
 		SCHOOL, CLASSROOM, CLASSROOM_DETAIL, TEACHER, DICIPLINE, STUDENT_ACTIVITY, PAYMENT_DESCRIPTION, BANK, GENERAL;
 	}
 
-	enum GeneralCodeCategory {
+	public enum GeneralCodeCategory {
 		STUDENT_STATUS("Status Pelajar"),
 		STUDENT_ACADEMIC_STATUS("Kod Status Pengajian Pelajar"),
 		STUDENT_GRADE_MONTHLY("Kod Penilaian Keputusan Bulanan");
@@ -185,7 +184,7 @@ public class ConfigureView extends VerticalLayout implements View {
 		VerticalLayout mainLayout = new VerticalLayout();
         FormLayout formLayout = new FormLayout();
 
-        Label label = new Label("Skrin untuk mengemaskini maklumat sekolah. Sila masukkan medan bertanda * dan tekan butang Kemaskini.");
+        String label = "Skrin untuk mengemaskini maklumat sekolah. Sila masukkan medan bertanda * dan tekan butang Kemaskini.";
 
         List<School> schoolList = schoolRepo.findAll();
         School school = schoolList != null && schoolList.size() > 0 ? schoolList.get(0) : new School();
@@ -284,7 +283,7 @@ public class ConfigureView extends VerticalLayout implements View {
         horizontalLayout.addComponent(btnSave);
         horizontalLayout.addComponent(btnCancel);
         formLayout.addComponent(horizontalLayout);
-        mainLayout.addComponent(label);
+        mainLayout.setDescription(label);
         mainLayout.addComponent(formLayout);
 
 		return mainLayout;
@@ -295,7 +294,7 @@ public class ConfigureView extends VerticalLayout implements View {
 
 		VerticalLayout mainLayout = new VerticalLayout();
 
-        Label label = new Label("Skrin untuk mengemaskini maklumat kategori kelas.");
+		String label = "Skrin untuk mengemaskini maklumat kategori kelas.";
 
         Button btnNew = new Button(VaadinIcons.PLUS);
         Button btnDelete = new Button(VaadinIcons.TRASH);
@@ -367,7 +366,7 @@ public class ConfigureView extends VerticalLayout implements View {
             dataProvider.refreshAll();
         });
 
-        mainLayout.addComponent(label);
+        mainLayout.setDescription(label);
         mainLayout.addComponent(buttonBar);
         mainLayout.addComponent(grid);
 
@@ -379,7 +378,7 @@ public class ConfigureView extends VerticalLayout implements View {
 
 		VerticalLayout mainLayout = new VerticalLayout();
 
-        Label label = new Label("Skrin untuk mengemaskini maklumat Pengajar. Sila masukkan medan bertanda * dan tekan butang Kemaskini.");
+		String label = "Skrin untuk mengemaskini maklumat Pengajar. Sila masukkan medan bertanda * dan tekan butang Kemaskini.";
 
         Button btnNew = new Button(VaadinIcons.PLUS);
         Button btnDelete = new Button(VaadinIcons.TRASH);
@@ -442,7 +441,7 @@ public class ConfigureView extends VerticalLayout implements View {
             dataProvider.refreshAll();
         });
 
-        mainLayout.addComponent(label);
+        mainLayout.setDescription(label);
         mainLayout.addComponent(buttonBar);
         mainLayout.addComponent(grid);
 
@@ -454,7 +453,7 @@ public class ConfigureView extends VerticalLayout implements View {
 
 		VerticalLayout mainLayout = new VerticalLayout();
 
-        Label label = new Label("Skrin untuk mengemaskini maklumat Kelas.");
+		String label = "Skrin untuk mengemaskini maklumat Kelas.";
 
         Button btnNew = new Button(VaadinIcons.PLUS);
         Button btnDelete = new Button(VaadinIcons.TRASH);
@@ -532,7 +531,7 @@ public class ConfigureView extends VerticalLayout implements View {
             dataProvider.refreshAll();
         });
 
-        mainLayout.addComponent(label);
+        mainLayout.setDescription(label);
         mainLayout.addComponent(buttonBar);
         mainLayout.addComponent(grid);
 
@@ -544,7 +543,7 @@ public class ConfigureView extends VerticalLayout implements View {
 
 		VerticalLayout mainLayout = new VerticalLayout();
 
-        Label label = new Label("Skrin untuk mengemaskini maklumat kesalahan disiplin.");
+		String label = "Skrin untuk mengemaskini maklumat kesalahan disiplin.";
 
         Button btnNew = new Button(VaadinIcons.PLUS);
         Button btnDelete = new Button(VaadinIcons.TRASH);
@@ -603,7 +602,7 @@ public class ConfigureView extends VerticalLayout implements View {
             dataProvider.refreshAll();
         });
 
-        mainLayout.addComponent(label);
+        mainLayout.setDescription(label);
         mainLayout.addComponent(buttonBar);
         mainLayout.addComponent(grid);
 
@@ -615,7 +614,7 @@ public class ConfigureView extends VerticalLayout implements View {
 
 		VerticalLayout mainLayout = new VerticalLayout();
 
-        Label label = new Label("Skrin untuk mengemaskini maklumat Item rekod harian pelajar.");
+		String label = "Skrin untuk mengemaskini maklumat Item rekod harian pelajar.";
 
         Button btnNew = new Button(VaadinIcons.PLUS);
         Button btnDelete = new Button(VaadinIcons.TRASH);
@@ -688,7 +687,7 @@ public class ConfigureView extends VerticalLayout implements View {
             dataProvider.refreshAll();
         });
 
-        mainLayout.addComponent(label);
+        mainLayout.setDescription(label);
         mainLayout.addComponent(buttonBar);
         mainLayout.addComponent(grid);
 
@@ -703,7 +702,7 @@ public class ConfigureView extends VerticalLayout implements View {
 
 		VerticalLayout mainLayout = new VerticalLayout();
 
-        Label label = new Label("Skrin untuk mengemaskini maklumat keterangan bayaran.");
+		String label = "Skrin untuk mengemaskini maklumat keterangan bayaran.";
 
         Button btnNew = new Button(VaadinIcons.PLUS);
         Button btnDelete = new Button(VaadinIcons.TRASH);
@@ -784,7 +783,7 @@ public class ConfigureView extends VerticalLayout implements View {
             dataProvider.refreshAll();
         });
 
-        mainLayout.addComponent(label);
+        mainLayout.setDescription(label);
         mainLayout.addComponent(buttonBar);
         mainLayout.addComponent(grid);
 
@@ -796,7 +795,7 @@ public class ConfigureView extends VerticalLayout implements View {
 
 		VerticalLayout mainLayout = new VerticalLayout();
 
-        Label label = new Label("Skrin untuk mengemaskini maklumat bank.");
+		String label = "Skrin untuk mengemaskini maklumat bank.";
 
         Button btnNew = new Button(VaadinIcons.PLUS);
         Button btnDelete = new Button(VaadinIcons.TRASH);
@@ -855,7 +854,7 @@ public class ConfigureView extends VerticalLayout implements View {
             dataProvider.refreshAll();
         });
 
-        mainLayout.addComponent(label);
+        mainLayout.setDescription(label);
         mainLayout.addComponent(buttonBar);
         mainLayout.addComponent(grid);
 
@@ -867,7 +866,7 @@ public class ConfigureView extends VerticalLayout implements View {
 
 		VerticalLayout mainLayout = new VerticalLayout();
 
-        Label label = new Label("Skrin untuk mengemaskini maklumat am.");
+		String label = "Skrin untuk mengemaskini maklumat am.";
 
         ComboBox<GeneralCodeCategory> cbCategory = new ComboBox<>("Kategori");
         cbCategory.setWidth(WIDTH, Unit.PIXELS);
@@ -967,7 +966,7 @@ public class ConfigureView extends VerticalLayout implements View {
         	}
         });
 
-        mainLayout.addComponent(label);
+        mainLayout.setDescription(label);
         mainLayout.addComponent(cbBar);
         mainLayout.addComponent(buttonBar);
         mainLayout.addComponent(grid);

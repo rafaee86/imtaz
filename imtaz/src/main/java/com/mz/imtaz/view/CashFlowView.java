@@ -28,7 +28,6 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -55,9 +54,7 @@ public class CashFlowView extends VerticalLayout implements View {
 
 		setCaption("<h3>Aliran Tunai</h3>");
 		setCaptionAsHtml(true);
-		Label label = new Label("Skrin untuk kemasukan target hafazan bulanan. Sila tekan butang Tambah untuk menambah rekod baru.");
-
-		addComponent(label);
+		setDescription("Skrin untuk kemasukan target hafazan bulanan. Sila tekan butang Tambah untuk menambah rekod baru.");
 	}
 
 	private void bodySection() {
