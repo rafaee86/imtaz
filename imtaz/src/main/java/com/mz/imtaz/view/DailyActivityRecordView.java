@@ -1,5 +1,7 @@
 package com.mz.imtaz.view;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,8 +38,10 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
+import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Notification;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.RadioButtonGroup;
 import com.vaadin.ui.VerticalLayout;
 
@@ -49,7 +53,7 @@ public class DailyActivityRecordView extends VerticalLayout implements View{
 	@Getter
 	enum RadioItem{
 
-		DONE("OK"), NOT_DONE("X"), IS_DICIPLINE_OCCUR("Disiplin");
+		DONE("Selesai"), NOT_DONE("Belum Selesai"),NOT_APPLICABLE("N/A"), IS_DICIPLINE_OCCUR("Disiplin");
 
 		private String description;
 
@@ -97,11 +101,6 @@ public class DailyActivityRecordView extends VerticalLayout implements View{
 
 	private void bodySection() {
 
-		Button btnNew = new Button(VaadinIcons.PLUS);
-		Button btnDelete = new Button(VaadinIcons.TRASH);
-		btnDelete.setEnabled(false);
-        HorizontalLayout buttonBar = new HorizontalLayout(btnNew, btnDelete);
-
         ComboBox<ClassRoomDetail> cbClassRoomDetail = new ComboBox<>("Kelas");
         cbClassRoomDetail.setWidth(WIDTH, Unit.PIXELS);
         cbClassRoomDetail.setItems(classRoomDetailRepo.findAllWithOrder());
@@ -128,92 +127,42 @@ public class DailyActivityRecordView extends VerticalLayout implements View{
 
 		List<DailyRecordItem> dailyItemList = dailyItemRepo.findAllActive(Sort.by(Sort.Direction.ASC, "sequence"));
 		if(dailyItemList == null) dailyItemList = new ArrayList<DailyRecordItem>();
-
-		Map<Integer, String> mapItem = dailyItemList.stream().collect(Collectors.toMap(DailyRecordItem::getPkid, DailyRecordItem::getDescription));
-
-		final Grid<Map<Integer, String>> grid = new Grid<Map<Integer, String>>();
+		
+		int rowNum = 0, columnNum = 0, index = 0;
+		if(dailyItemList.size() >= 4) {
+			BigDecimal num = new BigDecimal(Math.sqrt(dailyItemList.size()));
+			num = num.setScale(0, RoundingMode.HALF_UP);
+			columnNum = rowNum = num.intValue() + 1;
+		}else {
+			rowNum = 2;
+			columnNum = 2;
+		}
+		
+		GridLayout grid = new GridLayout(columnNum, rowNum);
 		grid.setEnabled(true);
 		grid.setSizeFull();
 		grid.setHeightUndefined();
 
-		for (Map.Entry<Integer, String> entry : mapItem.entrySet()) {
+		for(DailyRecordItem item : dailyItemList) {
+    		VerticalLayout layout = new VerticalLayout();
+    		layout.setCaption((index+1) + ". " + item.getDescription());
 			RadioButtonGroup<RadioItem> radio = new RadioButtonGroup<>();
 			radio.setItems(Arrays.asList(RadioItem.values()));
 			radio.setItemCaptionGenerator(item2 -> item2.getDescription());
-			radio.setId("radio" + entry.getKey());
-		    grid
-		    	.addColumn(h -> "gridColumn" + entry.getKey())
-		    	.setId("gridId" + entry.getKey())
-		    	.setCaption(entry.getValue());
+			radio.setId("radio" + item.getPkid());
+			radio.setValue(RadioItem.NOT_DONE);
+			layout.addComponent(radio);
+			grid.addComponent(layout);
+		    index++;            
 		}
-
-		grid.addSelectionListener(evt -> {
-        	if (evt.getFirstSelectedItem().isPresent()) {
-                btnDelete.setEnabled(true);
-            } else {
-                btnDelete.setEnabled(false);
-            }
-        });
-
-        btnDelete.addClickListener(evt -> {
-        	try {
-	        	if (!grid.getSelectedItems().isEmpty()) {
-//	                DailyActivity item = grid.getSelectedItems().iterator().next();
-//	                item.getRecordUtility().disabled();
-//	                if(item.getPkid() != null)dailyActivityRepo.save(item);
-//	                dataProvider.getItems().remove(item);
-//	                dataProvider.refreshAll();
-	            }
-        	}catch (Exception e) {
-        		 Notification.show("Rekod tidak berjaya dipadam.", Notification.Type.ERROR_MESSAGE);
-			}
-        });
-
-        grid.addSelectionListener(listener -> {
-
-        });
-
-        cbStudent.addSelectionListener(listener -> {
-        	ClassRoomDetail classRoomDetail = cbClassRoomDetail.getSelectedItem() != null && cbClassRoomDetail.getSelectedItem().get() != null ? cbClassRoomDetail.getSelectedItem().get() : null;
-        	Student student = listener.getSelectedItem() != null && listener.getSelectedItem().get() != null ? listener.getSelectedItem().get() : null;
-
-        	if(classRoomDetail != null && student != null) {
-				List<DailyActivity> targetList = dailyActivityRepo.findByClassRoomDetail(classRoomDetail, student);
-				List<DailyActivity> subTargetList = targetList != null && targetList.size() > limit ? targetList.subList(0, limit) : targetList;
-				total = Long.valueOf(subTargetList != null ? targetList.size() : 0);
-		        dataProvider = DataProvider.ofCollection(subTargetList != null ? subTargetList : new ArrayList<DailyActivity>());
-//		        grid.setDataProvider(dataProvider);
-			}
-		});
-
-		Pagination pagination = new Pagination(PaginationResource.newBuilder().setTotal(total).setPage(page).setLimit(limit).build());
-	    pagination.setItemsPerPage(10, 20, 50, 100);
-		pagination.addPageChangeListener(event -> {
-			Pageable pageable = PageRequest.of(event.pageIndex(), event.limit());
-			List<DailyActivity> pageTargetAllList = null;
-			ClassRoomDetail classRoomDetail = Helper.notNull(cbClassRoomDetail.getSelectedItem()) != null ? cbClassRoomDetail.getSelectedItem().get() : null;
-        	Student student = Helper.notNull(cbStudent.getSelectedItem()) != null ? cbStudent.getSelectedItem().get() : null;
-			if(classRoomDetail != null && student != null)
-				pageTargetAllList = dailyActivityRepo.findByClassRoomDetail(classRoomDetail, student);
-			Long totalAll = Long.valueOf(pageTargetAllList != null ? pageTargetAllList.size() : 0);
-			List<DailyActivity> pageRecordsSubList = null;
-			if(classRoomDetail != null && student != null)
-				pageRecordsSubList = dailyActivityRepo.findByClassRoomDetailPageable(classRoomDetail, student, pageable);
-			pagination.setTotalCount(totalAll);
-//			grid.setItems(pageRecordsSubList);
-		});
-
-        btnNew.addClickListener(evt -> {
-        	ClassRoomDetail detail = Helper.notNull(cbClassRoomDetail.getSelectedItem()) != null ? cbClassRoomDetail.getSelectedItem().get() : null;
-        	Student student = Helper.notNull(cbStudent.getSelectedItem()) != null ? cbStudent.getSelectedItem().get() : null;
-
-
-        });
 
         HorizontalLayout dpLayout = new HorizontalLayout(dpDate, btnRefresh);
         dpLayout.setCaption("Tarikh");
 		addComponent(new FormLayout(cbClassRoomDetail, cbStudent, dpLayout));
-		addComponent(buttonBar);
-		addComponent(grid);
+		
+		Panel mainPanel = new Panel();
+		mainPanel.setCaption("Kemaskini Rekod Harian");
+		mainPanel.setContent(grid);
+		addComponent(mainPanel);
 	}
 }

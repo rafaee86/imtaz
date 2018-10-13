@@ -10,6 +10,7 @@ import com.mz.imtaz.view.MemorizeTargetView;
 import com.mz.imtaz.view.PaymentView;
 import com.mz.imtaz.view.RecordsHistoryView;
 import com.mz.imtaz.view.RecordsRegisterView;
+import com.mz.imtaz.view.ReportView;
 import com.mz.imtaz.view.StudentRegisterView;
 import com.vaadin.annotations.Theme;
 import com.vaadin.icons.VaadinIcons;
@@ -33,7 +34,7 @@ import com.vaadin.ui.UI;
 
 @SpringUI
 @SpringViewDisplay
-@Theme("valo")
+@Theme("mytheme")
 public class MyUI extends UI implements ViewDisplay{
 
 	private SideMenu sideMenu = new SideMenu();
@@ -60,6 +61,7 @@ public class MyUI extends UI implements ViewDisplay{
         sideMenu.addNavigation("Aliran Tunai", VaadinIcons.MONEY_WITHDRAW, CashFlowView.NAME);
         sideMenu.addNavigation("Bayaran", VaadinIcons.MONEY_DEPOSIT, PaymentView.NAME);
         sideMenu.addNavigation("Sejarah Pelajar", VaadinIcons.ARCHIVES, RecordsHistoryView.NAME);
+        sideMenu.addNavigation("Laporan", VaadinIcons.NEWSPAPER, ReportView.NAME);
         sideMenu.addNavigation("Penyelenggaraan", VaadinIcons.TOOLS, ConfigureView.NAME);
     }
 
