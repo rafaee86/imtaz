@@ -54,7 +54,6 @@ public class CashFlowView extends VerticalLayout implements View {
 
 		setCaption("<h3>Aliran Tunai</h3>");
 		setCaptionAsHtml(true);
-		setDescription("Skrin untuk kemasukan target hafazan bulanan. Sila tekan butang Tambah untuk menambah rekod baru.");
 	}
 
 	private void bodySection() {

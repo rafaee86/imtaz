@@ -52,7 +52,6 @@ public class ReportView extends VerticalLayout implements View {
 
 		panel.setCaption("<h3>Laporan</h3>");
 		panel.setCaptionAsHtml(true);
-		panel.setDescription("Skrin untuk kemasukan target hafazan bulanan. Sila tekan butang Tambah untuk menambah rekod baru.");
 	}
 
 	private void bodySection(VerticalLayout layout) {
