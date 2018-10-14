@@ -82,7 +82,6 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
 	private void headerSection() {
 		setCaption("<h3>Pendaftaran Kelas</h3>");
 		setCaptionAsHtml(true);
-		setDescription("Skrin untuk mendaftar pelajar di kelas baru. Sila tekan butang Tambah untuk menambah kelas baru.");
 	}
 
 	private void bodySection() {

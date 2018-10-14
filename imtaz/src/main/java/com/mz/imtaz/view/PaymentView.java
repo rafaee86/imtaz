@@ -6,9 +6,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -31,7 +29,6 @@ import com.mz.imtaz.enums.PaymentType;
 import com.mz.imtaz.enums.RunningNumberCategory;
 import com.mz.imtaz.repository.BankRepository;
 import com.mz.imtaz.repository.ClassRoomDetailRepository;
-import com.mz.imtaz.repository.ClassRoomRepository;
 import com.mz.imtaz.repository.PaymentDescriptionRepository;
 import com.mz.imtaz.repository.PaymentItemRepository;
 import com.mz.imtaz.repository.PaymentMonthRepository;
@@ -126,7 +123,6 @@ public class PaymentView extends VerticalLayout implements View {
 
 		setCaption("<h3>Bayaran</h3>");
 		setCaptionAsHtml(true);
-		setDescription("Skrin untuk merekod bayaran pelajar. Sila masukkan bayaran baru pelajar. Setiap rekod tidak boleh dikemaskini setelah di kunci masuk.");
 	}
 
 	private void bodySection() {

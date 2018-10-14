@@ -92,7 +92,6 @@ public class DiciplineRecordView extends VerticalLayout implements View {
 
 		setCaption("<h3>Kemasukan Rekod Disiplin Pelajar</h3>");
 		setCaptionAsHtml(true);
-		setDescription("Skrin untuk kemasukan rekod disiplin pelajar. Sila tekan butang Tambah untuk menambah rekod baru.");
 	}
 
 	private void bodySection() {

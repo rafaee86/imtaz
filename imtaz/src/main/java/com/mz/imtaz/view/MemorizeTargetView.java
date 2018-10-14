@@ -79,7 +79,6 @@ public class MemorizeTargetView extends VerticalLayout implements View {
 
 		setCaption("<h3>Kemasukan Target Hafazan</h3>");
 		setCaptionAsHtml(true);
-		setDescription("Skrin untuk kemasukan target hafazan bulanan. Sila tekan butang Tambah untuk menambah rekod baru.");
 	}
 
 	private void bodySection() {

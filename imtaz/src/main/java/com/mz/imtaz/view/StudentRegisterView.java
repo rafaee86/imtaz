@@ -76,7 +76,6 @@ public class StudentRegisterView extends VerticalLayout implements View{
 
 		setCaption("<h3>Pendaftaran Pelajar</h3>");
 		setCaptionAsHtml(true);
-		setDescription("Skrin untuk mendaftar pelajar baru. Sila tekan butang Tambah untuk menambah pelajar baru.");
 	}
 
 	private void bodySection() {

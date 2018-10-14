@@ -61,7 +61,6 @@ public class RecordsHistoryView extends VerticalLayout implements View {
 
 		setCaption("<h3>Semakan Sejarah Pelajar</h3>");
 		setCaptionAsHtml(true);
-		setDescription("Skrin untuk melihat sejarah pelajar. ");
 	}
 	
 	private void bodySection() {

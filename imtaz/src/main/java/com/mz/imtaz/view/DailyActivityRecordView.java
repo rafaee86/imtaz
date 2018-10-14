@@ -6,14 +6,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import com.mz.imtaz.entity.ClassRoomDetail;
@@ -26,9 +22,6 @@ import com.mz.imtaz.repository.DailyActivityRepository;
 import com.mz.imtaz.repository.DailyRecordItemRepository;
 import com.mz.imtaz.repository.StudentRepository;
 import com.mz.imtaz.util.Helper;
-import com.vaadin.addon.pagination.Pagination;
-import com.vaadin.addon.pagination.PaginationResource;
-import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
@@ -37,10 +30,8 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Grid;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Notification;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.RadioButtonGroup;
 import com.vaadin.ui.VerticalLayout;
@@ -53,7 +44,7 @@ public class DailyActivityRecordView extends VerticalLayout implements View{
 	@Getter
 	enum RadioItem{
 
-		DONE("Selesai"), NOT_DONE("Belum Selesai"),NOT_APPLICABLE("N/A"), IS_DICIPLINE_OCCUR("Disiplin");
+		NOT_DONE("Belum Selesai"), DONE("Selesai"), NOT_APPLICABLE("N/A");
 
 		private String description;
 
@@ -96,7 +87,6 @@ public class DailyActivityRecordView extends VerticalLayout implements View{
 
 		setCaption("<h3>Rekod Aktiviti Harian Pelajar</h3>");
 		setCaptionAsHtml(true);
-		setDescription("Skrin untuk merekod aktiviti harian pelajar. Sila tekan butang Tambah untuk menambah rekod baru.");
 	}
 
 	private void bodySection() {
@@ -155,6 +145,10 @@ public class DailyActivityRecordView extends VerticalLayout implements View{
 			grid.addComponent(layout);
 		    index++;            
 		}
+		
+		btnRefresh.addClickListener(listener -> {
+			
+		});
 
         HorizontalLayout dpLayout = new HorizontalLayout(dpDate, btnRefresh);
         dpLayout.setCaption("Tarikh");
