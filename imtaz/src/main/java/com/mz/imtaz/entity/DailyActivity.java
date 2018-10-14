@@ -1,6 +1,6 @@
 package com.mz.imtaz.entity;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,8 +11,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.Type;
@@ -36,18 +34,17 @@ public class DailyActivity {
 	@ManyToOne(fetch = FetchType.EAGER)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Records records;
-	@Temporal(TemporalType.DATE)
-	private Date date;
-	private Integer totalDiciplineIssue;
+	private LocalDate date;
 	@Transient
 	@Setter(value = AccessLevel.NONE)
 	@Getter(value = AccessLevel.NONE)
 	private String remarks;
 	private RecordUtility recordUtility;
+	private Integer diciplineIssues;
 
 	public String getRemarks() {
 		String remarks = null;
-		if(this.totalDiciplineIssue != null && this.totalDiciplineIssue > 10) {
+		if(this.diciplineIssues != null && this.diciplineIssues > 10) {
 			remarks = "Tidak boleh outing";
 		}else {
 			remarks = "Boleh outing";
