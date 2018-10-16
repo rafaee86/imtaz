@@ -87,7 +87,9 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
 	private void bodySection() {
 		Button btnNew = new Button(VaadinIcons.PLUS);
 		Button btnSave = new Button("Simpan");
-        HorizontalLayout buttonBar = new HorizontalLayout(btnNew, btnSave);
+		Button btnDelete = new Button(VaadinIcons.TRASH);
+		btnDelete.setEnabled(false);
+        HorizontalLayout buttonBar = new HorizontalLayout(btnNew, btnSave, btnDelete);
 
         ComboBox<ClassRoom> cbClassRoom = new ComboBox<>("Kategori Kelas");
         cbClassRoom.setWidth(WIDTH, Unit.PIXELS);
@@ -120,7 +122,12 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
         grid.addSelectionListener(listener -> {
         	Records records = Helper.notNull(listener.getFirstSelectedItem()) != null ? listener.getFirstSelectedItem().get() : null;
         	if(records != null) {
-        		createEditWindow(records);
+        		if(records.getPkid() != null) {
+        			createEditWindow(records);
+        			btnDelete.setEnabled(false);
+        		}else {
+        			btnDelete.setEnabled(true);
+        		}
         	}
         });
 
@@ -155,6 +162,18 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
         		createWindow(new Records(detail));
         	else
         		Notification.show("Kelas tidak dipilih.", Type.ERROR_MESSAGE);
+        });
+        
+        btnDelete.addClickListener(evt -> {
+        	try {
+	        	if (!grid.getSelectedItems().isEmpty()) {
+	                Records item = grid.getSelectedItems().iterator().next();
+	                dataProvider.getItems().remove(item);
+	                dataProvider.refreshAll();
+	            }
+        	}catch (Exception e) {
+        		 Notification.show("Rekod tidak berjaya dipadam.", Notification.Type.ERROR_MESSAGE);
+			}
         });
 
         btnSave.addClickListener(evt -> {

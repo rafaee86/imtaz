@@ -13,5 +13,7 @@ public interface GeneralCodeRepository  extends JpaRepository<GeneralCode, Integ
 
 	@Query("Select a from GeneralCode a where a.recordUtility.statusFlag = true and a.category = :category")
 	List<GeneralCode> findByCategory(@Param("category") String category, Sort sort);
+	
+	GeneralCode findByCategoryAndCode(@Param("category") String category, @Param("code") String code);
 
 }
