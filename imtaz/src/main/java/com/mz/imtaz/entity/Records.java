@@ -1,13 +1,10 @@
 package com.mz.imtaz.entity;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Type;
@@ -15,30 +12,26 @@ import org.hibernate.annotations.Type;
 import lombok.Getter;
 import lombok.Setter;
 
+@SuppressWarnings("serial")
 @Entity
 @Getter
 @Setter
 @Table(name="RECORDS")
-public class Records implements Cloneable{
+public class Records implements Cloneable,Serializable{
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(nullable = false, length=8)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Integer pkid;
-	@JoinColumn(name = "STUDENT", referencedColumnName = "PKID")
-	@ManyToOne(fetch = FetchType.EAGER)
 	@Type(type = "org.hibernate.type.IntegerType")
-	private Student student;
-	@JoinColumn(name = "ClassRoomDetail", referencedColumnName = "PKID")
-	@ManyToOne(fetch = FetchType.EAGER)
+	private Integer student;
 	@Type(type = "org.hibernate.type.IntegerType")
-	private ClassRoomDetail classRoomDetail;
+	private Integer classRoomDetail;
 	private RecordUtility recordUtility;
 
 	public Records(){}
 
-	public Records(ClassRoomDetail classRoomDetail) {
+	public Records(Integer classRoomDetail) {
 		this.classRoomDetail = classRoomDetail;
 	}
 	

@@ -13,12 +13,13 @@ import org.hibernate.annotations.Type;
 import lombok.Getter;
 import lombok.Setter;
 
+@SuppressWarnings("serial")
 @Setter
 @Getter
 @Embeddable
 public class RecordUtility implements Serializable {
 
-	@Column(nullable = true, length=1)
+	@Column(nullable = false, length=1)
 	@Type(type = "org.hibernate.type.NumericBooleanType")
 	private Boolean statusFlag = Boolean.TRUE;
 	@Column(nullable = true, length=8)

@@ -19,22 +19,20 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name="TEACHER")
-public class Teacher implements Serializable {
+@Table(name="DISCIPLINE")
+public class Discipline implements Serializable {
 
 	@Id
 	@Column(nullable = false, length=8)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Integer pkid;
-	@Column(nullable = false, length=10)
-	private String salutation;
-	@Column(nullable = false, length=100)
+	@Column(nullable = false, length=200)
 	@Setter(value = AccessLevel.NONE)
-	private String name;
+	private String description;
 	@Embedded
 	private RecordUtility recordUtility;
 
-	public void setName(String name) {
-		this.name = name != null ? WordUtils.capitalizeFully(name) : null;
+	public void setDescription(String description) {
+		this.description = description != null ? WordUtils.capitalizeFully(description) : null;
 	}
 }

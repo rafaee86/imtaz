@@ -16,17 +16,16 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name="DAILY_ACTIVITY_ITEM")
-public class DailyActivityItem implements Serializable {
+@Table(name="DICIPLINE_RECORD_ITEM")
+public class DisciplineRecordItem implements Serializable {
 
 	@Id
 	@Column(nullable = false, length=8)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Integer pkid;
 	@Type(type = "org.hibernate.type.IntegerType")
-	private Integer dailyActivity;
+	private Integer disciplineRecord;
 	@Type(type = "org.hibernate.type.IntegerType")
-	private Integer dailyRecordItem;
-	@Type(type = "org.hibernate.type.NumericBooleanType")
-	private Boolean done;
+	private Integer discipline;
+	
 }

@@ -11,8 +11,6 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.vaadin.ui.NumberField;
@@ -464,23 +462,28 @@ public class ConfigureView extends VerticalLayout implements View {
         .setEditorComponent(tfName, ClassRoomDetail::setName)
         .setSortable(true);
 
-        ComboBox<ClassRoom> cbClassRoom = new ComboBox<>();
-        cbClassRoom.setDataProvider(DataProvider.ofCollection(classRoomRepo.findAllActive(Sort.by(Direction.ASC, "level"))));
-        cbClassRoom.setItemCaptionGenerator(item -> item.getName());
-        grid.addColumn(ClassRoomDetail::getClassRoom, item -> item !=  null ? item.getName() : "").setCaption("Kategori Kelas")
-        .setEditorComponent(cbClassRoom, ClassRoomDetail::setClassRoom);
+        grid.addColumn(ClassRoomDetail::getClassRoom).setCaption("Kategori Kelas");
+        grid.addComponentColumn(v -> {
+        	ComboBox<ClassRoom> cbClassRoom = new ComboBox<>();
+            cbClassRoom.setDataProvider(DataProvider.ofCollection(classRoomRepo.findAllActive(Sort.by(Direction.ASC, "level"))));
+            cbClassRoom.setItemCaptionGenerator(item -> item.getName());
+            return cbClassRoom;
+        });
 
-        ComboBox<Teacher> cbTeacher = new ComboBox<>();
-        cbTeacher.setDataProvider(DataProvider.ofCollection(teacherRepo.findAllActive(Sort.by(Direction.ASC, "name"))));
-        cbTeacher.setItemCaptionGenerator(item -> item.getSalutation() + " " + item.getName());
-        grid.addColumn(ClassRoomDetail::getTeacher, item -> item !=  null ? item.getSalutation() + " " + item.getName() : "").setCaption("Pengajar")
-        .setEditorComponent(cbTeacher, ClassRoomDetail::setTeacher)
-        .setDescriptionGenerator(item -> item.getPkid()+"");
+        
+        grid.addColumn(ClassRoomDetail::getTeacher).setCaption("Pengajar");
+        grid.addComponentColumn(v -> {
+        	ComboBox<Teacher> cbTeacher = new ComboBox<>();
+            cbTeacher.setDataProvider(DataProvider.ofCollection(teacherRepo.findAllActive(Sort.by(Direction.ASC, "name"))));
+            cbTeacher.setItemCaptionGenerator(item -> item.getSalutation() + " " + item.getName());
+            return cbTeacher;
+        });
+        grid.setDescriptionGenerator(item -> item.getPkid()+"");
 
 
 		btnRefresh.addClickListener(listener -> {
-			cbClassRoom.setDataProvider(DataProvider.ofCollection(classRoomRepo.findAllActive(Sort.by(Direction.ASC, "level"))));
-			cbTeacher.setDataProvider(DataProvider.ofCollection(teacherRepo.findAllActive(Sort.by(Direction.ASC, "name"))));
+//			cbClassRoom.setDataProvider(DataProvider.ofCollection(classRoomRepo.findAllActive(Sort.by(Direction.ASC, "level"))));
+//			cbTeacher.setDataProvider(DataProvider.ofCollection(teacherRepo.findAllActive(Sort.by(Direction.ASC, "name"))));
 		});
 
         grid.getEditor().addSaveListener(evt -> {

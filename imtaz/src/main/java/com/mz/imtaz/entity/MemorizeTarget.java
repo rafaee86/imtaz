@@ -1,13 +1,10 @@
 package com.mz.imtaz.entity;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Type;
@@ -15,21 +12,19 @@ import org.hibernate.annotations.Type;
 import lombok.Getter;
 import lombok.Setter;
 
+@SuppressWarnings("serial")
 @Entity
 @Getter
 @Setter
 @Table(name="MEMORIZE_TARGET")
-public class MemorizeTarget{
+public class MemorizeTarget implements Serializable{
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(nullable = false, length=8)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Integer pkid;
-	@JoinColumn(name = "RECORDS", referencedColumnName = "PKID")
-	@ManyToOne(fetch = FetchType.EAGER)
 	@Type(type = "org.hibernate.type.IntegerType")
-	private Records records;
+	private Integer records;
 	private Integer year;
 	private Integer month;
 	@Column(nullable = false, length=50)
@@ -48,7 +43,7 @@ public class MemorizeTarget{
 
 	public MemorizeTarget() {}
 
-	public MemorizeTarget(Records records) {
+	public MemorizeTarget(Integer records) {
 		this.records = records;
 	}
 }

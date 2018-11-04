@@ -1,62 +1,48 @@
 package com.mz.imtaz.entity;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.List;
-import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.Type;
+
 import com.mz.imtaz.enums.PaymentType;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
+@SuppressWarnings("serial")
 @Entity
 @Getter
 @Setter
 @Table(name="PAYMENT")
-public class Payment {
+public class Payment implements Serializable {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(nullable = false, length=8)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Integer pkid;
-	@JoinColumn(name = "Records", referencedColumnName = "PKID")
-	@ManyToOne(fetch = FetchType.EAGER)
 	@Type(type = "org.hibernate.type.IntegerType")
-	private Records records;
+	private Integer records;
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(nullable = false)
 	private Date transactionDate;
 	private Integer year;
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "payment")	
-	private List<PaymentMonth> paymentMonth;
 	@Column(nullable = false, precision = 10, scale = 2)
 	private BigDecimal totalAmount;
 	@Column(nullable = false)
 	private PaymentType paymentType;
-	@JoinColumn(name = "Bank", referencedColumnName = "PKID")
-	@OneToOne(fetch = FetchType.EAGER)
 	@Type(type = "org.hibernate.type.IntegerType")
-	private Bank bank;
+	private Integer bank;
 	@Setter(value = AccessLevel.NONE)
 	@Column(nullable = true, length = 50)
 	private String referenceId;
