@@ -27,7 +27,7 @@ import lombok.Setter;
 public class CashFlow {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE)
 	@Column(nullable = false, length=8)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Integer pkid;

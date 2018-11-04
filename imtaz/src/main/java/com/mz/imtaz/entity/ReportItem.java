@@ -26,12 +26,12 @@ import lombok.Setter;
 public class ReportItem {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE)
 	@Column(nullable = false, length=8)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Integer pkid;
 	@JoinColumn(name = "REPORT_HEADER", referencedColumnName = "PKID")
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private ReportHeader reportHeader;
 	@Column(nullable = false, length=200)

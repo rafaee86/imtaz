@@ -11,8 +11,6 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.vaadin.ui.NumberField;
@@ -21,7 +19,7 @@ import com.mz.imtaz.entity.Bank;
 import com.mz.imtaz.entity.ClassRoom;
 import com.mz.imtaz.entity.ClassRoomDetail;
 import com.mz.imtaz.entity.DailyRecordItem;
-import com.mz.imtaz.entity.Dicipline;
+import com.mz.imtaz.entity.Discipline;
 import com.mz.imtaz.entity.GeneralCode;
 import com.mz.imtaz.entity.PaymentDescription;
 import com.mz.imtaz.entity.RecordUtility;
@@ -32,7 +30,7 @@ import com.mz.imtaz.repository.BankRepository;
 import com.mz.imtaz.repository.ClassRoomDetailRepository;
 import com.mz.imtaz.repository.ClassRoomRepository;
 import com.mz.imtaz.repository.DailyRecordItemRepository;
-import com.mz.imtaz.repository.DiciplineRepository;
+import com.mz.imtaz.repository.DisciplineRepository;
 import com.mz.imtaz.repository.GeneralCodeRepository;
 import com.mz.imtaz.repository.PaymentDescriptionRepository;
 import com.mz.imtaz.repository.SchoolRepository;
@@ -62,7 +60,7 @@ import com.vaadin.ui.themes.ValoTheme;
 public class ConfigureView extends VerticalLayout implements View {
 
 	enum TabType {
-		SCHOOL, CLASSROOM, CLASSROOM_DETAIL, TEACHER, DICIPLINE, STUDENT_ACTIVITY, PAYMENT_DESCRIPTION, BANK, GENERAL;
+		SCHOOL, CLASSROOM, CLASSROOM_DETAIL, TEACHER, DISCIPLINE, STUDENT_ACTIVITY, PAYMENT_DESCRIPTION, BANK, GENERAL;
 	}
 
 	public enum GeneralCodeCategory {
@@ -93,7 +91,7 @@ public class ConfigureView extends VerticalLayout implements View {
 	@Autowired
 	private ClassRoomDetailRepository classRoomDetailRepo;
 	@Autowired
-	private DiciplineRepository diciplineRepo;
+	private DisciplineRepository disciplineRepo;
 	@Autowired
 	private DailyRecordItemRepository dailyRecordItemRepo;
 	@Autowired
@@ -117,7 +115,7 @@ public class ConfigureView extends VerticalLayout implements View {
 		tab.addTab(getTabContent(TabType.CLASSROOM.name()), "Kategori Kelas").setId(TabType.CLASSROOM.name());
 		tab.addTab(getTabContent(TabType.TEACHER.name()), "Pengajar").setId(TabType.TEACHER.name());
 		tab.addTab(getTabContent(TabType.CLASSROOM_DETAIL.name()), "Kelas").setId(TabType.CLASSROOM_DETAIL.name());
-		tab.addTab(getTabContent(TabType.DICIPLINE.name()), "Disiplin").setId(TabType.DICIPLINE.name());
+		tab.addTab(getTabContent(TabType.DISCIPLINE.name()), "Disiplin").setId(TabType.DISCIPLINE.name());
 		tab.addTab(getTabContent(TabType.STUDENT_ACTIVITY.name()), "Item Rekod Harian Pelajar").setId(TabType.STUDENT_ACTIVITY.name());
 		tab.addTab(getTabContent(TabType.PAYMENT_DESCRIPTION.name()), "Perihal Bayaran").setId(TabType.PAYMENT_DESCRIPTION.name());
 		tab.addTab(getTabContent(TabType.BANK.name()), "Bank").setId(TabType.BANK.name());
@@ -138,8 +136,8 @@ public class ConfigureView extends VerticalLayout implements View {
 			dataProviderMap.put(id, DataProvider.ofCollection(teacherRepo.findAllActive(Sort.by(Sort.Direction.ASC, "name"))));
 		}else if(TabType.CLASSROOM_DETAIL.name().equals(id)) {
 			dataProviderMap.put(id, DataProvider.ofCollection(classRoomDetailRepo.findAllWithOrder()));
-		}else if(TabType.DICIPLINE.name().equals(id)) {
-			dataProviderMap.put(id, DataProvider.ofCollection(diciplineRepo.findAllActive(Sort.by(Sort.Direction.ASC, "description"))));
+		}else if(TabType.DISCIPLINE.name().equals(id)) {
+			dataProviderMap.put(id, DataProvider.ofCollection(disciplineRepo.findAllActive(Sort.by(Sort.Direction.ASC, "description"))));
 		}else if(TabType.STUDENT_ACTIVITY.name().equals(id)) {
 			dataProviderMap.put(id, DataProvider.ofCollection(dailyRecordItemRepo.findAllActive(Sort.by(Sort.Direction.ASC,"sequence"))));
 		}else if(TabType.PAYMENT_DESCRIPTION.name().equals(id)) {
@@ -162,8 +160,8 @@ public class ConfigureView extends VerticalLayout implements View {
 			layout = configureClassRoomDetailTab();
 		}else if(TabType.TEACHER.name().equalsIgnoreCase(id)) {
 			layout = configureTeacherTab();
-		}else if(TabType.DICIPLINE.name().equalsIgnoreCase(id)) {
-			layout = configureDiciplineTab();
+		}else if(TabType.DISCIPLINE.name().equalsIgnoreCase(id)) {
+			layout = configureDisciplineTab();
 		}else if(TabType.STUDENT_ACTIVITY.name().equalsIgnoreCase(id)) {
 			layout = configureStudentActivityTab();
 		}else if(TabType.PAYMENT_DESCRIPTION.name().equalsIgnoreCase(id)) {
@@ -344,7 +342,7 @@ public class ConfigureView extends VerticalLayout implements View {
         	try {
 	        	if (!grid.getSelectedItems().isEmpty()) {
 	                ClassRoom item = grid.getSelectedItems().iterator().next();
-	                item.getRecordUtility().disabled();
+	                item.getRecordUtility().disabled(null);
 	                if(item.getPkid() != null)classRoomRepo.save(item);
 	                dataProvider.getItems().remove(item);
 	                dataProvider.refreshAll();
@@ -418,7 +416,7 @@ public class ConfigureView extends VerticalLayout implements View {
         	try {
 	        	if (!grid.getSelectedItems().isEmpty()) {
 	                Teacher item = grid.getSelectedItems().iterator().next();
-	                item.getRecordUtility().disabled();
+	                item.getRecordUtility().disabled(null);
 	                if(item.getPkid() != null)teacherRepo.save(item);
 	                dataProvider.getItems().remove(item);
 	                dataProvider.refreshAll();
@@ -452,7 +450,7 @@ public class ConfigureView extends VerticalLayout implements View {
         
         Grid<ClassRoomDetail> grid = new Grid<>();
         tabListener(TabType.CLASSROOM_DETAIL.name());
-        ListDataProvider<ClassRoomDetail> dataProvider = (ListDataProvider<ClassRoomDetail>) dataProviderMap.get(TabType.CLASSROOM_DETAIL.name());;
+        ListDataProvider<ClassRoomDetail> dataProvider = (ListDataProvider<ClassRoomDetail>) dataProviderMap.get(TabType.CLASSROOM_DETAIL.name());
         grid.setDataProvider(dataProvider);
         grid.getEditor().setEnabled(true);
         grid.setSizeFull();
@@ -505,7 +503,7 @@ public class ConfigureView extends VerticalLayout implements View {
         	try {
 	        	if (!grid.getSelectedItems().isEmpty()) {
 	        		ClassRoomDetail item = grid.getSelectedItems().iterator().next();
-	        		item.getRecordUtility().disabled();
+	        		item.getRecordUtility().disabled(null);
 	                if(item.getPkid() != null)classRoomDetailRepo.save(item);
 	                dataProvider.getItems().remove(item);
 	                dataProvider.refreshAll();
@@ -527,7 +525,7 @@ public class ConfigureView extends VerticalLayout implements View {
 	}
 
 	@SuppressWarnings("unchecked")
-	private VerticalLayout configureDiciplineTab() {
+	private VerticalLayout configureDisciplineTab() {
 
 		VerticalLayout mainLayout = new VerticalLayout();
 
@@ -536,9 +534,9 @@ public class ConfigureView extends VerticalLayout implements View {
         btnDelete.setEnabled(false);
         HorizontalLayout buttonBar = new HorizontalLayout(btnNew, btnDelete);
 
-        Grid<Dicipline> grid = new Grid<>();
-        tabListener(TabType.DICIPLINE.name());
-        ListDataProvider<Dicipline> dataProvider = (ListDataProvider<Dicipline>) dataProviderMap.get(TabType.DICIPLINE.name());
+        Grid<Discipline> grid = new Grid<>();
+        tabListener(TabType.DISCIPLINE.name());
+        ListDataProvider<Discipline> dataProvider = (ListDataProvider<Discipline>) dataProviderMap.get(TabType.DISCIPLINE.name());
         grid.setDataProvider(dataProvider);
         grid.getEditor().setEnabled(true);
         grid.setSizeFull();
@@ -547,15 +545,15 @@ public class ConfigureView extends VerticalLayout implements View {
         tfDesc.setWidth(70, Unit.PERCENTAGE);
         tfDesc.setMaxLength(50);
         tfDesc.setRequiredIndicatorVisible(true);
-        grid.addColumn(Dicipline::getDescription).setCaption("Perihal")
-        .setEditorComponent(tfDesc, Dicipline::setDescription)
+        grid.addColumn(Discipline::getDescription).setCaption("Perihal")
+        .setEditorComponent(tfDesc, Discipline::setDescription)
         .setSortable(true);
 
         grid.getEditor().addSaveListener(evt -> {
         	try {
-                Dicipline item = evt.getBean();
+                Discipline item = evt.getBean();
         		item.setRecordUtility(new RecordUtility());
-                diciplineRepo.save(item);
+                disciplineRepo.save(item);
                 dataProvider.refreshAll();
             } catch (Exception e) {
                 Notification.show("Rekod tidak berjaya dikemaskini.", Notification.Type.ERROR_MESSAGE);
@@ -572,9 +570,9 @@ public class ConfigureView extends VerticalLayout implements View {
         btnDelete.addClickListener(evt -> {
         	try {
 	        	if (!grid.getSelectedItems().isEmpty()) {
-	                Dicipline item = grid.getSelectedItems().iterator().next();
-	        		item.getRecordUtility().disabled();
-	                if(item.getPkid() != null)diciplineRepo.save(item);
+	                Discipline item = grid.getSelectedItems().iterator().next();
+	        		item.getRecordUtility().disabled(null);
+	                if(item.getPkid() != null)disciplineRepo.save(item);
 	                dataProvider.getItems().remove(item);
 	                dataProvider.refreshAll();
 	            }
@@ -584,7 +582,7 @@ public class ConfigureView extends VerticalLayout implements View {
         });
 
         btnNew.addClickListener(evt -> {
-        	dataProvider.getItems().add(new Dicipline());
+        	dataProvider.getItems().add(new Discipline());
             dataProvider.refreshAll();
         });
 
@@ -653,7 +651,7 @@ public class ConfigureView extends VerticalLayout implements View {
         	try {
 	        	if (!grid.getSelectedItems().isEmpty()) {
 	        		DailyRecordItem item = grid.getSelectedItems().iterator().next();
-	        		item.getRecordUtility().disabled();
+	        		item.getRecordUtility().disabled(null);
 	                if(item.getPkid() != null)dailyRecordItemRepo.save(item);
 	                dataProvider.getItems().remove(item);
 	                dataProvider.refreshAll();
@@ -748,7 +746,7 @@ public class ConfigureView extends VerticalLayout implements View {
         	try {
 	        	if (!grid.getSelectedItems().isEmpty()) {
 	        		PaymentDescription item = grid.getSelectedItems().iterator().next();
-	                item.getRecordUtility().disabled();
+	                item.getRecordUtility().disabled(null);
 	                if(item.getPkid() != null)paymentDescRepo.save(item);
 	                dataProvider.getItems().remove(item);
 	                dataProvider.refreshAll();
@@ -816,7 +814,7 @@ public class ConfigureView extends VerticalLayout implements View {
         	try {
 	        	if (!grid.getSelectedItems().isEmpty()) {
 	                Bank item = grid.getSelectedItems().iterator().next();
-	                item.getRecordUtility().disabled();
+	                item.getRecordUtility().disabled(null);
 	                if(item.getPkid() != null)bankRepo.save(item);
 	                dataProvider.getItems().remove(item);
 	                dataProvider.refreshAll();
@@ -918,7 +916,7 @@ public class ConfigureView extends VerticalLayout implements View {
         	try {
 	        	if (!grid.getSelectedItems().isEmpty()) {
 	        		GeneralCode item = grid.getSelectedItems().iterator().next();
-	                item.getRecordUtility().disabled();
+	                item.getRecordUtility().disabled(null);
 	                if(item.getPkid() != null)generalCodeRepo.save(item);
 	                dataProvider.getItems().remove(item);
 	                dataProvider.refreshAll();

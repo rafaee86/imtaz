@@ -13,17 +13,24 @@ import org.hibernate.annotations.Type;
 import lombok.Getter;
 import lombok.Setter;
 
+@SuppressWarnings("serial")
 @Setter
 @Getter
 @Embeddable
 public class RecordUtility implements Serializable {
 
-	@Column(nullable = true, length=1)
+	@Column(nullable = false, length=1)
 	@Type(type = "org.hibernate.type.NumericBooleanType")
 	private Boolean statusFlag = Boolean.TRUE;
 	@Column(nullable = true, length=8)
 	@Type(type = "org.hibernate.type.IntegerType")
-	private Integer userPkid;
+	private Integer userAddPkid;
+	@Column(nullable = true, length=8)
+	@Type(type = "org.hibernate.type.IntegerType")
+	private Integer userUpdatedPkid;
+	@Column(nullable = true, length=8)
+	@Type(type = "org.hibernate.type.IntegerType")
+	private Integer userDeletePkid;
 	@Temporal(TemporalType.TIMESTAMP)
     @Column
 	private Date createdDate;
@@ -38,19 +45,25 @@ public class RecordUtility implements Serializable {
 		this.createdDate = new Date();
 	}
 
-	public RecordUtility(Integer userPkid) {
-		this.userPkid = userPkid;
+	public RecordUtility(Integer userAddPkid) {
+		this.userAddPkid = userAddPkid;
 		this.statusFlag = true;
 		this.createdDate = new Date();
 	}
 	
-	public void disabled() {
+	public void disabled(Integer userDeletePkid) {
 		this.statusFlag = false;
+		this.userDeletePkid = userDeletePkid;
 		this.deletedDate = new Date();
 	}
 
-	public void enabled() {
+	public void enabled(Integer userUpdatedPkid) {
 		this.statusFlag = true;
-		this.createdDate = new Date();
+		edited(userUpdatedPkid);
+	}
+	
+	public void edited(Integer userUpdatedPkid) {
+		this.userUpdatedPkid = userUpdatedPkid;
+		this.updatedDate = new Date();
 	}
 }

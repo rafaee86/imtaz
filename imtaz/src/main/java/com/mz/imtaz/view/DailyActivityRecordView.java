@@ -190,7 +190,7 @@ public class DailyActivityRecordView extends VerticalLayout implements View{
 //				dailyActivity = dailyActivityRepo.save(dailyActivity);
 //			}
 //			
-//			Integer diciplineIssues = 0; 
+//			Integer disciplineIssues = 0; 
 //			
 //			for(int x = 0; x < grid.getRows() ; x++) {
 //				for(int y = 0; y < grid.getColumns() ; y++) {
@@ -204,13 +204,13 @@ public class DailyActivityRecordView extends VerticalLayout implements View{
 //						item = dailyActivityItemRepo.save(item);
 //						
 //						if(item.getDone() != null && !item.getDone()) {
-//							diciplineIssues++;
+//							disciplineIssues++;
 //						}
 //					}
 //				}
 //			}
 //			
-//			dailyActivity.setDiciplineIssues(diciplineIssues);
+//			dailyActivity.setDisciplineIssues(disciplineIssues);
 //			dailyActivityRepo.save(dailyActivity);
 //		});
 		

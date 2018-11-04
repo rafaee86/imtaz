@@ -19,21 +19,21 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name="DICIPLINE_RECORD_ITEM")
-public class DiciplineRecordItem {
+@Table(name="DISCIPLINE_RECORD_ITEM")
+public class DisciplineRecordItem {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE)
 	@Column(nullable = false, length=8)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Integer pkid;
-	@JoinColumn(name = "DiciplineRecord", referencedColumnName = "PKID")
-	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "DisciplineRecord", referencedColumnName = "PKID")
+	@ManyToOne(fetch = FetchType.LAZY)
 	@Type(type = "org.hibernate.type.IntegerType")
-	private DiciplineRecord diciplineRecord;
-	@JoinColumn(name = "Dicipline", referencedColumnName = "PKID")
-	@OneToOne(fetch = FetchType.EAGER)
+	private DisciplineRecord disciplineRecord;
+	@JoinColumn(name = "Discipline", referencedColumnName = "PKID")
+	@OneToOne(fetch = FetchType.LAZY)
 	@Type(type = "org.hibernate.type.IntegerType")
-	private Dicipline dicipline;
+	private Discipline discipline;
 	
 }

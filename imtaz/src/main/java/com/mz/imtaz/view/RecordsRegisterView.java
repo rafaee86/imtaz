@@ -341,7 +341,7 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
 						newRecords.setClassRoomDetail(classRoomDetail);
 						newRecords.setPkid(null);
 						newRecords.getRecordUtility().setCreatedDate(new Date());
-						newRecords.getRecordUtility().enabled();
+						newRecords.getRecordUtility().enabled(null);
 						
 						newRecords = recordsRepo.save(newRecords);
 						recordsRepo.save(records);
@@ -370,7 +370,6 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
 	        			}
 	        		}
 				} catch (Exception e) {
-					e.printStackTrace();
 					Notification.show("Proses Tidak Berjaya.", Type.ERROR_MESSAGE);
 					modal.close();
 				}

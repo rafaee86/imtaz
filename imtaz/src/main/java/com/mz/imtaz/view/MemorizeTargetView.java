@@ -142,7 +142,7 @@ public class MemorizeTargetView extends VerticalLayout implements View {
         	try {
 	        	if (!grid.getSelectedItems().isEmpty()) {
 	                MemorizeTarget item = grid.getSelectedItems().iterator().next();
-	                item.getRecordUtility().disabled();
+	                item.getRecordUtility().disabled(null);
 	                if(item.getPkid() != null) {
 	                	targetRepo.save(item);
 	            		Helper.setRecordsHistory(

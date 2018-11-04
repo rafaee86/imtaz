@@ -135,7 +135,7 @@ public class CashFlowView extends VerticalLayout implements View {
         	try {
 	        	if (!grid.getSelectedItems().isEmpty()) {
 	                CashFlow item = grid.getSelectedItems().iterator().next();
-	                item.getRecordUtility().disabled();
+	                item.getRecordUtility().disabled(null);
 	                if(item.getPkid() != null)cashFlowRepo.save(item);
 	                dataProvider.getItems().remove(item);
 	                dataProvider.refreshAll();

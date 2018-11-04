@@ -443,7 +443,7 @@ public class StudentRegisterView extends VerticalLayout implements View{
         	try {
 	        	if (binder.getBean() != null) {
 	                Student item = binder.getBean();
-	                item.getRecordUtility().disabled();
+	                item.getRecordUtility().disabled(null);
 	                if(item.getPkid() != null) {
 	                	studentRepo.save(item);
 	                	Helper.setRecordsHistory(recordsHistoryRepository, "Memadam Maklumat Pelajar", item.getPkid());

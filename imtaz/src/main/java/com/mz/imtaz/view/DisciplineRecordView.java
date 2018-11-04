@@ -15,17 +15,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import com.mz.imtaz.entity.ClassRoomDetail;
-import com.mz.imtaz.entity.Dicipline;
-import com.mz.imtaz.entity.DiciplineRecord;
-import com.mz.imtaz.entity.DiciplineRecordItem;
+import com.mz.imtaz.entity.Discipline;
+import com.mz.imtaz.entity.DisciplineRecord;
+import com.mz.imtaz.entity.DisciplineRecordItem;
 import com.mz.imtaz.entity.RecordUtility;
 import com.mz.imtaz.entity.Records;
 import com.mz.imtaz.entity.Student;
-import com.mz.imtaz.enums.DiscipLineStatus;
+import com.mz.imtaz.enums.DisciplineStatus;
 import com.mz.imtaz.repository.ClassRoomDetailRepository;
-import com.mz.imtaz.repository.DiciplineRecordItemRepository;
-import com.mz.imtaz.repository.DiciplineRecordRepository;
-import com.mz.imtaz.repository.DiciplineRepository;
+import com.mz.imtaz.repository.DisciplineRecordItemRepository;
+import com.mz.imtaz.repository.DisciplineRecordRepository;
+import com.mz.imtaz.repository.DisciplineRepository;
 import com.mz.imtaz.repository.RecordsHistoryRepository;
 import com.mz.imtaz.repository.RecordsRepository;
 import com.mz.imtaz.repository.StudentRepository;
@@ -53,10 +53,10 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
-@SpringView(name = DiciplineRecordView.NAME)
-public class DiciplineRecordView extends VerticalLayout implements View {
+@SpringView(name = DisciplineRecordView.NAME)
+public class DisciplineRecordView extends VerticalLayout implements View {
 
-	public static final String NAME = "DiciplineRecordView";
+	public static final String NAME = "DisciplineRecordView";
 	private final static float WIDTH = 500f;
 
 	final int page = 0;
@@ -64,15 +64,15 @@ public class DiciplineRecordView extends VerticalLayout implements View {
 	final int targetPage = 0;
 	final int targetLimit = 10;
 
-	private ListDataProvider<DiciplineRecord> dataProvider;
+	private ListDataProvider<DisciplineRecord> dataProvider;
 	private Long total = 0L;
 
 	@Autowired
-	private DiciplineRecordRepository diciplineRecordRepo;
+	private DisciplineRecordRepository disciplineRecordRepo;
 	@Autowired
-	private DiciplineRecordItemRepository diciplineItemRecordRepo;
+	private DisciplineRecordItemRepository disciplineItemRecordRepo;
 	@Autowired
-	private DiciplineRepository diciplineRepo;
+	private DisciplineRepository disciplineRepo;
 	@Autowired
 	private RecordsRepository recordsRepo;
 	@Autowired
@@ -117,27 +117,27 @@ public class DiciplineRecordView extends VerticalLayout implements View {
         		cbStudent.setItems(studentRepo.findByClassRoomDetail(listener.getSelectedItem().get()));
         });
 
-		Grid<DiciplineRecord> grid = new Grid<>();
-		dataProvider = DataProvider.ofCollection(new ArrayList<DiciplineRecord>());
+		Grid<DisciplineRecord> grid = new Grid<>();
+		dataProvider = DataProvider.ofCollection(new ArrayList<DisciplineRecord>());
 	    grid.setDataProvider(dataProvider);
 		grid.setEnabled(true);
 		grid.getEditor().setEnabled(true);
 		grid.setSizeFull();
 		grid.setHeightUndefined();
 
-		grid.addColumn(DiciplineRecord::getOffendedDate, item -> Helper.dateFormat(item))
+		grid.addColumn(DisciplineRecord::getOffendedDate, item -> Helper.dateFormat(item))
 		.setCaption("Tarikh Kesalahan");
 
-		grid.addColumn(DiciplineRecord::getDiciplineRecordItemList, item-> item.stream().map(item2 -> Helper.notNull(item2.getDicipline().getDescription())).collect( Collectors.joining( ", " ) ))
+		grid.addColumn(DisciplineRecord::getDisciplineRecordItemList, item-> item.stream().map(item2 -> Helper.notNull(item2.getDiscipline().getDescription())).collect( Collectors.joining( ", " ) ))
 		.setCaption("Kesalahan");
 
-		grid.addColumn(DiciplineRecord::getActionDescription)
+		grid.addColumn(DisciplineRecord::getActionDescription)
 		.setCaption("Tindakan");
 
-		grid.addColumn(DiciplineRecord::getActionDate, item -> Helper.dateFormat(item))
+		grid.addColumn(DisciplineRecord::getActionDate, item -> Helper.dateFormat(item))
 		.setCaption("Tarikh Tindakan");
 
-		grid.addColumn(DiciplineRecord::getStatus, item -> item.getDescription())
+		grid.addColumn(DisciplineRecord::getStatus, item -> item.getDescription())
 		.setCaption("Tindakan Pihak Tahfiz");
 
         grid.addSelectionListener(evt -> {
@@ -151,10 +151,10 @@ public class DiciplineRecordView extends VerticalLayout implements View {
         btnDelete.addClickListener(evt -> {
         	try {
 	        	if (!grid.getSelectedItems().isEmpty()) {
-	        		DiciplineRecord item = grid.getSelectedItems().iterator().next();
-	                item.getRecordUtility().disabled();
+	        		DisciplineRecord item = grid.getSelectedItems().iterator().next();
+	                item.getRecordUtility().disabled(null);
 	                if(item.getPkid() != null) {
-	                	diciplineRecordRepo.save(item);
+	                	disciplineRecordRepo.save(item);
 	                	Helper.setRecordsHistory(
                 			recordsHistoryRepository, 
                 			"Memadam Maklumat Pelajar", 
@@ -172,7 +172,7 @@ public class DiciplineRecordView extends VerticalLayout implements View {
         });
 
         grid.addSelectionListener(listener -> {
-        	DiciplineRecord target = listener.getFirstSelectedItem() != null ? listener.getFirstSelectedItem().get() : null;
+        	DisciplineRecord target = listener.getFirstSelectedItem() != null ? listener.getFirstSelectedItem().get() : null;
         	if(target != null) {
         		createWindow(target, false);
         	}
@@ -183,10 +183,10 @@ public class DiciplineRecordView extends VerticalLayout implements View {
         	Student student = Helper.notNull(listener.getSelectedItem()) != null ? listener.getSelectedItem().get() : null;
 
         	if(classRoomDetail != null && student != null) {
-				List<DiciplineRecord> targetList = diciplineRecordRepo.findByClassRoomDetail(classRoomDetail, student);
-				List<DiciplineRecord> subTargetList = targetList != null && targetList.size() > limit ? targetList.subList(0, limit) : targetList;
+				List<DisciplineRecord> targetList = disciplineRecordRepo.findByClassRoomDetail(classRoomDetail, student);
+				List<DisciplineRecord> subTargetList = targetList != null && targetList.size() > limit ? targetList.subList(0, limit) : targetList;
 				total = Long.valueOf(subTargetList != null ? targetList.size() : 0);
-		        dataProvider = DataProvider.ofCollection(subTargetList != null ? subTargetList : new ArrayList<DiciplineRecord>());
+		        dataProvider = DataProvider.ofCollection(subTargetList != null ? subTargetList : new ArrayList<DisciplineRecord>());
 		        grid.setDataProvider(dataProvider);
 			}
 		});
@@ -195,15 +195,15 @@ public class DiciplineRecordView extends VerticalLayout implements View {
 	    pagination.setItemsPerPage(10, 20, 50, 100);
 		pagination.addPageChangeListener(event -> {
 			Pageable pageable = PageRequest.of(event.pageIndex(), event.limit());
-			List<DiciplineRecord> pageTargetAllList = null;
+			List<DisciplineRecord> pageTargetAllList = null;
 			ClassRoomDetail classRoomDetail = Helper.notNull(cbClassRoomDetail.getSelectedItem()) != null ? cbClassRoomDetail.getSelectedItem().get() : null;
         	Student student = Helper.notNull(cbStudent.getSelectedItem()) != null ? cbStudent.getSelectedItem().get() : null;
 			if(classRoomDetail != null && student != null)
-				pageTargetAllList = diciplineRecordRepo.findByClassRoomDetail(classRoomDetail, student);
+				pageTargetAllList = disciplineRecordRepo.findByClassRoomDetail(classRoomDetail, student);
 			Long totalAll = Long.valueOf(pageTargetAllList != null ? pageTargetAllList.size() : 0);
-			List<DiciplineRecord> pageRecordsSubList = null;
+			List<DisciplineRecord> pageRecordsSubList = null;
 			if(classRoomDetail != null && student != null)
-				pageRecordsSubList = diciplineRecordRepo.findByClassRoomDetailPageable(classRoomDetail, student, pageable);
+				pageRecordsSubList = disciplineRecordRepo.findByClassRoomDetailPageable(classRoomDetail, student, pageable);
 			pagination.setTotalCount(totalAll);
 			grid.setItems(pageRecordsSubList);
 		});
@@ -215,7 +215,7 @@ public class DiciplineRecordView extends VerticalLayout implements View {
         	if(detail != null && student != null) {
         		Records records = recordsRepo.findRecordsByClassRoomDetailAndStudent(detail, student);
         		if(records != null) {
-        			createWindow(new DiciplineRecord(records), true);
+        			createWindow(new DisciplineRecord(records), true);
         		}else {
         			Notification.show("Rekod pelajar di kelas ini tidak sah.", Type.ERROR_MESSAGE);
         		}
@@ -230,13 +230,13 @@ public class DiciplineRecordView extends VerticalLayout implements View {
 		addComponent(pagination);
 	}
 
-	private void createWindow(DiciplineRecord diciplineRecord, boolean isNew) {
+	private void createWindow(DisciplineRecord disciplineRecord, boolean isNew) {
 
 		VerticalLayout mainLayout = new VerticalLayout();
 		FormLayout formLayout = new FormLayout();
 
-		Binder<DiciplineRecord> binder = new Binder<>();
-		binder.setBean(diciplineRecord);
+		Binder<DisciplineRecord> binder = new Binder<>();
+		binder.setBean(disciplineRecord);
 		
 		Window modal = new Window((isNew ? "Kemasukan " : "Kemaskini ") + "Rekod Disipline");
         modal.center();
@@ -251,16 +251,16 @@ public class DiciplineRecordView extends VerticalLayout implements View {
         binder
         	.forField(dfOffendedDate)
         	.withConverter(new LocalDateToDateConverter())
-        	.bind(DiciplineRecord::getOffendedDate, DiciplineRecord::setOffendedDate);
+        	.bind(DisciplineRecord::getOffendedDate, DisciplineRecord::setOffendedDate);
         
-        ListSelect<Dicipline> cbOffendedType = new ListSelect<>("Kesalahan", diciplineRepo.findAllActive(Sort.by(Sort.Direction.ASC, "description")));
+        ListSelect<Discipline> cbOffendedType = new ListSelect<>("Kesalahan", disciplineRepo.findAllActive(Sort.by(Sort.Direction.ASC, "description")));
         cbOffendedType.setRows(6);
         cbOffendedType.setItemCaptionGenerator(item -> item.getDescription());
         cbOffendedType.setWidth(WIDTH, Unit.PIXELS);
-        List<DiciplineRecordItem> diciplineRecordItems = Helper.notNull(diciplineRecord.getDiciplineRecordItemList());
-        if(diciplineRecordItems != null) {
-	        List<Dicipline> diciplineList = diciplineRecordItems.stream().map(item -> item.getDicipline()).collect(Collectors.toList());
-	        for(Dicipline item : diciplineList) {
+        List<DisciplineRecordItem> DisciplineRecordItems = Helper.notNull(disciplineRecord.getDisciplineRecordItemList());
+        if(DisciplineRecordItems != null) {
+	        List<Discipline> DisciplineList = DisciplineRecordItems.stream().map(item -> item.getDiscipline()).collect(Collectors.toList());
+	        for(Discipline item : DisciplineList) {
 	        	cbOffendedType.select(item);
 	        }
         }
@@ -271,7 +271,7 @@ public class DiciplineRecordView extends VerticalLayout implements View {
         tfActionDescription.setWidth(WIDTH, Unit.PIXELS);
         binder
 			.forField(tfActionDescription)
-			.bind(DiciplineRecord::getActionDescription, DiciplineRecord::setActionDescription);
+			.bind(DisciplineRecord::getActionDescription, DisciplineRecord::setActionDescription);
         
         DateField dfActionDate = new DateField("Tarikh Tindakan");
         dfActionDate.setValue(LocalDate.now());
@@ -281,26 +281,26 @@ public class DiciplineRecordView extends VerticalLayout implements View {
         binder
 	    	.forField(dfActionDate)
 	    	.withConverter(new LocalDateToDateConverter())
-	    	.bind(DiciplineRecord::getActionDate, DiciplineRecord::setActionDate);
+	    	.bind(DisciplineRecord::getActionDate, DisciplineRecord::setActionDate);
         
-        ComboBox<DiscipLineStatus> cbStatus = new ComboBox<>("Tindakan Pihak Tahfiz");
-        cbStatus.setItems(Arrays.asList(DiscipLineStatus.values()));
+        ComboBox<DisciplineStatus> cbStatus = new ComboBox<>("Tindakan Pihak Tahfiz");
+        cbStatus.setItems(Arrays.asList(DisciplineStatus.values()));
         cbStatus.setItemCaptionGenerator(item -> item.getDescription());
         cbStatus.setWidth(WIDTH, Unit.PIXELS);
         binder
 			.forField(cbStatus)
-			.bind(DiciplineRecord::getStatus, DiciplineRecord::setStatus);
+			.bind(DisciplineRecord::getStatus, DisciplineRecord::setStatus);
         
         Button btnSave = new Button("Kemaskini");
         btnSave.addClickListener(evt ->{
-        	Boolean isValid = binder.writeBeanIfValid(diciplineRecord);
+        	Boolean isValid = binder.writeBeanIfValid(disciplineRecord);
         	
         	if(isValid != null && isValid) {
-        		if(!isNew && Helper.notNull(diciplineRecord.getDiciplineRecordItemList()).size() > 0) {
-        			diciplineItemRecordRepo.deleteAll(diciplineRecord.getDiciplineRecordItemList());
+        		if(!isNew && Helper.notNull(disciplineRecord.getDisciplineRecordItemList()).size() > 0) {
+        			disciplineItemRecordRepo.deleteAll(disciplineRecord.getDisciplineRecordItemList());
             	}
-        		diciplineRecord.setRecordUtility(new RecordUtility());
-        		DiciplineRecord editedBean = diciplineRecordRepo.save(diciplineRecord);
+        		disciplineRecord.setRecordUtility(new RecordUtility());
+        		DisciplineRecord editedBean = disciplineRecordRepo.save(disciplineRecord);
         		Helper.setRecordsHistory(
         			recordsHistoryRepository, 
         			(isNew ? "Menambah" : "Mengemaskini") + " Maklumat Disiplin.", 
@@ -308,19 +308,19 @@ public class DiciplineRecordView extends VerticalLayout implements View {
         			Helper.notNull(editedBean.getRecords().getClassRoomDetail().getClassRoom().getName()) + " - " + 
                 	Helper.notNull(editedBean.getRecords().getClassRoomDetail().getName())
         		);
-        		Set<Dicipline> cbOffendedTypeSet = cbOffendedType.getSelectedItems();
-        		for(Dicipline dicipline : cbOffendedTypeSet) {
-        			DiciplineRecordItem diciplineItem  = new DiciplineRecordItem();
-        			diciplineItem.setDicipline(dicipline);
-        			diciplineItem.setDiciplineRecord(editedBean);
-        			diciplineItem = diciplineItemRecordRepo.save(diciplineItem);
-        			editedBean.addDiciplineRecordItemList(diciplineItem);
+        		Set<Discipline> cbOffendedTypeSet = cbOffendedType.getSelectedItems();
+        		for(Discipline Discipline : cbOffendedTypeSet) {
+        			DisciplineRecordItem DisciplineItem  = new DisciplineRecordItem();
+        			DisciplineItem.setDiscipline(Discipline);
+        			DisciplineItem.setDisciplineRecord(editedBean);
+        			DisciplineItem = disciplineItemRecordRepo.save(DisciplineItem);
+        			editedBean.addDisciplineRecordItemList(DisciplineItem);
         		}
         		binder.setBean(editedBean);
         		if(isNew) {
         			dataProvider.getItems().add(editedBean);
         		}else {
-        			dataProvider.getItems().remove(diciplineRecord);
+        			dataProvider.getItems().remove(disciplineRecord);
         			dataProvider.getItems().add(editedBean);
         		}
         		Notification.show("Kemaskini maklumat sekolah telah berjaya.", Type.HUMANIZED_MESSAGE);

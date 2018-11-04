@@ -26,12 +26,12 @@ import lombok.Setter;
 public class DailyActivity {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE)
 	@Column(nullable = false, length=8)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Integer pkid;
 	@JoinColumn(name = "RECORDS", referencedColumnName = "PKID")
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Records records;
 	private LocalDate date;
@@ -40,11 +40,11 @@ public class DailyActivity {
 	@Getter(value = AccessLevel.NONE)
 	private String remarks;
 	private RecordUtility recordUtility;
-	private Integer diciplineIssues;
+	private Integer disciplineIssues;
 
 	public String getRemarks() {
 		String remarks = null;
-		if(this.diciplineIssues != null && this.diciplineIssues > 10) {
+		if(this.disciplineIssues != null && this.disciplineIssues > 10) {
 			remarks = "Tidak boleh outing";
 		}else {
 			remarks = "Boleh outing";

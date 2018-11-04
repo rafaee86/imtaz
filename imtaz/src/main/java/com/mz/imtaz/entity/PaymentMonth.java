@@ -22,12 +22,12 @@ import lombok.Setter;
 public class PaymentMonth {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE)
 	@Column(nullable = false, length=8)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Integer pkid;
 	@JoinColumn(name = "Payment", referencedColumnName = "PKID")
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Payment payment;
 	private Integer month;

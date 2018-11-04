@@ -21,7 +21,7 @@ import javax.persistence.TemporalType;
 import org.apache.commons.lang3.text.WordUtils;
 import org.hibernate.annotations.Type;
 
-import com.mz.imtaz.enums.DiscipLineStatus;
+import com.mz.imtaz.enums.DisciplineStatus;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -30,24 +30,24 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name="DICIPLINE_RECORD")
-public class DiciplineRecord {
+@Table(name="DISCIPLINE_RECORD")
+public class DisciplineRecord {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE)
 	@Column(nullable = false, length=8)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Integer pkid;
 	@JoinColumn(name = "Records", referencedColumnName = "PKID")
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Records records;
 	@Column(nullable = false)
 	@Temporal(TemporalType.DATE)
 	private Date offendedDate;
-	@JoinColumn(name = "DiciplineRecordItem", referencedColumnName = "PKID")
-	@OneToMany(fetch = FetchType.EAGER)
-	List<DiciplineRecordItem> diciplineRecordItemList;
+	@JoinColumn(name = "DisciplineRecordItem", referencedColumnName = "PKID")
+	@OneToMany(fetch = FetchType.LAZY)
+	List<DisciplineRecordItem> disciplineRecordItemList;
 	@Column(nullable = false)
 	@Temporal(TemporalType.DATE)
 	private Date actionDate;
@@ -55,13 +55,13 @@ public class DiciplineRecord {
 	private String actionDescription;
 	@Setter(value = AccessLevel.NONE)
 	private String remarks;
-	private DiscipLineStatus status;
+	private DisciplineStatus status;
 	@Embedded
 	private RecordUtility recordUtility;
 	
-	public DiciplineRecord() {}
+	public DisciplineRecord() {}
 	
-	public DiciplineRecord(Records records) {
+	public DisciplineRecord(Records records) {
 		this.records = records;
 	}
 	
@@ -73,8 +73,8 @@ public class DiciplineRecord {
 		this.remarks = remarks != null ? WordUtils.capitalizeFully(remarks) : null;
 	}
 	
-	public void addDiciplineRecordItemList(DiciplineRecordItem diciplineRecordItem) {
-		if(this.diciplineRecordItemList == null)this.diciplineRecordItemList = new ArrayList<DiciplineRecordItem>();
-		this.diciplineRecordItemList.add(diciplineRecordItem);
+	public void addDisciplineRecordItemList(DisciplineRecordItem disciplineRecordItem) {
+		if(this.disciplineRecordItemList == null)this.disciplineRecordItemList = new ArrayList<DisciplineRecordItem>();
+		this.disciplineRecordItemList.add(disciplineRecordItem);
 	}
 }

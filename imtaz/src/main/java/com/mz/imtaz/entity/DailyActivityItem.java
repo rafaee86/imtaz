@@ -23,16 +23,16 @@ import lombok.Setter;
 public class DailyActivityItem {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE)
 	@Column(nullable = false, length=8)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Integer pkid;
 	@JoinColumn(name = "DailyActivity", referencedColumnName = "PKID")
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private DailyActivity dailyActivity;
 	@JoinColumn(name = "DailyRecordItem", referencedColumnName = "PKID")
-	@OneToOne(fetch = FetchType.EAGER)
+	@OneToOne(fetch = FetchType.LAZY)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private DailyRecordItem dailyRecordItem;
 	@Type(type = "org.hibernate.type.NumericBooleanType")

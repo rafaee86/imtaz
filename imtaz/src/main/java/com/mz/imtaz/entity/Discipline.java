@@ -20,11 +20,11 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name="DICIPLINE")
-public class Dicipline implements Serializable{
+@Table(name="DISCIPLINE")
+public class Discipline implements Serializable{
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE)
 	@Column(nullable = false, length=8)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Integer pkid;

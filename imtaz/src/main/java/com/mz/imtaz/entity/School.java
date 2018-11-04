@@ -17,6 +17,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
+@SuppressWarnings("serial")
 @Entity
 @Getter
 @Setter
@@ -24,7 +25,7 @@ import lombok.Setter;
 public class School implements Serializable {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE)
 	@Column(nullable = false, length=8)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Integer pkid;
@@ -51,7 +52,7 @@ public class School implements Serializable {
 	private String state;
 	@Embedded
 	private RecordUtility recordUtility;
-
+	
 	public void setName(String name) {
 		this.name = name != null ? WordUtils.capitalizeFully(name) : null;
 	}

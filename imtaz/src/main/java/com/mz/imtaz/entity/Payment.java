@@ -35,12 +35,12 @@ import lombok.Setter;
 public class Payment {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE)
 	@Column(nullable = false, length=8)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Integer pkid;
 	@JoinColumn(name = "Records", referencedColumnName = "PKID")
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Records records;
 	@Temporal(TemporalType.TIMESTAMP)
@@ -54,7 +54,7 @@ public class Payment {
 	@Column(nullable = false)
 	private PaymentType paymentType;
 	@JoinColumn(name = "Bank", referencedColumnName = "PKID")
-	@OneToOne(fetch = FetchType.EAGER)
+	@OneToOne(fetch = FetchType.LAZY)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Bank bank;
 	@Setter(value = AccessLevel.NONE)
