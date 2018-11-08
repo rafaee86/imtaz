@@ -104,7 +104,7 @@ public class DisciplineRecordView extends VerticalLayout implements View {
         ComboBox<ClassRoomDetail> cbClassRoomDetail = new ComboBox<>("Kelas");
         cbClassRoomDetail.setWidth(WIDTH, Unit.PIXELS);
         cbClassRoomDetail.setItems(classRoomDetailRepo.findAllWithOrder());
-        cbClassRoomDetail.setItemCaptionGenerator(item -> Helper.notNull(item.getClassRoom().getName()) + " " + Helper.notNull(item.getName()) + " - " + Helper.notNull(item.getTeacher().getSalutation()) + " " + Helper.notNull(item.getTeacher().getName()));
+        cbClassRoomDetail.setItemCaptionGenerator(item -> Helper.notNull(item.getClassRoom().getDescription()) + " " + Helper.notNull(item.getName()) + " - " + Helper.notNull(item.getTeacher().getSalutation()) + " " + Helper.notNull(item.getTeacher().getName()));
         cbClassRoomDetail.setEmptySelectionAllowed(false);
 
         ComboBox<Student> cbStudent = new ComboBox<>("Pelajar");
@@ -159,7 +159,7 @@ public class DisciplineRecordView extends VerticalLayout implements View {
                 			recordsHistoryRepository, 
                 			"Memadam Maklumat Pelajar", 
                 			Helper.notNull(item.getRecords().getStudent().getPkid()), 
-                			Helper.notNull(item.getRecords().getClassRoomDetail().getClassRoom().getName()) + " - " + 
+                			Helper.notNull(item.getRecords().getClassRoomDetail().getClassRoom().getDescription()) + " - " + 
                 			Helper.notNull(item.getRecords().getClassRoomDetail().getName())
 	                	);
 	                }
@@ -305,7 +305,7 @@ public class DisciplineRecordView extends VerticalLayout implements View {
         			recordsHistoryRepository, 
         			(isNew ? "Menambah" : "Mengemaskini") + " Maklumat Disiplin.", 
         			Helper.notNull(editedBean.getRecords().getStudent().getPkid()),
-        			Helper.notNull(editedBean.getRecords().getClassRoomDetail().getClassRoom().getName()) + " - " + 
+        			Helper.notNull(editedBean.getRecords().getClassRoomDetail().getClassRoom().getDescription()) + " - " + 
                 	Helper.notNull(editedBean.getRecords().getClassRoomDetail().getName())
         		);
         		Set<Discipline> cbOffendedTypeSet = cbOffendedType.getSelectedItems();

@@ -1,16 +1,14 @@
 package com.mz.imtaz.entity;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.apache.commons.lang3.text.WordUtils;
@@ -20,30 +18,36 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
-@Entity
-@Getter
+@SuppressWarnings("serial")
 @Setter
-@Table(name="CLASS_ROOM_DETAIL")
-public class ClassRoomDetail implements Serializable {
+@Getter
+@Entity
+@Table(name="USER")
+public class User implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE)
 	@Column(nullable = false, length=8)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Integer pkid;
-	@Column(nullable = false, length=20)
-	private ClassRoom classRoom;
-	@JoinColumn(name = "TEACHER", referencedColumnName = "PKID")
-	@ManyToOne(fetch = FetchType.EAGER)
-	@Type(type = "org.hibernate.type.IntegerType")
-	private Teacher teacher;
 	@Column(nullable = false, length=50)
+	private String username;
+	@Column(nullable = false, length=50)
+	private String password;
+	@Column(nullable = false, length=200)
+	private String plainPassword;
 	@Setter(value = AccessLevel.NONE)
-	private String name;
+	@Column(nullable = false, length=200)
+	private String fullname;
+	@Type(type = "org.hibernate.type.NumericBooleanType")
+	private Boolean enabled;	
+	private LocalDate expiredDate;
+	@Type(type = "org.hibernate.type.NumericBooleanType")
+	private Boolean isLock;
 	@Embedded
 	private RecordUtility recordUtility;
-
-	public void setName(String name) {
-		this.name = name != null ? WordUtils.capitalizeFully(name) : null;
+	
+	public void setFullname(String fullname) {
+		this.fullname = fullname != null ? WordUtils.capitalizeFully(fullname) : null;
 	}
 }

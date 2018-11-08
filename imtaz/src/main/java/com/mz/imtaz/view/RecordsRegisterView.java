@@ -1,6 +1,7 @@
 package com.mz.imtaz.view;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -18,7 +19,6 @@ import com.mz.imtaz.entity.RecordUtility;
 import com.mz.imtaz.entity.Records;
 import com.mz.imtaz.entity.Student;
 import com.mz.imtaz.repository.ClassRoomDetailRepository;
-import com.mz.imtaz.repository.ClassRoomRepository;
 import com.mz.imtaz.repository.GeneralCodeRepository;
 import com.mz.imtaz.repository.RecordsHistoryRepository;
 import com.mz.imtaz.repository.RecordsRepository;
@@ -60,8 +60,6 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
 	@Autowired
 	private RecordsRepository recordsRepo;
 	@Autowired
-	private ClassRoomRepository classRoomRepo;
-	@Autowired
 	private ClassRoomDetailRepository classRoomDetailRepo;
 	@Autowired
 	private StudentRepository studentRepo;
@@ -93,8 +91,8 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
 
         ComboBox<ClassRoom> cbClassRoom = new ComboBox<>("Kategori Kelas");
         cbClassRoom.setWidth(WIDTH, Unit.PIXELS);
-        cbClassRoom.setItems(classRoomRepo.findAllActive(Sort.by(Sort.Direction.ASC, "level")));
-        cbClassRoom.setItemCaptionGenerator(item -> item.getName());
+        cbClassRoom.setItems(Arrays.asList(ClassRoom.values()));
+        cbClassRoom.setItemCaptionGenerator(item -> item.getDescription());
         cbClassRoom.setEmptySelectionAllowed(false);
 
         ComboBox<ClassRoomDetail> cbClassRoomDetail = new ComboBox<>("Kelas");
@@ -112,7 +110,7 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
 		grid.setSizeFull();
 		grid.setHeightUndefined();
 
-		grid.addColumn(Records::getClassRoomDetail, item -> item !=  null ? item.getClassRoom().getName() : "").setCaption("Kategori Kelas");
+		grid.addColumn(Records::getClassRoomDetail, item -> item !=  null ? item.getClassRoom().getDescription() : "").setCaption("Kategori Kelas");
 		grid.addColumn(Records::getClassRoomDetail, item -> item !=  null ? item.getName() : "").setCaption("Kelas");
 		grid.addColumn(Records::getStudent, item -> item !=  null ? item.getName() : "").setCaption("Nama");
 		grid.addColumn(Records::getStudent, item -> item !=  null ? item.getIcNo() : "").setCaption("No K/P");
@@ -185,7 +183,7 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
             			recordsHistoryRepository, 
             			"Kemaskini Pelajar Di Kelas Baru.", 
             			Helper.notNull(item.getStudent().getPkid()),
-            			Helper.notNull(item.getClassRoomDetail().getClassRoom().getName()) + " - " + 
+            			Helper.notNull(item.getClassRoomDetail().getClassRoom().getDescription()) + " - " + 
                         Helper.notNull(item.getClassRoomDetail().getName())
             		);
         		}
@@ -274,7 +272,7 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
 	        TextField tfCurrClassRoom = new TextField("Kategori Kelas");
 	        tfCurrClassRoom.setWidth(WIDTH, Unit.PIXELS);
 	        tfCurrClassRoom.setEnabled(false);
-	        tfCurrClassRoom.setValue(Helper.notNull(records.getClassRoomDetail().getClassRoom().getName()));
+	        tfCurrClassRoom.setValue(Helper.notNull(records.getClassRoomDetail().getClassRoom().getDescription()));
 	        
 	        TextField tfCurrClassRoomDetail = new TextField("Kelas");
 	        tfCurrClassRoomDetail.setWidth(WIDTH, Unit.PIXELS);
@@ -288,8 +286,8 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
 	        
 	        ComboBox<ClassRoom> cbClassRoom = new ComboBox<>("Kategori Kelas");
 	        cbClassRoom.setWidth(WIDTH, Unit.PIXELS);
-	        cbClassRoom.setItems(classRoomRepo.findAllActive(Sort.by(Sort.Direction.ASC, "level")));
-	        cbClassRoom.setItemCaptionGenerator(item -> item.getName());
+	        cbClassRoom.setItems(Arrays.asList(ClassRoom.values()));
+	        cbClassRoom.setItemCaptionGenerator(item -> item.getDescription());
 	        cbClassRoom.setEmptySelectionAllowed(false);
 
 	        ComboBox<ClassRoomDetail> cbClassRoomDetail = new ComboBox<>("Kelas");
@@ -349,10 +347,10 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
 						Helper.setRecordsHistory(
 							recordsHistoryRepository, 
 							"Pindah Kelas Ke " +
-							Helper.notNull(newRecords.getClassRoomDetail().getClassRoom().getName()) + " - " + 
+							Helper.notNull(newRecords.getClassRoomDetail().getClassRoom().getDescription()) + " - " + 
 			                Helper.notNull(newRecords.getClassRoomDetail().getName()),
 							newRecords.getStudent().getPkid(),
-							Helper.notNull(records.getClassRoomDetail().getClassRoom().getName()) + " - " + 
+							Helper.notNull(records.getClassRoomDetail().getClassRoom().getDescription()) + " - " + 
 			                Helper.notNull(records.getClassRoomDetail().getName())
 						);
 						

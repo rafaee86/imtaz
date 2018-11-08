@@ -28,7 +28,6 @@ import com.mz.imtaz.entity.Teacher;
 import com.mz.imtaz.enums.Salutation;
 import com.mz.imtaz.repository.BankRepository;
 import com.mz.imtaz.repository.ClassRoomDetailRepository;
-import com.mz.imtaz.repository.ClassRoomRepository;
 import com.mz.imtaz.repository.DailyRecordItemRepository;
 import com.mz.imtaz.repository.DisciplineRepository;
 import com.mz.imtaz.repository.GeneralCodeRepository;
@@ -60,7 +59,7 @@ import com.vaadin.ui.themes.ValoTheme;
 public class ConfigureView extends VerticalLayout implements View {
 
 	enum TabType {
-		SCHOOL, CLASSROOM, CLASSROOM_DETAIL, TEACHER, DISCIPLINE, STUDENT_ACTIVITY, PAYMENT_DESCRIPTION, BANK, GENERAL;
+		SCHOOL, CLASSROOM_DETAIL, TEACHER, DISCIPLINE, STUDENT_ACTIVITY, PAYMENT_DESCRIPTION, BANK, GENERAL;
 	}
 
 	public enum GeneralCodeCategory {
@@ -85,8 +84,6 @@ public class ConfigureView extends VerticalLayout implements View {
 	@Autowired
 	private SchoolRepository schoolRepo;
 	@Autowired
-	private ClassRoomRepository classRoomRepo;
-	@Autowired
 	private TeacherRepository teacherRepo;
 	@Autowired
 	private ClassRoomDetailRepository classRoomDetailRepo;
@@ -100,7 +97,7 @@ public class ConfigureView extends VerticalLayout implements View {
 	private BankRepository bankRepo;
 	@Autowired
 	private GeneralCodeRepository generalCodeRepo;
-	
+		
 	private Map<String, Object> dataProviderMap = new HashMap<String, Object>();
 
 	@PostConstruct
@@ -112,7 +109,6 @@ public class ConfigureView extends VerticalLayout implements View {
 		tab.addStyleName(ValoTheme.TABSHEET_PADDED_TABBAR);
 
 		tab.addTab(getTabContent(TabType.SCHOOL.name()), "Sekolah");
-		tab.addTab(getTabContent(TabType.CLASSROOM.name()), "Kategori Kelas").setId(TabType.CLASSROOM.name());
 		tab.addTab(getTabContent(TabType.TEACHER.name()), "Pengajar").setId(TabType.TEACHER.name());
 		tab.addTab(getTabContent(TabType.CLASSROOM_DETAIL.name()), "Kelas").setId(TabType.CLASSROOM_DETAIL.name());
 		tab.addTab(getTabContent(TabType.DISCIPLINE.name()), "Disiplin").setId(TabType.DISCIPLINE.name());
@@ -130,9 +126,7 @@ public class ConfigureView extends VerticalLayout implements View {
 	}
 	
 	private void tabListener(String id) {
-		if(TabType.CLASSROOM.name().equals(id)) {
-			dataProviderMap.put(id, DataProvider.ofCollection(classRoomRepo.findAllActive(Sort.by(Sort.Direction.ASC, "level"))));
-		}else if(TabType.TEACHER.name().equals(id)) {
+		if(TabType.TEACHER.name().equals(id)) {
 			dataProviderMap.put(id, DataProvider.ofCollection(teacherRepo.findAllActive(Sort.by(Sort.Direction.ASC, "name"))));
 		}else if(TabType.CLASSROOM_DETAIL.name().equals(id)) {
 			dataProviderMap.put(id, DataProvider.ofCollection(classRoomDetailRepo.findAllWithOrder()));
@@ -154,8 +148,6 @@ public class ConfigureView extends VerticalLayout implements View {
 		VerticalLayout layout = null;
 		if(TabType.SCHOOL.name().equalsIgnoreCase(id)) {
 			layout = configureSchoolTab();
-		}else if(TabType.CLASSROOM.name().equalsIgnoreCase(id)) {
-			layout = configureClassRoomTab();
 		}else if(TabType.CLASSROOM_DETAIL.name().equalsIgnoreCase(id)) {
 			layout = configureClassRoomDetailTab();
 		}else if(TabType.TEACHER.name().equalsIgnoreCase(id)) {
@@ -282,88 +274,7 @@ public class ConfigureView extends VerticalLayout implements View {
         mainLayout.addComponent(formLayout);
 
 		return mainLayout;
-	}
-
-	@SuppressWarnings("unchecked")
-	private VerticalLayout configureClassRoomTab() {
-
-		VerticalLayout mainLayout = new VerticalLayout();
-
-        Button btnNew = new Button(VaadinIcons.PLUS);
-        Button btnDelete = new Button(VaadinIcons.TRASH);
-        btnDelete.setEnabled(false);
-        HorizontalLayout buttonBar = new HorizontalLayout(btnNew, btnDelete);
-
-        Grid<ClassRoom> grid = new Grid<>();
-        tabListener(TabType.CLASSROOM.name());
-        ListDataProvider<ClassRoom> dataProvider = (ListDataProvider<ClassRoom>) dataProviderMap.get(TabType.CLASSROOM.name());
-        grid.setDataProvider(dataProvider);
-        grid.getEditor().setEnabled(true);
-        grid.setSizeFull();
-
-        TextField tfName = new TextField();
-        tfName.setWidth(70, Unit.PERCENTAGE);
-        tfName.setMaxLength(50);
-        tfName.setRequiredIndicatorVisible(true);
-        grid.addColumn(ClassRoom::getName).setCaption("Nama")
-        .setEditorComponent(tfName, ClassRoom::setName)
-        .setSortable(true);
-
-        NumberField nfLevel = new NumberField();
-        nfLevel.setWidth(30, Unit.PERCENTAGE);
-        nfLevel.setRequiredIndicatorVisible(true);
-        nfLevel.setMaxLength(2);
-        grid.addColumn(ClassRoom::getLevel).setCaption("Tahap")
-        .setEditorBinding(grid.getEditor().getBinder()
-        		.forField(nfLevel)
-    	    	.withConverter(Integer::valueOf, String::valueOf)
-    	    	.bind(ClassRoom::getLevel, ClassRoom::setLevel))
-        .setSortable(true);
-
-        grid.getEditor().addSaveListener(evt -> {
-        	try {
-                ClassRoom item = evt.getBean();
-        		item.setRecordUtility(new RecordUtility());
-                classRoomRepo.save(item);
-                dataProvider.refreshAll();
-            } catch (Exception e) {
-                Notification.show("Rekod tidak berjaya dikemaskini.", Notification.Type.ERROR_MESSAGE);
-            }
-		});
-        grid.addSelectionListener(evt -> {
-        	if (evt.getFirstSelectedItem().isPresent()) {
-                btnDelete.setEnabled(true);
-            } else {
-                btnDelete.setEnabled(false);
-            }
-        });
-
-        btnDelete.addClickListener(evt -> {
-        	try {
-	        	if (!grid.getSelectedItems().isEmpty()) {
-	                ClassRoom item = grid.getSelectedItems().iterator().next();
-	                item.getRecordUtility().disabled(null);
-	                if(item.getPkid() != null)classRoomRepo.save(item);
-	                dataProvider.getItems().remove(item);
-	                dataProvider.refreshAll();
-	            }
-        	}catch (Exception e) {
-        		 Notification.show("Rekod tidak berjaya dipadam.", Notification.Type.ERROR_MESSAGE);
-			}
-        });
-
-        btnNew.addClickListener(evt -> {
-        	ClassRoom classRoom = new ClassRoom();
-        	classRoom.setLevel(0);
-        	dataProvider.getItems().add(classRoom);
-            dataProvider.refreshAll();
-        });
-
-        mainLayout.addComponent(buttonBar);
-        mainLayout.addComponent(grid);
-
-        return mainLayout;
-	}
+	}	
 
 	@SuppressWarnings("unchecked")
 	private VerticalLayout configureTeacherTab() {
@@ -383,7 +294,7 @@ public class ConfigureView extends VerticalLayout implements View {
         grid.setSizeFull();
 
         ComboBox<String> cbSalute = new ComboBox<>();
-        cbSalute.setItems(Arrays.asList(Salutation.values()).stream().map(m ->m.name()).collect(Collectors.toList()));
+        cbSalute.setItems(Arrays.asList(Salutation.values()).stream().map(m ->m.getDescription()).collect(Collectors.toList()));
         grid.addColumn(Teacher::getSalutation).setCaption("Gelaran")
         .setEditorComponent(cbSalute, Teacher::setSalutation);
 
@@ -463,9 +374,9 @@ public class ConfigureView extends VerticalLayout implements View {
         .setSortable(true);
 
         ComboBox<ClassRoom> cbClassRoom = new ComboBox<>();
-        cbClassRoom.setDataProvider(DataProvider.ofCollection(classRoomRepo.findAllActive(Sort.by(Direction.ASC, "level"))));
-        cbClassRoom.setItemCaptionGenerator(item -> item.getName());
-        grid.addColumn(ClassRoomDetail::getClassRoom, item -> item !=  null ? item.getName() : "").setCaption("Kategori Kelas")
+        cbClassRoom.setDataProvider(DataProvider.ofCollection(Arrays.asList(ClassRoom.values())));
+        cbClassRoom.setItemCaptionGenerator(item -> item.getDescription());
+        grid.addColumn(ClassRoomDetail::getClassRoom, item -> item !=  null ? item.getDescription() : "").setCaption("Kategori Kelas")
         .setEditorComponent(cbClassRoom, ClassRoomDetail::setClassRoom);
 
         ComboBox<Teacher> cbTeacher = new ComboBox<>();
@@ -477,7 +388,6 @@ public class ConfigureView extends VerticalLayout implements View {
 
 
 		btnRefresh.addClickListener(listener -> {
-			cbClassRoom.setDataProvider(DataProvider.ofCollection(classRoomRepo.findAllActive(Sort.by(Direction.ASC, "level"))));
 			cbTeacher.setDataProvider(DataProvider.ofCollection(teacherRepo.findAllActive(Sort.by(Direction.ASC, "name"))));
 		});
 

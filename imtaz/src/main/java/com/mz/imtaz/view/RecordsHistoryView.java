@@ -70,7 +70,7 @@ public class RecordsHistoryView extends VerticalLayout implements View {
 		cbClassRoomDetail.setRequiredIndicatorVisible(true);
         cbClassRoomDetail.setWidth(WIDTH, Unit.PIXELS);
         cbClassRoomDetail.setItems(classRoomDetailRepo.findAllWithOrder());
-        cbClassRoomDetail.setItemCaptionGenerator(item -> item.getClassRoom().getName() + " " + item.getName() + " - " + item.getTeacher().getSalutation() + " " + item.getTeacher().getName());
+        cbClassRoomDetail.setItemCaptionGenerator(item -> item.getClassRoom().getDescription() + " " + item.getName() + " - " + item.getTeacher().getSalutation() + " " + item.getTeacher().getName());
         cbClassRoomDetail.setEmptySelectionAllowed(false);
 
         ComboBox<Student> cbStudent = new ComboBox<>("Pelajar");

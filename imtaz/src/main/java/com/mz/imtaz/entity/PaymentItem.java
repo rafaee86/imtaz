@@ -30,11 +30,11 @@ public class PaymentItem {
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Integer pkid;
 	@JoinColumn(name = "Payment", referencedColumnName = "PKID")
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Payment payment;
 	@JoinColumn(name = "PaymentDescription", referencedColumnName = "PKID")
-	@OneToOne(fetch = FetchType.LAZY)
+	@OneToOne(fetch = FetchType.EAGER)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private PaymentDescription description;
 	@Column(nullable = false, precision = 10, scale = 2)

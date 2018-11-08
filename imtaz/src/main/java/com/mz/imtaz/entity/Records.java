@@ -27,11 +27,11 @@ public class Records implements Cloneable{
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Integer pkid;
 	@JoinColumn(name = "STUDENT", referencedColumnName = "PKID")
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Student student;
 	@JoinColumn(name = "ClassRoomDetail", referencedColumnName = "PKID")
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private ClassRoomDetail classRoomDetail;
 	private RecordUtility recordUtility;

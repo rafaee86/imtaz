@@ -27,7 +27,7 @@ public class PaymentMonth {
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Integer pkid;
 	@JoinColumn(name = "Payment", referencedColumnName = "PKID")
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Payment payment;
 	private Integer month;

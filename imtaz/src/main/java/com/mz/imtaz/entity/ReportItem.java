@@ -31,7 +31,7 @@ public class ReportItem {
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Integer pkid;
 	@JoinColumn(name = "REPORT_HEADER", referencedColumnName = "PKID")
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private ReportHeader reportHeader;
 	@Column(nullable = false, length=200)

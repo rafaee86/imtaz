@@ -148,7 +148,7 @@ public class PaymentView extends VerticalLayout implements View {
 		ComboBox<ClassRoomDetail> cbClassRoomDetail = new ComboBox<>("Kelas");
         cbClassRoomDetail.setWidth(WIDTH, Unit.PIXELS);
         cbClassRoomDetail.setItems(classRoomDetailRepo.findAll(Sort.by(Sort.Direction.ASC, "classRoom.name","name")));
-        cbClassRoomDetail.setItemCaptionGenerator(item -> item.getClassRoom().getName() + " " + item.getName() + " - " + item.getTeacher().getSalutation() + " " + item.getTeacher().getName());
+        cbClassRoomDetail.setItemCaptionGenerator(item -> item.getClassRoom().getDescription() + " " + item.getName() + " - " + item.getTeacher().getSalutation() + " " + item.getTeacher().getName());
         cbClassRoomDetail.setEmptySelectionAllowed(false);
 
         ComboBox<Student> cbStudent = new ComboBox<>("Pelajar");
@@ -351,7 +351,7 @@ public class PaymentView extends VerticalLayout implements View {
         			recordsHistoryRepository,
         			"Bayaran Yuran Bulanan Bagi " + cbMonth.getValue().stream().map(itm ->itm.monthDesc).collect(Collectors.joining(", ")) + " " + payment.getYear() + " Sebanyak RM" + payment.getTotalAmount().toPlainString(), 
         			Helper.notNull(payment.getRecords().getStudent().getPkid()),
-        			Helper.notNull(payment.getRecords().getClassRoomDetail().getClassRoom().getName()) + " - " + 
+        			Helper.notNull(payment.getRecords().getClassRoomDetail().getClassRoom().getDescription()) + " - " + 
                     Helper.notNull(payment.getRecords().getClassRoomDetail().getName())
         		);
 			}else {

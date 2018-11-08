@@ -12,6 +12,7 @@ import com.mz.imtaz.view.RecordsHistoryView;
 import com.mz.imtaz.view.RecordsRegisterView;
 import com.mz.imtaz.view.ReportView;
 import com.mz.imtaz.view.StudentRegisterView;
+import com.mz.imtaz.view.UserView;
 import com.vaadin.annotations.Theme;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
@@ -63,6 +64,7 @@ public class MyUI extends UI implements ViewDisplay{
         sideMenu.addNavigation("Sejarah Pelajar", VaadinIcons.ARCHIVES, RecordsHistoryView.NAME);
         sideMenu.addNavigation("Laporan", VaadinIcons.NEWSPAPER, ReportView.NAME);
         sideMenu.addNavigation("Penyelenggaraan", VaadinIcons.TOOLS, ConfigureView.NAME);
+        sideMenu.addNavigation("Daftar Pengguna", VaadinIcons.USER, UserView.NAME);
     }
 
 	@Override

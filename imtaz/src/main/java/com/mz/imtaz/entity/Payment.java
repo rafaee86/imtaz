@@ -40,7 +40,7 @@ public class Payment {
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Integer pkid;
 	@JoinColumn(name = "Records", referencedColumnName = "PKID")
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Records records;
 	@Temporal(TemporalType.TIMESTAMP)
@@ -54,7 +54,7 @@ public class Payment {
 	@Column(nullable = false)
 	private PaymentType paymentType;
 	@JoinColumn(name = "Bank", referencedColumnName = "PKID")
-	@OneToOne(fetch = FetchType.LAZY)
+	@OneToOne(fetch = FetchType.EAGER)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Bank bank;
 	@Setter(value = AccessLevel.NONE)

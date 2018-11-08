@@ -28,11 +28,11 @@ public class DisciplineRecordItem {
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Integer pkid;
 	@JoinColumn(name = "DisciplineRecord", referencedColumnName = "PKID")
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private DisciplineRecord disciplineRecord;
 	@JoinColumn(name = "Discipline", referencedColumnName = "PKID")
-	@OneToOne(fetch = FetchType.LAZY)
+	@OneToOne(fetch = FetchType.EAGER)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Discipline discipline;
 	

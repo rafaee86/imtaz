@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import com.mz.imtaz.entity.ClassRoom;
 import com.mz.imtaz.entity.ClassRoomDetail;
 import com.mz.imtaz.entity.Juzuk;
 import com.mz.imtaz.entity.MemorizeTarget;
@@ -16,7 +17,6 @@ import com.mz.imtaz.entity.RecordUtility;
 import com.mz.imtaz.entity.Records;
 import com.mz.imtaz.entity.Student;
 import com.mz.imtaz.repository.ClassRoomDetailRepository;
-import com.mz.imtaz.repository.ClassRoomRepository;
 import com.mz.imtaz.repository.MemorizeTargetRepository;
 import com.mz.imtaz.repository.RecordsHistoryRepository;
 import com.mz.imtaz.repository.RecordsRepository;
@@ -65,8 +65,6 @@ public class MemorizeTargetView extends VerticalLayout implements View {
 	@Autowired
 	private ClassRoomDetailRepository classRoomDetailRepo;
 	@Autowired
-	private ClassRoomRepository classRoomRepo;
-	@Autowired
 	private RecordsHistoryRepository recordsHistoryRepository;
 
 	@PostConstruct
@@ -90,8 +88,8 @@ public class MemorizeTargetView extends VerticalLayout implements View {
 
         ComboBox<ClassRoomDetail> cbClassRoomDetail = new ComboBox<>("Kelas");
         cbClassRoomDetail.setWidth(WIDTH, Unit.PIXELS);
-        cbClassRoomDetail.setItems(classRoomDetailRepo.findByClassRoom(classRoomRepo.findByNameIgnoreCase("HAFAZAN")));
-        cbClassRoomDetail.setItemCaptionGenerator(item -> item.getClassRoom().getName() + " " + item.getName() + " - " + item.getTeacher().getSalutation() + " " + item.getTeacher().getName());
+        cbClassRoomDetail.setItems(classRoomDetailRepo.findByClassRoom(ClassRoom.HAFAZAN));
+        cbClassRoomDetail.setItemCaptionGenerator(item -> item.getClassRoom().getDescription() + " " + item.getName() + " - " + item.getTeacher().getSalutation() + " " + item.getTeacher().getName());
         cbClassRoomDetail.setEmptySelectionAllowed(false);
 
         ComboBox<Student> cbStudent = new ComboBox<>("Pelajar");
@@ -149,7 +147,7 @@ public class MemorizeTargetView extends VerticalLayout implements View {
 	            			recordsHistoryRepository, 
 	            			"Memadam Target Hafazan Bulanan.", 
 	            			Helper.notNull(item.getRecords().getStudent().getPkid()),
-	            			Helper.notNull(item.getRecords().getClassRoomDetail().getClassRoom().getName()) + " - " + 
+	            			Helper.notNull(item.getRecords().getClassRoomDetail().getClassRoom().getDescription()) + " - " + 
 	                        Helper.notNull(item.getRecords().getClassRoomDetail().getName())
 	            		);
 	                }
@@ -366,7 +364,7 @@ public class MemorizeTargetView extends VerticalLayout implements View {
         			recordsHistoryRepository, 
         			(isNew ? "Kemasukan" : "Mengemaskini") + " Target Hafazan Bulanan.", 
         			Helper.notNull(editedBean.getRecords().getStudent().getPkid()),
-        			Helper.notNull(editedBean.getRecords().getClassRoomDetail().getClassRoom().getName()) + " - " + 
+        			Helper.notNull(editedBean.getRecords().getClassRoomDetail().getClassRoom().getDescription()) + " - " + 
                     Helper.notNull(editedBean.getRecords().getClassRoomDetail().getName())
         		);
             	dataProvider.refreshAll();

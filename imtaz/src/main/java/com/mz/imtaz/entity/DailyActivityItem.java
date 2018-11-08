@@ -28,11 +28,11 @@ public class DailyActivityItem {
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Integer pkid;
 	@JoinColumn(name = "DailyActivity", referencedColumnName = "PKID")
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private DailyActivity dailyActivity;
 	@JoinColumn(name = "DailyRecordItem", referencedColumnName = "PKID")
-	@OneToOne(fetch = FetchType.LAZY)
+	@OneToOne(fetch = FetchType.EAGER)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private DailyRecordItem dailyRecordItem;
 	@Type(type = "org.hibernate.type.NumericBooleanType")

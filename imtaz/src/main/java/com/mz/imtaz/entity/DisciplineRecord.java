@@ -39,14 +39,14 @@ public class DisciplineRecord {
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Integer pkid;
 	@JoinColumn(name = "Records", referencedColumnName = "PKID")
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Records records;
 	@Column(nullable = false)
 	@Temporal(TemporalType.DATE)
 	private Date offendedDate;
 	@JoinColumn(name = "DisciplineRecordItem", referencedColumnName = "PKID")
-	@OneToMany(fetch = FetchType.LAZY)
+	@OneToMany(fetch = FetchType.EAGER)
 	List<DisciplineRecordItem> disciplineRecordItemList;
 	@Column(nullable = false)
 	@Temporal(TemporalType.DATE)
