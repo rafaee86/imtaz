@@ -7,8 +7,10 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.Optional;
 
-import com.mz.imtaz.entity.RecordUtility;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 import com.mz.imtaz.entity.RecordsHistory;
+import com.mz.imtaz.entity.UserContext;
 import com.mz.imtaz.repository.RecordsHistoryRepository;
 
 public class Helper {
@@ -61,6 +63,7 @@ public class Helper {
 			recordsHistory.setDescription(description);
 			recordsHistory.setStudentPkid(studentPkid);
 			recordsHistory.setClassRoomDescription(classRoomDescription);
+			recordsHistory.setOperatorName(getUserContext().getUsername());
 			repo.save(recordsHistory);
 		}
 	}
@@ -78,5 +81,13 @@ public class Helper {
 			result = "0.00";
 		}
 		return result;
+	}
+	
+	public static UserContext getUserContext() {
+		try {
+			return (UserContext) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		}catch (Exception e) {
+			return null;
+		}
 	}
 }

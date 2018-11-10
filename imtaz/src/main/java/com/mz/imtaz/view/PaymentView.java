@@ -25,6 +25,7 @@ import com.mz.imtaz.entity.RecordUtility;
 import com.mz.imtaz.entity.Records;
 import com.mz.imtaz.entity.RunningNumber;
 import com.mz.imtaz.entity.Student;
+import com.mz.imtaz.entity.UserContext;
 import com.mz.imtaz.enums.PaymentType;
 import com.mz.imtaz.enums.RunningNumberCategory;
 import com.mz.imtaz.repository.BankRepository;
@@ -284,6 +285,7 @@ public class PaymentView extends VerticalLayout implements View {
 		btnPrint.setVisible(false);
 
 		btnSave.addClickListener(listener -> {
+    		UserContext userContext = Helper.getUserContext();
 
 			String message = null;
 
@@ -313,7 +315,7 @@ public class PaymentView extends VerticalLayout implements View {
 			payment.setReferenceId(tfReferenceId.getValue());
 			payment.setTransactionId(generateTransactionId());
 			payment.setTotalAmount(BigDecimal.ZERO);
-			payment.setRecordUtility(new RecordUtility());
+			payment.setRecordUtility(new RecordUtility(userContext.getPkid()));
 			payment = paymentRepo.save(payment);
 			
 			if(cbMonth.getValue() != null)

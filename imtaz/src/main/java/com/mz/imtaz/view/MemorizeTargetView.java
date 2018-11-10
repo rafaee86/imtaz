@@ -16,6 +16,7 @@ import com.mz.imtaz.entity.MemorizeTarget;
 import com.mz.imtaz.entity.RecordUtility;
 import com.mz.imtaz.entity.Records;
 import com.mz.imtaz.entity.Student;
+import com.mz.imtaz.entity.UserContext;
 import com.mz.imtaz.repository.ClassRoomDetailRepository;
 import com.mz.imtaz.repository.MemorizeTargetRepository;
 import com.mz.imtaz.repository.RecordsHistoryRepository;
@@ -138,9 +139,10 @@ public class MemorizeTargetView extends VerticalLayout implements View {
 
         btnDelete.addClickListener(evt -> {
         	try {
+        		UserContext userContext = Helper.getUserContext();
 	        	if (!grid.getSelectedItems().isEmpty()) {
 	                MemorizeTarget item = grid.getSelectedItems().iterator().next();
-	                item.getRecordUtility().disabled(null);
+	                item.getRecordUtility().disabled(userContext.getPkid());
 	                if(item.getPkid() != null) {
 	                	targetRepo.save(item);
 	            		Helper.setRecordsHistory(
@@ -343,6 +345,7 @@ public class MemorizeTargetView extends VerticalLayout implements View {
 
         Button btnSave = new Button("Kemaskini");
         btnSave.addClickListener(evt ->{
+    		UserContext userContext = Helper.getUserContext();
 
         	if(target != null) {
         		target.setDailyTarget(new Juzuk(Integer.parseInt(tfDailyTargetJuz.getValue()), Integer.parseInt(tfDailyTargetPage.getValue()), Integer.parseInt(tfDailyTargetLine.getValue())));
@@ -351,7 +354,7 @@ public class MemorizeTargetView extends VerticalLayout implements View {
         		target.setTotalDailyTarget(new Juzuk(Integer.parseInt(tfTotalTargetJuz.getValue()), Integer.parseInt(tfTotalTargetPage.getValue()), Integer.parseInt(tfTotalTargetLine.getValue())));
         		target.setTotalMemorize(new Juzuk(Integer.parseInt(tfTotalMemorizeJuz.getValue()), Integer.parseInt(tfTotalMemorizePage.getValue()), Integer.parseInt(tfTotalMemorizeLine.getValue())));
 
-        		target.setRecordUtility(new RecordUtility());
+        		target.setRecordUtility(new RecordUtility(userContext.getPkid()));
         		MemorizeTarget editedBean = targetRepo.save(target);
         		if(isNew) {
         			dataProvider.getItems().add(editedBean);

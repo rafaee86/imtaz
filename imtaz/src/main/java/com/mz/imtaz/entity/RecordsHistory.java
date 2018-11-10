@@ -11,7 +11,6 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Transient;
 
 import org.apache.commons.lang3.text.WordUtils;
 import org.hibernate.annotations.Type;
@@ -41,6 +40,7 @@ public class RecordsHistory implements Serializable{
 	@Column(nullable = true, length=200)
 	private String description;
 	private Integer transactionPkid;
+	private String operatorName;
 	
 	public void setDescription(String description) {
 		this.description = description != null ? WordUtils.capitalizeFully(description) : null;

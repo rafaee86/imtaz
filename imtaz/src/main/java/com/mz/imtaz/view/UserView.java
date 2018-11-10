@@ -114,7 +114,7 @@ public class UserView extends VerticalLayout implements View {
         	try {
 	        	if (!grid.getSelectedItems().isEmpty()) {
 	        		User item = grid.getSelectedItems().iterator().next();
-	        		item.getRecordUtility().disabled(null);
+	        		item.getRecordUtility().disabled(userContext.getPkid());
 	                if(item.getPkid() != null)userRepo.save(item);
 	                dataProvider.getItems().remove(item);
 	                dataProvider.refreshAll();

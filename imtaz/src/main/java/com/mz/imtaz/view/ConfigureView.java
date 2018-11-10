@@ -25,6 +25,7 @@ import com.mz.imtaz.entity.PaymentDescription;
 import com.mz.imtaz.entity.RecordUtility;
 import com.mz.imtaz.entity.School;
 import com.mz.imtaz.entity.Teacher;
+import com.mz.imtaz.entity.UserContext;
 import com.mz.imtaz.enums.Salutation;
 import com.mz.imtaz.repository.BankRepository;
 import com.mz.imtaz.repository.ClassRoomDetailRepository;
@@ -253,7 +254,8 @@ public class ConfigureView extends VerticalLayout implements View {
         btnSave.addClickListener(evt ->{
         	Boolean isValid = binder.writeBeanIfValid(school);
         	if(isValid != null && isValid) {
-        		school.setRecordUtility(new RecordUtility());
+        		UserContext userContext = Helper.getUserContext();
+        		school.setRecordUtility(new RecordUtility(userContext.getPkid()));
         		School saveItem = schoolRepo.save(school);
         		binder.setBean(saveItem);
         		Notification.show("Kemaskini maklumat sekolah telah berjaya.", Type.HUMANIZED_MESSAGE);
@@ -307,8 +309,9 @@ public class ConfigureView extends VerticalLayout implements View {
 
         grid.getEditor().addSaveListener(evt -> {
         	try {
+        		UserContext userContext = Helper.getUserContext();
                 Teacher item = evt.getBean();
-                item.setRecordUtility(new RecordUtility());
+                item.setRecordUtility(new RecordUtility(userContext.getPkid()));
                 teacherRepo.save(item);
                 dataProvider.refreshAll();
             } catch (Exception e) {
@@ -325,9 +328,10 @@ public class ConfigureView extends VerticalLayout implements View {
 
         btnDelete.addClickListener(evt -> {
         	try {
+        		UserContext userContext = Helper.getUserContext();
 	        	if (!grid.getSelectedItems().isEmpty()) {
 	                Teacher item = grid.getSelectedItems().iterator().next();
-	                item.getRecordUtility().disabled(null);
+	                item.getRecordUtility().disabled(userContext.getPkid());
 	                if(item.getPkid() != null)teacherRepo.save(item);
 	                dataProvider.getItems().remove(item);
 	                dataProvider.refreshAll();
@@ -392,9 +396,10 @@ public class ConfigureView extends VerticalLayout implements View {
 		});
 
         grid.getEditor().addSaveListener(evt -> {
+    		UserContext userContext = Helper.getUserContext();
         	try {
         		ClassRoomDetail item = evt.getBean();
-        		item.setRecordUtility(new RecordUtility());
+        		item.setRecordUtility(new RecordUtility(userContext.getPkid()));
                 classRoomDetailRepo.save(item);
                 dataProvider.refreshAll();
             } catch (Exception e) {
@@ -411,9 +416,10 @@ public class ConfigureView extends VerticalLayout implements View {
 
         btnDelete.addClickListener(evt -> {
         	try {
+        		UserContext userContext = Helper.getUserContext();
 	        	if (!grid.getSelectedItems().isEmpty()) {
 	        		ClassRoomDetail item = grid.getSelectedItems().iterator().next();
-	        		item.getRecordUtility().disabled(null);
+	        		item.getRecordUtility().disabled(userContext.getPkid());
 	                if(item.getPkid() != null)classRoomDetailRepo.save(item);
 	                dataProvider.getItems().remove(item);
 	                dataProvider.refreshAll();
@@ -461,8 +467,9 @@ public class ConfigureView extends VerticalLayout implements View {
 
         grid.getEditor().addSaveListener(evt -> {
         	try {
+        		UserContext userContext = Helper.getUserContext();
                 Discipline item = evt.getBean();
-        		item.setRecordUtility(new RecordUtility());
+        		item.setRecordUtility(new RecordUtility(userContext.getPkid()));
                 disciplineRepo.save(item);
                 dataProvider.refreshAll();
             } catch (Exception e) {
@@ -479,9 +486,10 @@ public class ConfigureView extends VerticalLayout implements View {
 
         btnDelete.addClickListener(evt -> {
         	try {
+        		UserContext userContext = Helper.getUserContext();
 	        	if (!grid.getSelectedItems().isEmpty()) {
 	                Discipline item = grid.getSelectedItems().iterator().next();
-	        		item.getRecordUtility().disabled(null);
+	        		item.getRecordUtility().disabled(userContext.getPkid());
 	                if(item.getPkid() != null)disciplineRepo.save(item);
 	                dataProvider.getItems().remove(item);
 	                dataProvider.refreshAll();
@@ -540,8 +548,9 @@ public class ConfigureView extends VerticalLayout implements View {
 
         grid.getEditor().addSaveListener(evt -> {
         	try {
+        		UserContext userContext = Helper.getUserContext();
         		DailyRecordItem item = evt.getBean();
-        		item.setRecordUtility(new RecordUtility());
+        		item.setRecordUtility(new RecordUtility(userContext.getPkid()));
         		dailyRecordItemRepo.save(item);
                 dataProvider.refreshAll();
             } catch (Exception e) {
@@ -559,9 +568,10 @@ public class ConfigureView extends VerticalLayout implements View {
 
         btnDelete.addClickListener(evt -> {
         	try {
+        		UserContext userContext = Helper.getUserContext();
 	        	if (!grid.getSelectedItems().isEmpty()) {
 	        		DailyRecordItem item = grid.getSelectedItems().iterator().next();
-	        		item.getRecordUtility().disabled(null);
+	        		item.getRecordUtility().disabled(userContext.getPkid());
 	                if(item.getPkid() != null)dailyRecordItemRepo.save(item);
 	                dataProvider.getItems().remove(item);
 	                dataProvider.refreshAll();
@@ -636,8 +646,9 @@ public class ConfigureView extends VerticalLayout implements View {
 
         grid.getEditor().addSaveListener(evt -> {
         	try {
+        		UserContext userContext = Helper.getUserContext();
         		PaymentDescription item = evt.getBean();
-        		item.setRecordUtility(new RecordUtility());
+        		item.setRecordUtility(new RecordUtility(userContext.getPkid()));
                 paymentDescRepo.save(item);
                 dataProvider.refreshAll();
             } catch (Exception e) {
@@ -654,9 +665,10 @@ public class ConfigureView extends VerticalLayout implements View {
 
         btnDelete.addClickListener(evt -> {
         	try {
+        		UserContext userContext = Helper.getUserContext();
 	        	if (!grid.getSelectedItems().isEmpty()) {
 	        		PaymentDescription item = grid.getSelectedItems().iterator().next();
-	                item.getRecordUtility().disabled(null);
+	                item.getRecordUtility().disabled(userContext.getPkid());
 	                if(item.getPkid() != null)paymentDescRepo.save(item);
 	                dataProvider.getItems().remove(item);
 	                dataProvider.refreshAll();
@@ -704,8 +716,9 @@ public class ConfigureView extends VerticalLayout implements View {
 
         grid.getEditor().addSaveListener(evt -> {
         	try {
+        		UserContext userContext = Helper.getUserContext();
                 Bank item = evt.getBean();
-        		item.setRecordUtility(new RecordUtility());
+        		item.setRecordUtility(new RecordUtility(userContext.getPkid()));
                 bankRepo.save(item);
                 dataProvider.refreshAll();
             } catch (Exception e) {
@@ -722,9 +735,10 @@ public class ConfigureView extends VerticalLayout implements View {
 
         btnDelete.addClickListener(evt -> {
         	try {
+        		UserContext userContext = Helper.getUserContext();
 	        	if (!grid.getSelectedItems().isEmpty()) {
 	                Bank item = grid.getSelectedItems().iterator().next();
-	                item.getRecordUtility().disabled(null);
+	                item.getRecordUtility().disabled(userContext.getPkid());
 	                if(item.getPkid() != null)bankRepo.save(item);
 	                dataProvider.getItems().remove(item);
 	                dataProvider.refreshAll();
@@ -806,8 +820,9 @@ public class ConfigureView extends VerticalLayout implements View {
 
         grid.getEditor().addSaveListener(evt -> {
         	try {
+        		UserContext userContext = Helper.getUserContext();
                 GeneralCode item = evt.getBean();
-        		item.setRecordUtility(new RecordUtility());
+        		item.setRecordUtility(new RecordUtility(userContext.getPkid()));
                 generalCodeRepo.save(item);
                 dataProvider.refreshAll();
             } catch (Exception e) {
@@ -824,9 +839,10 @@ public class ConfigureView extends VerticalLayout implements View {
 
         btnDelete.addClickListener(evt -> {
         	try {
+        		UserContext userContext = Helper.getUserContext();
 	        	if (!grid.getSelectedItems().isEmpty()) {
 	        		GeneralCode item = grid.getSelectedItems().iterator().next();
-	                item.getRecordUtility().disabled(null);
+	                item.getRecordUtility().disabled(userContext.getPkid());
 	                if(item.getPkid() != null)generalCodeRepo.save(item);
 	                dataProvider.getItems().remove(item);
 	                dataProvider.refreshAll();

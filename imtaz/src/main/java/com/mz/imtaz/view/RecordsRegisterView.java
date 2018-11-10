@@ -18,6 +18,7 @@ import com.mz.imtaz.entity.GeneralCode;
 import com.mz.imtaz.entity.RecordUtility;
 import com.mz.imtaz.entity.Records;
 import com.mz.imtaz.entity.Student;
+import com.mz.imtaz.entity.UserContext;
 import com.mz.imtaz.repository.ClassRoomDetailRepository;
 import com.mz.imtaz.repository.GeneralCodeRepository;
 import com.mz.imtaz.repository.RecordsHistoryRepository;
@@ -175,9 +176,10 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
         });
 
         btnSave.addClickListener(evt -> {
+    		UserContext userContext = Helper.getUserContext();
         	for(Records item : dataProvider.getItems()) {
         		if(item.getRecordUtility() == null) {
-        			item.setRecordUtility(new RecordUtility());
+        			item.setRecordUtility(new RecordUtility(userContext.getPkid()));
         			item = recordsRepo.save(item);
             		Helper.setRecordsHistory(
             			recordsHistoryRepository, 

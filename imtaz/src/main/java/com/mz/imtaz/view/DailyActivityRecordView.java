@@ -185,7 +185,7 @@ public class DailyActivityRecordView extends VerticalLayout implements View{
 //					Helper.notNull(cbClassRoomDetail.getSelectedItem()), 
 //					Helper.notNull(cbStudent.getSelectedItem()))
 //				);
-//				dailyActivity.setRecordUtility(new RecordUtility());
+//				dailyActivity.setRecordUtility(new RecordUtility(userContext.getPkid()));
 //				dailyActivity.setDate(Helper.notNull(dpDate.getValue()));
 //				dailyActivity = dailyActivityRepo.save(dailyActivity);
 //			}

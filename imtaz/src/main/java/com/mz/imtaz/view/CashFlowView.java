@@ -14,8 +14,8 @@ import org.vaadin.ui.NumberField;
 
 import com.mz.imtaz.entity.CashFlow;
 import com.mz.imtaz.entity.RecordUtility;
+import com.mz.imtaz.entity.UserContext;
 import com.mz.imtaz.repository.CashFlowRepository;
-import com.mz.imtaz.repository.RecordsHistoryRepository;
 import com.mz.imtaz.util.Helper;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.data.converter.StringToBigDecimalConverter;
@@ -114,8 +114,9 @@ public class CashFlowView extends VerticalLayout implements View {
 
 		grid.getEditor().addSaveListener(evt -> {
         	try {
+        		UserContext userContext = Helper.getUserContext();
         		CashFlow item = evt.getBean();
-        		item.setRecordUtility(new RecordUtility());
+        		item.setRecordUtility(new RecordUtility(userContext.getPkid()));
         		cashFlowRepo.save(item);
                 dataProvider.refreshAll();
             } catch (Exception e) {
@@ -133,9 +134,10 @@ public class CashFlowView extends VerticalLayout implements View {
 
         btnDelete.addClickListener(evt -> {
         	try {
+        		UserContext userContext = Helper.getUserContext();
 	        	if (!grid.getSelectedItems().isEmpty()) {
 	                CashFlow item = grid.getSelectedItems().iterator().next();
-	                item.getRecordUtility().disabled(null);
+	                item.getRecordUtility().disabled(userContext.getPkid());
 	                if(item.getPkid() != null)cashFlowRepo.save(item);
 	                dataProvider.getItems().remove(item);
 	                dataProvider.refreshAll();

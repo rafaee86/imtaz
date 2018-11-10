@@ -20,6 +20,7 @@ import com.mz.imtaz.entity.GeneralCode;
 import com.mz.imtaz.entity.RecordUtility;
 import com.mz.imtaz.entity.RunningNumber;
 import com.mz.imtaz.entity.Student;
+import com.mz.imtaz.entity.UserContext;
 import com.mz.imtaz.enums.GuardianType;
 import com.mz.imtaz.enums.RegistrationType;
 import com.mz.imtaz.enums.RunningNumberCategory;
@@ -416,9 +417,10 @@ public class StudentRegisterView extends VerticalLayout implements View{
         Button btnCancel = new Button("Batal");
 
         btnSave.addClickListener(listener -> {
+    		UserContext userContext = Helper.getUserContext();
         	Boolean isValid = binder.writeBeanIfValid(student);
         	if(isValid != null && isValid) {
-        		student.setRecordUtility(new RecordUtility());
+        		student.setRecordUtility(new RecordUtility(userContext.getPkid()));
         		if(isNew) {
         			student.setStudentNo(generateTransactionId());
         			
@@ -441,9 +443,10 @@ public class StudentRegisterView extends VerticalLayout implements View{
         });
         btnDelete.addClickListener(evt -> {
         	try {
+        		UserContext userContext = Helper.getUserContext();
 	        	if (binder.getBean() != null) {
 	                Student item = binder.getBean();
-	                item.getRecordUtility().disabled(null);
+	                item.getRecordUtility().disabled(userContext.getPkid());
 	                if(item.getPkid() != null) {
 	                	studentRepo.save(item);
 	                	Helper.setRecordsHistory(recordsHistoryRepository, "Memadam Maklumat Pelajar", item.getPkid());

@@ -21,6 +21,7 @@ import com.mz.imtaz.entity.DisciplineRecordItem;
 import com.mz.imtaz.entity.RecordUtility;
 import com.mz.imtaz.entity.Records;
 import com.mz.imtaz.entity.Student;
+import com.mz.imtaz.entity.UserContext;
 import com.mz.imtaz.enums.DisciplineStatus;
 import com.mz.imtaz.repository.ClassRoomDetailRepository;
 import com.mz.imtaz.repository.DisciplineRecordItemRepository;
@@ -150,9 +151,10 @@ public class DisciplineRecordView extends VerticalLayout implements View {
 
         btnDelete.addClickListener(evt -> {
         	try {
+        		UserContext userContext = Helper.getUserContext();
 	        	if (!grid.getSelectedItems().isEmpty()) {
 	        		DisciplineRecord item = grid.getSelectedItems().iterator().next();
-	                item.getRecordUtility().disabled(null);
+	                item.getRecordUtility().disabled(userContext.getPkid());
 	                if(item.getPkid() != null) {
 	                	disciplineRecordRepo.save(item);
 	                	Helper.setRecordsHistory(
@@ -293,13 +295,14 @@ public class DisciplineRecordView extends VerticalLayout implements View {
         
         Button btnSave = new Button("Kemaskini");
         btnSave.addClickListener(evt ->{
+    		UserContext userContext = Helper.getUserContext();
         	Boolean isValid = binder.writeBeanIfValid(disciplineRecord);
         	
         	if(isValid != null && isValid) {
         		if(!isNew && Helper.notNull(disciplineRecord.getDisciplineRecordItemList()).size() > 0) {
         			disciplineItemRecordRepo.deleteAll(disciplineRecord.getDisciplineRecordItemList());
             	}
-        		disciplineRecord.setRecordUtility(new RecordUtility());
+        		disciplineRecord.setRecordUtility(new RecordUtility(userContext.getPkid()));
         		DisciplineRecord editedBean = disciplineRecordRepo.save(disciplineRecord);
         		Helper.setRecordsHistory(
         			recordsHistoryRepository, 

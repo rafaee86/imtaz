@@ -1,34 +1,93 @@
 package com.mz.imtaz;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.util.logging.Logger;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+
+import com.vaadin.annotations.Theme;
+import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.shared.ui.ContentMode;
+import com.vaadin.server.VaadinService;
+import com.vaadin.server.VaadinServletRequest;
+import com.vaadin.server.VaadinServletResponse;
 import com.vaadin.spring.annotation.SpringUI;
-import com.vaadin.ui.Label;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.LoginForm;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
+/**
+ * This is the form login page.
+ * 
+ *
+ */
+@SuppressWarnings("serial")
+@Theme("mytheme")
 @SpringUI(path = "/login")
 public class LoginUI extends UI {
 	
-	@Override
-	protected void init(VaadinRequest request) {
-		
-		Label label = new Label(html, ContentMode.HTML);
-		label.setWidth("100%");
-		VerticalLayout layout = new VerticalLayout(label);
-		layout.setSizeFull();
-		setContent(layout);
-	}
-
-	private String html = 
-			"<table align='center' border=1 style='width:800px;height:600px;'><tr><td style='width:70%;height:60%;' align='center'>" + 
-			"<table border=1 ><tr><td>" + 
-			"<form action='/perform_login' method='POST'>" + 
-			"<table><tbody><tr><td>Id Pengguna:</td><td><input type='text' name='myusername' ></td></tr>" + 
-			"<tr><td>Kata Laluan:</td><td><input type='password' name='mypassword'></td></tr>" + 
-			"<tr><td colspan='2'><input name='submit' type='submit' value='Login'></td></tr>" + 
-			"</tbody></table>" + 
-			"</form>" + 
-			"</td></tr></table></td></tr></table>";
+	Logger logger = Logger.getLogger(LoginUI.class.getName());
 	
+	@Autowired
+    private AuthenticationProvider authenticationProvider;
+	
+	@Autowired
+	SessionAuthenticationStrategy sessionAuthenticationStrategy;	
+
+    @Override
+    protected void init(final VaadinRequest request) {    	
+    	
+    	if (!(SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken))
+    	{
+    		URI currentLoc = Page.getCurrent().getLocation();
+    		try {
+				Page.getCurrent().setLocation(  currentLoc.toURL().toString().replace("/login", "/"));
+			} catch (MalformedURLException e1) {				
+				e1.printStackTrace();
+			}
+    		return;
+    	}
+    	
+    	VerticalLayout vl = new VerticalLayout();
+    	LoginForm lf = new LoginForm();
+    	lf.setLoginButtonCaption("Masuk");
+    	lf.setUsernameCaption("Id Pengguna");
+    	lf.setPasswordCaption("Kata Laluan");
+    	lf.addLoginListener(e -> {
+            final Authentication auth = new UsernamePasswordAuthenticationToken(e.getLoginParameter("username"), e.getLoginParameter("password"));
+            try {
+            	// this is the code for achieving the spring security authentication in a programmatic way
+                final Authentication authenticated = authenticationProvider.authenticate(auth);
+                SecurityContextHolder.getContext().setAuthentication(authenticated);
+                sessionAuthenticationStrategy.onAuthentication(auth, ((VaadinServletRequest)VaadinService.getCurrentRequest()).getHttpServletRequest(), ((VaadinServletResponse)VaadinService.getCurrentResponse()).getHttpServletResponse());
+                URI currentLoc = Page.getCurrent().getLocation();
+        		try {
+    				Page.getCurrent().setLocation(  currentLoc.toURL().toString().replace("/login", "/"));
+    			} catch (MalformedURLException e1) {    				
+    				logger.info(e1.getMessage());
+    			}
+            } catch (final AuthenticationException ex) {
+            	String message = "Id Pengguna atau Kata Laluan tidak sah.";
+            	logger.info("AuthenticationException with message : " + ex.getMessage());
+            	Notification.show(message, Notification.Type.ERROR_MESSAGE);
+            }
+
+    	});
+    	
+    	vl.addComponent(lf);
+    	vl.setComponentAlignment(lf, Alignment.MIDDLE_CENTER);
+    	vl.setSizeFull();
+    	setContent(vl);
+    }
+
 }

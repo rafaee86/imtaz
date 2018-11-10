@@ -20,12 +20,16 @@ public class UserContext implements UserDetails{
 		if(this.user == null) {
 			throw new UsernameNotFoundException("User not valid.");
 		}
+		
+		this.pkid = this.user.getPkid();
 	}
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return null;
 	}
+	
+	public Integer pkid;
 
 	@Override
 	public String getPassword() {

@@ -116,6 +116,9 @@ public class RecordsHistoryView extends VerticalLayout implements View {
 		grid.addColumn(RecordsHistory::getDescription)
 		.setCaption("Keterangan");
 		
+		grid.addColumn(RecordsHistory::getOperatorName)
+		.setCaption("Nama Pengguna");
+		
 		btnSearch.addClickListener(listener -> {
         	Student student = Helper.notNull(cbStudent.getSelectedItem());
         	List<RecordsHistory> historyList = null;
