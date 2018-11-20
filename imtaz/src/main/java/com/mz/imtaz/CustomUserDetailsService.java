@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.mz.imtaz.entity.User;
@@ -27,9 +28,28 @@ public class CustomUserDetailsService implements UserDetailsService {
 		user.setUsername(username);
 		Example<User> userQBE = Example.of(user);
 		
-		Optional<User> userOptinal = userRepo.findOne(userQBE);
+		Optional<User> userOptional = userRepo.findOne(userQBE);
 		
-		return new UserContext(userOptinal.orElse(null));
+		if("Administrator".equals(username) && !userOptional.isPresent()) {
+			return new UserContext(getAdministratorUser());
+		}
+		
+		return new UserContext(userOptional.orElse(null));
 	} 
+	
+	private User getAdministratorUser() {
+		
+		User user = new User();
+		user.setUsername("Administrator");
+		user.setPlainPassword("Administrator");
+		user.setPassword(new BCryptPasswordEncoder().encode(user.getPlainPassword()));
+		user.setFullname("Administrator");
+		user.setEnabled(true);
+		user.setIsLock(false);
+		user.setExpiredDate(null);
+		user.setIsAdministrator(true);
+		
+		return user;
+	}
 
 }

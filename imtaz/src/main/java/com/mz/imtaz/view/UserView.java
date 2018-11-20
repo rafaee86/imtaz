@@ -19,6 +19,7 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.HorizontalLayout;
@@ -88,6 +89,10 @@ public class UserView extends VerticalLayout implements View {
         dfExpiredDate.setValue(LocalDate.now().plus(1, ChronoUnit.YEARS));
         grid.addColumn(User::getExpiredDate).setCaption("Tarikh Luput")
         .setEditorComponent(dfExpiredDate, User::setExpiredDate);
+        
+        CheckBox cbIsAdmin = new CheckBox();
+        grid.addColumn(User::getIsAdministrator).setCaption("Pentadbir?")
+        .setEditorComponent(cbIsAdmin, User::setIsAdministrator);
 
         grid.getEditor().addSaveListener(evt -> {
         	try {

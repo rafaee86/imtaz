@@ -130,6 +130,11 @@
 				   <artifactId>pagination</artifactId>
 				   <version>8.0.6</version>
 				</dependency>
+				<dependency>
+				   <groupId>org.vaadin.addon</groupId>
+				   <artifactId>confirmdialog</artifactId>
+				   <version>3.2.0</version>
+				</dependency>
 	</dependencies>
 
 	<build>

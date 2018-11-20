@@ -4,9 +4,9 @@
         <wb-resource deploy-path="/" source-path="/src/main/webapp" tag="defaultRootSource"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/resources"/>
-        <wb-resource deploy-path="/images" source-path="/src/main/webapp/customImages"/>
+        <wb-resource deploy-path="/images" source-path="/src/main/webapp/VAADIN/themes/mytheme/images"/>
         <property name="context-root" value="imtaz"/>
-        <property name="java-output-path" value="/imtaz/target/classes"/>
         <property name="component.exclusion.patterns"/>
+        <property name="java-output-path" value="/imtaz/target/classes"/>
     </wb-module>
 </project-modules>

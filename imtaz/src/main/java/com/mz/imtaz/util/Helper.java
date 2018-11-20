@@ -85,7 +85,12 @@ public class Helper {
 	
 	public static UserContext getUserContext() {
 		try {
-			return (UserContext) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			Object obj = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			if(obj instanceof UserContext) {
+				return (UserContext)obj;
+			}else {
+				return null;
+			}
 		}catch (Exception e) {
 			return null;
 		}

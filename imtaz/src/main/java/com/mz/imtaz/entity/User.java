@@ -32,9 +32,9 @@ public class User implements Serializable {
 	private Integer pkid;
 	@Column(nullable = false, length=50)
 	private String username;
-	@Column(nullable = false, length=50)
+	@Column(nullable = false, length=250)
 	private String password;
-	@Column(nullable = false, length=200)
+	@Column(nullable = false, length=50)
 	private String plainPassword;
 	@Setter(value = AccessLevel.NONE)
 	@Column(nullable = false, length=200)
@@ -44,6 +44,8 @@ public class User implements Serializable {
 	private LocalDate expiredDate;
 	@Type(type = "org.hibernate.type.NumericBooleanType")
 	private Boolean isLock;
+	@Type(type = "org.hibernate.type.NumericBooleanType")
+	private Boolean isAdministrator;
 	@Embedded
 	private RecordUtility recordUtility;
 	
