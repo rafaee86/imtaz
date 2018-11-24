@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import com.mz.imtaz.entity.RecordsHistory;
 import com.mz.imtaz.entity.UserContext;
 import com.mz.imtaz.repository.RecordsHistoryRepository;
+import com.vaadin.data.provider.ListDataProvider;
 
 public class Helper {
 	
@@ -94,5 +96,13 @@ public class Helper {
 		}catch (Exception e) {
 			return null;
 		}
+	}
+	
+	public static <B> void removeGrid(ListDataProvider<B> listDataProvider, B b, boolean isNew) {		
+		Objects.requireNonNull(b);		
+		if(isNew) {
+			listDataProvider.getItems().remove(b);
+		}		
+		listDataProvider.refreshAll();		
 	}
 }

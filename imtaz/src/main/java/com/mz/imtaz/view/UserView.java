@@ -13,6 +13,7 @@ import com.mz.imtaz.entity.RecordUtility;
 import com.mz.imtaz.entity.User;
 import com.mz.imtaz.entity.UserContext;
 import com.mz.imtaz.repository.UserRepository;
+import com.mz.imtaz.util.Helper;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.icons.VaadinIcons;
@@ -107,6 +108,11 @@ public class UserView extends VerticalLayout implements View {
                 Notification.show("Rekod tidak berjaya dikemaskini.", Notification.Type.ERROR_MESSAGE);
             }
 		});
+        
+        grid.getEditor().addCancelListener(evt -> {
+        	Helper.removeGrid(dataProvider, evt.getBean(), evt.getBean().getPkid() == null);
+        });
+        
         grid.addSelectionListener(evt -> {
         	if (evt.getFirstSelectedItem().isPresent()) {
                 btnDelete.setEnabled(true);

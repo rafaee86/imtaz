@@ -123,6 +123,10 @@ public class CashFlowView extends VerticalLayout implements View {
                 Notification.show("Rekod tidak berjaya dikemaskini.", Notification.Type.ERROR_MESSAGE);
             }
 		});
+		
+		grid.getEditor().addCancelListener(evt -> {
+        	Helper.removeGrid(dataProvider, evt.getBean(), evt.getBean().getPkid() == null);
+        });
 
 		grid.addSelectionListener(evt -> {
         	if (evt.getFirstSelectedItem().isPresent()) {
