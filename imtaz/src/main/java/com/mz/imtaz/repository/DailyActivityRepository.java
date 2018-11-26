@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.mz.imtaz.entity.ClassRoomDetail;
 import com.mz.imtaz.entity.DailyActivity;
+import com.mz.imtaz.entity.Records;
 import com.mz.imtaz.entity.Student;
 
 public interface DailyActivityRepository extends JpaRepository<DailyActivity, Integer> {
@@ -21,4 +22,7 @@ public interface DailyActivityRepository extends JpaRepository<DailyActivity, In
 			+ "and a.date = :date "
 			+ "order by a.records.student.name asc")
 	DailyActivity findByClassRoomDetail(@Param("classRoomDetail") ClassRoomDetail classRoomDetail, @Param("student") Student student, @Param(value = "date") LocalDate date);
+	
+	@Query("Select a from DailyActivity a where a.recordUtility.statusFlag = true and a.records = :records")
+	DailyActivity findByRecords(Records records);
 }

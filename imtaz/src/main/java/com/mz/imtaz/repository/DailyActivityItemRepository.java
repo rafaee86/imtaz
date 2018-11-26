@@ -11,4 +11,5 @@ import com.mz.imtaz.entity.DailyActivityItem;
 public interface DailyActivityItemRepository extends JpaRepository<DailyActivityItem, Integer> {
 
 	List<DailyActivityItem> findByDailyActivity(@Param("dailyActivity") DailyActivity dailyActivity);
+	
 }

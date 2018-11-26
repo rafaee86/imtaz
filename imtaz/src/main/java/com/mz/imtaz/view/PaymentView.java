@@ -128,7 +128,7 @@ public class PaymentView extends VerticalLayout implements View {
 
 	private void bodySection() {
 		
-		DateField dfTransactionDate = new DateField();
+		DateField dfTransactionDate = new DateField("Tarikh Transaksi");
 		dfTransactionDate.setEnabled(false);
 		dfTransactionDate.setValue(LocalDate.now());
 		
@@ -148,7 +148,7 @@ public class PaymentView extends VerticalLayout implements View {
 		
 		ComboBox<ClassRoomDetail> cbClassRoomDetail = new ComboBox<>("Kelas");
         cbClassRoomDetail.setWidth(WIDTH, Unit.PIXELS);
-        cbClassRoomDetail.setItems(classRoomDetailRepo.findAll(Sort.by(Sort.Direction.ASC, "classRoom.name","name")));
+        cbClassRoomDetail.setItems(classRoomDetailRepo.findAll(Sort.by(Sort.Direction.ASC, "classRoom","name")));
         cbClassRoomDetail.setItemCaptionGenerator(item -> item.getClassRoom().getDescription() + " " + item.getName() + " - " + item.getTeacher().getSalutation() + " " + item.getTeacher().getName());
         cbClassRoomDetail.setEmptySelectionAllowed(false);
 

@@ -92,7 +92,13 @@
 		   <artifactId>spring-boot-starter-tomcat</artifactId>
 		   <scope>provided</scope>
 		</dependency>
+		<dependency>
+		    <groupId>javassist</groupId>
+		    <artifactId>javassist</artifactId>
+		    <version>3.12.1.GA</version>
+		</dependency>
 		
+		<!-- Vaadin -->
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-server</artifactId>

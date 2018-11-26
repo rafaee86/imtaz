@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 
 import com.mz.imtaz.entity.ClassRoom;
 import com.mz.imtaz.entity.ClassRoomDetail;
+import com.mz.imtaz.entity.GeneralCode;
 import com.mz.imtaz.entity.Juzuk;
 import com.mz.imtaz.entity.MemorizeTarget;
 import com.mz.imtaz.entity.RecordUtility;
@@ -18,11 +19,13 @@ import com.mz.imtaz.entity.Records;
 import com.mz.imtaz.entity.Student;
 import com.mz.imtaz.entity.UserContext;
 import com.mz.imtaz.repository.ClassRoomDetailRepository;
+import com.mz.imtaz.repository.GeneralCodeRepository;
 import com.mz.imtaz.repository.MemorizeTargetRepository;
 import com.mz.imtaz.repository.RecordsHistoryRepository;
 import com.mz.imtaz.repository.RecordsRepository;
 import com.mz.imtaz.repository.StudentRepository;
 import com.mz.imtaz.util.Helper;
+import com.mz.imtaz.view.ConfigureView.GeneralCodeCategory;
 import com.vaadin.addon.pagination.Pagination;
 import com.vaadin.addon.pagination.PaginationResource;
 import com.vaadin.data.provider.DataProvider;
@@ -31,6 +34,7 @@ import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
@@ -67,6 +71,8 @@ public class MemorizeTargetView extends VerticalLayout implements View {
 	private ClassRoomDetailRepository classRoomDetailRepo;
 	@Autowired
 	private RecordsHistoryRepository recordsHistoryRepository;
+	@Autowired
+	private GeneralCodeRepository generalCodeRepo;
 
 	@PostConstruct
     public void init() {
@@ -231,9 +237,16 @@ public class MemorizeTargetView extends VerticalLayout implements View {
         modal.setSizeUndefined();
 
         TextField tfStudent = new TextField("Nama Pelajar");
+        tfStudent.setWidth(WIDTH, Unit.PIXELS);
         tfStudent.setReadOnly(true);
         tfStudent.setValue(target.getRecords() != null && target.getRecords().getStudent() != null ? target.getRecords().getStudent().getName() : "");
-
+        
+        GeneralCode gcHafiz = generalCodeRepo.findByCategoryAndCode(GeneralCodeCategory.STUDENT_ACADEMIC_STATUS.name(), "M");
+        Boolean ishafiz = gcHafiz.getPkid().equals(target.getRecords().getStatus());
+        CheckBox cbIsHafiz = new CheckBox("Hafiz");
+        cbIsHafiz.setValue(ishafiz);
+        cbIsHafiz.setReadOnly(ishafiz);
+        
         TextField tfDailyTargetJuz = new TextField();
         tfDailyTargetJuz.setRequiredIndicatorVisible(false);
         tfDailyTargetJuz.setWidth(JUZUK_WIDTH, Unit.PIXELS);
@@ -331,6 +344,7 @@ public class MemorizeTargetView extends VerticalLayout implements View {
         }
 
         formLayout.addComponent(tfStudent);
+        formLayout.addComponent(cbIsHafiz);
         HorizontalLayout hlDailyTarget = new HorizontalLayout(tfDailyTargetJuz, tfDailyTargetPage, tfDailyTargetLine);
         hlDailyTarget.setCaption("Target Harian");
         formLayout.addComponent(hlDailyTarget);
@@ -370,11 +384,24 @@ public class MemorizeTargetView extends VerticalLayout implements View {
         			Helper.notNull(editedBean.getRecords().getClassRoomDetail().getClassRoom().getDescription()) + " - " + 
                     Helper.notNull(editedBean.getRecords().getClassRoomDetail().getName())
         		);
+        		
+        		if(cbIsHafiz.getValue()) {
+        			Records recordsOther = recordsRepo.findById(editedBean.getRecords().getPkid()).orElse(null);
+        			if(recordsOther != null) {
+        				recordsOther.setStatus(gcHafiz.getPkid());
+        				recordsOther.getRecordUtility().edited(userContext.getPkid());
+    	        		recordsRepo.save(recordsOther);
+        			}
+	        		
+        		}
             	dataProvider.refreshAll();
             	modal.close();
         		Notification.show("Rekod kemasukan Hafazan Harian Telah Berjaya Di Kemaskini.", Type.HUMANIZED_MESSAGE);
         	}
         });
+        
+        btnSave.setVisible(!ishafiz);
+        btnSave.setEnabled(!ishafiz);
 
         Button btnCancel = new Button("Batal");
         btnCancel.addClickListener(evt ->{

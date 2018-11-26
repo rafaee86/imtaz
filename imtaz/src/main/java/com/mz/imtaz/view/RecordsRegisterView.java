@@ -179,6 +179,7 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
     		UserContext userContext = Helper.getUserContext();
         	for(Records item : dataProvider.getItems()) {
         		if(item.getRecordUtility() == null) {
+        			item.setStartDate(new Date());
         			item.setRecordUtility(new RecordUtility(userContext.getPkid()));
         			item = recordsRepo.save(item);
             		Helper.setRecordsHistory(
@@ -340,10 +341,12 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
 						Records newRecords = records.clone();
 						newRecords.setClassRoomDetail(classRoomDetail);
 						newRecords.setPkid(null);
+						newRecords.setStartDate(new Date());
 						newRecords.getRecordUtility().setCreatedDate(new Date());
-						newRecords.getRecordUtility().enabled(null);
-						
+						newRecords.getRecordUtility().enabled(null);						
 						newRecords = recordsRepo.save(newRecords);
+						
+						records.setEndDate(new Date());
 						recordsRepo.save(records);
 						
 						Helper.setRecordsHistory(
