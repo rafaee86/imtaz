@@ -27,7 +27,7 @@ import lombok.NoArgsConstructor;
 public class DailyActivityItem {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(nullable = false, length=8)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private Integer pkid;
@@ -41,4 +41,8 @@ public class DailyActivityItem {
 	private DailyRecordItem dailyRecordItem;
 	@Type(type = "org.hibernate.type.NumericBooleanType")
 	private Boolean done;
+	@JoinColumn(name = "DailyRecordDiscipline", referencedColumnName = "PKID")
+	@OneToOne(fetch = FetchType.EAGER)
+	@Type(type = "org.hibernate.type.IntegerType")
+	private DailyRecordDiscipline dailyRecordDiscipline;
 }

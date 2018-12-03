@@ -18,6 +18,7 @@ import org.vaadin.ui.NumberField;
 import com.mz.imtaz.entity.Bank;
 import com.mz.imtaz.entity.ClassRoom;
 import com.mz.imtaz.entity.ClassRoomDetail;
+import com.mz.imtaz.entity.DailyRecordDiscipline;
 import com.mz.imtaz.entity.DailyRecordItem;
 import com.mz.imtaz.entity.Discipline;
 import com.mz.imtaz.entity.GeneralCode;
@@ -29,6 +30,7 @@ import com.mz.imtaz.entity.UserContext;
 import com.mz.imtaz.enums.Salutation;
 import com.mz.imtaz.repository.BankRepository;
 import com.mz.imtaz.repository.ClassRoomDetailRepository;
+import com.mz.imtaz.repository.DailyRecordDisciplineRepository;
 import com.mz.imtaz.repository.DailyRecordItemRepository;
 import com.mz.imtaz.repository.DisciplineRepository;
 import com.mz.imtaz.repository.GeneralCodeRepository;
@@ -60,7 +62,7 @@ import com.vaadin.ui.themes.ValoTheme;
 public class ConfigureView extends VerticalLayout implements View {
 
 	enum TabType {
-		SCHOOL, CLASSROOM_DETAIL, TEACHER, DISCIPLINE, STUDENT_ACTIVITY, PAYMENT_DESCRIPTION, BANK, GENERAL;
+		SCHOOL, CLASSROOM_DETAIL, TEACHER, DISCIPLINE, RECORD_DAILY_DISCIPLINE, STUDENT_ACTIVITY, PAYMENT_DESCRIPTION, BANK, GENERAL;
 	}
 
 	public enum GeneralCodeCategory {
@@ -91,6 +93,8 @@ public class ConfigureView extends VerticalLayout implements View {
 	@Autowired
 	private DisciplineRepository disciplineRepo;
 	@Autowired
+	private DailyRecordDisciplineRepository dailyRecordDisciplineRepo;
+	@Autowired
 	private DailyRecordItemRepository dailyRecordItemRepo;
 	@Autowired
 	private PaymentDescriptionRepository paymentDescRepo;
@@ -113,6 +117,7 @@ public class ConfigureView extends VerticalLayout implements View {
 		tab.addTab(getTabContent(TabType.TEACHER.name()), "Pengajar").setId(TabType.TEACHER.name());
 		tab.addTab(getTabContent(TabType.CLASSROOM_DETAIL.name()), "Kelas").setId(TabType.CLASSROOM_DETAIL.name());
 		tab.addTab(getTabContent(TabType.DISCIPLINE.name()), "Disiplin").setId(TabType.DISCIPLINE.name());
+		tab.addTab(getTabContent(TabType.RECORD_DAILY_DISCIPLINE.name()), "Disiplin (Rekod Harian)").setId(TabType.RECORD_DAILY_DISCIPLINE.name());
 		tab.addTab(getTabContent(TabType.STUDENT_ACTIVITY.name()), "Item Rekod Harian Pelajar").setId(TabType.STUDENT_ACTIVITY.name());
 		tab.addTab(getTabContent(TabType.PAYMENT_DESCRIPTION.name()), "Perihal Bayaran").setId(TabType.PAYMENT_DESCRIPTION.name());
 		tab.addTab(getTabContent(TabType.BANK.name()), "Bank").setId(TabType.BANK.name());
@@ -133,6 +138,8 @@ public class ConfigureView extends VerticalLayout implements View {
 			dataProviderMap.put(id, DataProvider.ofCollection(classRoomDetailRepo.findAllWithOrder()));
 		}else if(TabType.DISCIPLINE.name().equals(id)) {
 			dataProviderMap.put(id, DataProvider.ofCollection(disciplineRepo.findAllActive(Sort.by(Sort.Direction.ASC, "description"))));
+		}else if(TabType.RECORD_DAILY_DISCIPLINE.name().equals(id)) {
+			dataProviderMap.put(id, DataProvider.ofCollection(dailyRecordDisciplineRepo.findAllActive(Sort.by(Sort.Direction.ASC, "description"))));
 		}else if(TabType.STUDENT_ACTIVITY.name().equals(id)) {
 			dataProviderMap.put(id, DataProvider.ofCollection(dailyRecordItemRepo.findAllActive(Sort.by(Sort.Direction.ASC,"sequence"))));
 		}else if(TabType.PAYMENT_DESCRIPTION.name().equals(id)) {
@@ -155,6 +162,8 @@ public class ConfigureView extends VerticalLayout implements View {
 			layout = configureTeacherTab();
 		}else if(TabType.DISCIPLINE.name().equalsIgnoreCase(id)) {
 			layout = configureDisciplineTab();
+		}else if(TabType.RECORD_DAILY_DISCIPLINE.name().equalsIgnoreCase(id)) {
+			layout = configureDailyRecordDisciplineTab();
 		}else if(TabType.STUDENT_ACTIVITY.name().equalsIgnoreCase(id)) {
 			layout = configureStudentActivityTab();
 		}else if(TabType.PAYMENT_DESCRIPTION.name().equalsIgnoreCase(id)) {
@@ -516,6 +525,88 @@ public class ConfigureView extends VerticalLayout implements View {
 
         btnNew.addClickListener(evt -> {
         	dataProvider.getItems().add(new Discipline());
+            dataProvider.refreshAll();
+        });
+
+        mainLayout.addComponent(buttonBar);
+        mainLayout.addComponent(grid);
+
+        return mainLayout;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private VerticalLayout configureDailyRecordDisciplineTab() {
+
+		VerticalLayout mainLayout = new VerticalLayout();
+
+        Button btnNew = new Button(VaadinIcons.PLUS);
+        Button btnDelete = new Button(VaadinIcons.TRASH);
+        btnDelete.setEnabled(false);
+        HorizontalLayout buttonBar = new HorizontalLayout(btnNew, btnDelete);
+
+        Grid<DailyRecordDiscipline> grid = new Grid<>();
+        tabListener(TabType.RECORD_DAILY_DISCIPLINE.name());
+        ListDataProvider<DailyRecordDiscipline> dataProvider = (ListDataProvider<DailyRecordDiscipline>) dataProviderMap.get(TabType.RECORD_DAILY_DISCIPLINE.name());
+        grid.setDataProvider(dataProvider);
+        grid.getEditor().setEnabled(true);
+        grid.setSizeFull();
+        
+        TextField tfCode = new TextField();
+        tfCode.setWidth(70, Unit.PERCENTAGE);
+        tfCode.setMaxLength(50);
+        tfCode.setRequiredIndicatorVisible(true);
+        grid.addColumn(DailyRecordDiscipline::getCode).setCaption("Kod")
+        .setEditorComponent(tfCode, DailyRecordDiscipline::setCode);
+        
+        TextField tfDesc = new TextField();
+        tfDesc.setWidth(70, Unit.PERCENTAGE);
+        tfDesc.setMaxLength(200);
+        tfDesc.setRequiredIndicatorVisible(true);
+        grid.addColumn(DailyRecordDiscipline::getDescription).setCaption("Perihal")
+        .setEditorComponent(tfDesc, DailyRecordDiscipline::setDescription)
+        .setSortable(true);
+
+        grid.getEditor().addSaveListener(evt -> {
+        	try {
+        		UserContext userContext = Helper.getUserContext();
+        		DailyRecordDiscipline item = evt.getBean();
+        		item.setRecordUtility(new RecordUtility(userContext.getPkid()));
+        		dailyRecordDisciplineRepo.save(item);
+                dataProvider.refreshAll();
+            } catch (Exception e) {
+                Notification.show("Rekod tidak berjaya dikemaskini.", Notification.Type.ERROR_MESSAGE);
+            }
+		});
+        
+        grid.getEditor().addCancelListener(evt -> {
+        	Helper.removeGrid(dataProvider, evt.getBean(), evt.getBean().getPkid() == null);
+        });
+        
+        grid.addSelectionListener(evt -> {
+        	if (evt.getFirstSelectedItem().isPresent()) {
+                btnDelete.setEnabled(true);
+            } else {
+                btnDelete.setEnabled(false);
+            }
+        });
+
+        btnDelete.addClickListener(evt -> {
+        	try {
+        		UserContext userContext = Helper.getUserContext();
+	        	if (!grid.getSelectedItems().isEmpty()) {
+	        		DailyRecordDiscipline item = grid.getSelectedItems().iterator().next();
+	        		item.getRecordUtility().disabled(userContext.getPkid());
+	                if(item.getPkid() != null)dailyRecordDisciplineRepo.save(item);
+	                dataProvider.getItems().remove(item);
+	                dataProvider.refreshAll();
+	            }
+        	}catch (Exception e) {
+        		 Notification.show("Rekod tidak berjaya dipadam.", Notification.Type.ERROR_MESSAGE);
+			}
+        });
+
+        btnNew.addClickListener(evt -> {
+        	dataProvider.getItems().add(new DailyRecordDiscipline());
             dataProvider.refreshAll();
         });
 
