@@ -5,11 +5,10 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -77,8 +76,6 @@ public class DailyActivityRecordView extends VerticalLayout implements View{
 
 	@Autowired
 	private DailyActivityRepository dailyActivityRepo;
-	@Autowired
-	private DailyRecordItemRepository dailyRecordItemRepo;
 	@Autowired
 	private DailyActivityItemRepository dailyActivityItemRepo;
 	@Autowired
@@ -169,19 +166,28 @@ public class DailyActivityRecordView extends VerticalLayout implements View{
 				Helper.notNull(cbStudent.getSelectedItem()), 
 				Helper.notNull(dpDate.getValue())
 			);
-						
+			logger.info("dailyActivity : "+(dailyActivity != null));		
 			List<DailyActivityItem> dailyActivityItemList = dailyActivityItemRepo.findByDailyActivity(dailyActivity);
-			Map<Integer, Boolean> activityMap = Optional.ofNullable(dailyActivityItemList).orElse(new ArrayList<DailyActivityItem>()).stream().collect(Collectors.toMap(DailyActivityItem::getPkid, DailyActivityItem::getDone));
-
+		
+			Map<Integer, Boolean> activityItemMap = new HashMap<>();
+			if(dailyActivityItemList != null && !dailyActivityItemList.isEmpty()) {
+				for(DailyActivityItem item : dailyActivityItemList) {
+					activityItemMap.put(item.getDailyRecordItem().getPkid(), item.getDone());
+				}
+			}
+			
+			logger.info("dailyActivity : "+(dailyActivityItemList != null ? dailyActivityItemList.size() : 0));
+			logger.info("activityMap value : "+activityItemMap.toString());
 			for(int x = 0; x < grid.getRows() ; x++) {
 				for(int y = 0; y < grid.getColumns() ; y++) {
 					RadioButtonGroup<RadioItem> radio = null;
 					try {
 						radio = (RadioButtonGroup<RadioItem>)((VerticalLayout)grid.getComponent(x, y)).getComponent(0);
+						logger.info("id radio on x : " + x + ", y : " + y + ", idvalue : " + radio.getId());
+						radio.setValue(activityItemMap.get(new Integer(radio.getId())) ? RadioItem.DONE : RadioItem.NOT_DONE);
 					}catch(Exception e) {
 						logger.info("x : " + x + ", y : " + y + ", error : " + e.getMessage());
 					}
-					radio.setValue(activityMap.get(new Integer(radio.getId())) ? RadioItem.DONE : RadioItem.NOT_DONE);
 				}
 			}
 		});
@@ -244,7 +250,11 @@ public class DailyActivityRecordView extends VerticalLayout implements View{
 			}
 			
 			dailyActivity.setDisciplineIssues(disciplineIssues);
-			dailyActivityRepo.save(dailyActivity);
+			dailyActivity = dailyActivityRepo.save(dailyActivity);
+			
+			if(dailyActivity != null) {
+				Notification.show("Kemaskini rekod harian pelajar berjaya.", Type.HUMANIZED_MESSAGE);
+			}
 		});
 		
 		Panel mainPanel = new Panel();
