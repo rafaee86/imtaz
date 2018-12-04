@@ -14,16 +14,11 @@ import org.apache.commons.lang3.text.WordUtils;
 import org.hibernate.annotations.Type;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
 import lombok.Setter;
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name="DAILY_RECORD_DISCIPLINE")
 public class DailyRecordDiscipline implements Serializable{

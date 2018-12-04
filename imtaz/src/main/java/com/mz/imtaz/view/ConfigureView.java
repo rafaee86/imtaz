@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -60,6 +61,8 @@ import com.vaadin.ui.themes.ValoTheme;
 
 @SpringView(name = ConfigureView.NAME)
 public class ConfigureView extends VerticalLayout implements View {
+	
+	private final Logger logger = Logger.getLogger(ConfigureView.class.getName());
 
 	enum TabType {
 		SCHOOL, CLASSROOM_DETAIL, TEACHER, DISCIPLINE, RECORD_DAILY_DISCIPLINE, STUDENT_ACTIVITY, PAYMENT_DESCRIPTION, BANK, GENERAL;
@@ -403,7 +406,6 @@ public class ConfigureView extends VerticalLayout implements View {
         grid.addColumn(ClassRoomDetail::getTeacher, item -> item !=  null ? item.getSalutation() + " " + item.getName() : "").setCaption("Pengajar")
         .setEditorComponent(cbTeacher, ClassRoomDetail::setTeacher)
         .setDescriptionGenerator(item -> item.getPkid()+"");
-
 
 		btnRefresh.addClickListener(listener -> {
 			cbTeacher.setDataProvider(DataProvider.ofCollection(teacherRepo.findAllActive(Sort.by(Direction.ASC, "name"))));
