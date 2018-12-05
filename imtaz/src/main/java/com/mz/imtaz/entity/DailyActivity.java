@@ -40,15 +40,4 @@ public class DailyActivity {
 	@Getter(value = AccessLevel.NONE)
 	private String remarks;
 	private RecordUtility recordUtility;
-	private Integer disciplineIssues;
-
-	public String getRemarks() {
-		String remarks = null;
-		if(this.disciplineIssues != null && this.disciplineIssues > 10) {
-			remarks = "Tidak boleh outing";
-		}else {
-			remarks = "Boleh outing";
-		}
-		return remarks;
-	}
 }

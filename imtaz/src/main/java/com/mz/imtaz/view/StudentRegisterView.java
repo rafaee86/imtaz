@@ -483,8 +483,8 @@ public class StudentRegisterView extends VerticalLayout implements View{
 		}
 
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
-		result =  RunningNumberCategory.STUDENT.getCode() + sdf.format(new Date()) + String.format("%05d", runningNumber.getRunning());
-		System.out.println("student no : "+result);
+		SimpleDateFormat sdfBulan = new SimpleDateFormat("MM");
+		result =  RunningNumberCategory.STUDENT.getCode() + sdf.format(new Date()) + sdfBulan.format(new Date()) + String.format("%07d", runningNumber.getRunning());
 		runningNumber.incrementOne();
 		runningNumberRepo.save(runningNumber);
 

@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import com.mz.imtaz.entity.ClassRoomDetail;
 import com.mz.imtaz.entity.DailyActivity;
 import com.mz.imtaz.entity.DailyActivityItem;
+import com.mz.imtaz.entity.DailyRecordDiscipline;
 import com.mz.imtaz.entity.DailyRecordItem;
 import com.mz.imtaz.entity.RecordUtility;
 import com.mz.imtaz.entity.Records;
@@ -26,6 +26,7 @@ import com.mz.imtaz.entity.UserContext;
 import com.mz.imtaz.repository.ClassRoomDetailRepository;
 import com.mz.imtaz.repository.DailyActivityItemRepository;
 import com.mz.imtaz.repository.DailyActivityRepository;
+import com.mz.imtaz.repository.DailyRecordDisciplineRepository;
 import com.mz.imtaz.repository.DailyRecordItemRepository;
 import com.mz.imtaz.repository.RecordsRepository;
 import com.mz.imtaz.repository.StudentRepository;
@@ -42,32 +43,13 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.RadioButtonGroup;
 import com.vaadin.ui.VerticalLayout;
-
-import lombok.Getter;
 
 @SpringView(name = DailyActivityRecordView.NAME)
 public class DailyActivityRecordView extends VerticalLayout implements View{
 	
 	Logger logger = Logger.getLogger(DailyActivityRecordView.class.getName());
 	
-	@Getter
-	enum RadioItem{
-
-		NOT_DONE("Belum Selesai"), DONE("Selesai"), NOT_APPLICABLE("N/A");
-
-		private String description;
-
-		RadioItem(String description) {
-			this.description = description;
-		}
-
-		public List<RadioItem> lists(){
-			return Arrays.asList(values());
-		}
-	}
-
 	public static final String NAME = "DailyActivityRecordView";
 
 	private final static float WIDTH = 500f;
@@ -86,6 +68,8 @@ public class DailyActivityRecordView extends VerticalLayout implements View{
 	private RecordsRepository recordsRepo;
 	@Autowired
 	private StudentRepository studentRepo;
+	@Autowired
+	private DailyRecordDisciplineRepository dailyRecordDisciplineRepo;
 
 	@PostConstruct
     public void init() {
@@ -146,18 +130,21 @@ public class DailyActivityRecordView extends VerticalLayout implements View{
 		grid.setEnabled(true);
 		grid.setSizeFull();
 		grid.setHeightUndefined();
-
+		
+		List<DailyRecordDiscipline> dailyDisciplineList = dailyRecordDisciplineRepo.findAllActive(Sort.by(Sort.Direction.ASC, "description"));
 		for(DailyRecordItem item : dailyItemList) {
     		VerticalLayout layout = new VerticalLayout();
     		layout.setCaption((index+1) + ". " + item.getDescription());
-			RadioButtonGroup<RadioItem> radio = new RadioButtonGroup<>();
-			radio.setItems(Arrays.asList(RadioItem.values()));
-			radio.setItemCaptionGenerator(item2 -> item2.getDescription());
-			radio.setId(""+item.getPkid());
-			radio.setValue(RadioItem.NOT_DONE);
-			layout.addComponent(radio);
+    		ComboBox<DailyRecordDiscipline> cbDiscipline = new ComboBox<>();
+			cbDiscipline.setWidth(100, Unit.PERCENTAGE);
+			cbDiscipline.setPopupWidth(null);
+			cbDiscipline.setItems(dailyDisciplineList);
+			cbDiscipline.setItemCaptionGenerator(item2 -> item2.getDescription());
+			cbDiscipline.setEmptySelectionCaption("Selesai");
+			cbDiscipline.setId(""+item.getPkid());
+			layout.addComponent(cbDiscipline);
 			grid.addComponent(layout);
-		    index++;            
+		    index++;
 		}
 		
 		btnRefresh.addClickListener(listener -> {
@@ -165,28 +152,24 @@ public class DailyActivityRecordView extends VerticalLayout implements View{
 				Helper.notNull(cbClassRoomDetail.getSelectedItem()), 
 				Helper.notNull(cbStudent.getSelectedItem()), 
 				Helper.notNull(dpDate.getValue())
-			);
-			logger.info("dailyActivity : "+(dailyActivity != null));		
+			);		
 			List<DailyActivityItem> dailyActivityItemList = dailyActivityItemRepo.findByDailyActivity(dailyActivity);
 		
-			Map<Integer, Boolean> activityItemMap = new HashMap<>();
+			Map<Integer, DailyRecordDiscipline> activityItemMap = new HashMap<>();
 			if(dailyActivityItemList != null && !dailyActivityItemList.isEmpty()) {
 				for(DailyActivityItem item : dailyActivityItemList) {
-					activityItemMap.put(item.getDailyRecordItem().getPkid(), item.getDone());
+					activityItemMap.put(item.getDailyRecordItem().getPkid(), item.getDailyRecordDiscipline());
 				}
 			}
 			
-			logger.info("dailyActivity : "+(dailyActivityItemList != null ? dailyActivityItemList.size() : 0));
-			logger.info("activityMap value : "+activityItemMap.toString());
 			for(int x = 0; x < grid.getRows() ; x++) {
 				for(int y = 0; y < grid.getColumns() ; y++) {
-					RadioButtonGroup<RadioItem> radio = null;
+					ComboBox<DailyRecordDiscipline> cbDiscipline = null;
 					try {
-						radio = (RadioButtonGroup<RadioItem>)((VerticalLayout)grid.getComponent(x, y)).getComponent(0);
-						logger.info("id radio on x : " + x + ", y : " + y + ", idvalue : " + radio.getId());
-						radio.setValue(activityItemMap.get(new Integer(radio.getId())) ? RadioItem.DONE : RadioItem.NOT_DONE);
+						cbDiscipline = (ComboBox<DailyRecordDiscipline>)((VerticalLayout)grid.getComponent(x, y)).getComponent(0);
+						cbDiscipline.setValue(activityItemMap.get(new Integer(cbDiscipline.getId())));
 					}catch(Exception e) {
-						logger.info("x : " + x + ", y : " + y + ", error : " + e.getMessage());
+						logger.fine("set value : x : " + x + ", y : " + y + ", error : " + e.getMessage());
 					}
 				}
 			}
@@ -210,7 +193,7 @@ public class DailyActivityRecordView extends VerticalLayout implements View{
 						Helper.notNull(cbStudent.getSelectedItem())
 				);
 				
-				deleteCurrentDailyRecord(records);
+				deleteCurrentDailyRecord(records, dpDate.getValue());
 				
 				dailyActivity = new DailyActivity();
 				dailyActivity.setRecords(records);
@@ -224,32 +207,24 @@ public class DailyActivityRecordView extends VerticalLayout implements View{
 				dailyActivity = dailyActivityRepo.save(dailyActivity);
 			}
 			
-			Integer disciplineIssues = 0; 
-			
 			for(int x = 0; x < grid.getRows() ; x++) {
 				for(int y = 0; y < grid.getColumns() ; y++) {
-					RadioButtonGroup<RadioItem> radio = null;
+					ComboBox<DailyRecordDiscipline> cbDiscipline = null;
 					try {
-						radio = (RadioButtonGroup<RadioItem>)((VerticalLayout)grid.getComponent(x, y)).getComponent(0);
+						cbDiscipline = (ComboBox<DailyRecordDiscipline>)((VerticalLayout)grid.getComponent(x, y)).getComponent(0);
 					}catch(Exception e) {
-						logger.info("x : " + x + ", y : " + y + ", error : " + e.getMessage());
+						logger.fine("x : " + x + ", y : " + y + ", error : " + e.getMessage());
 					}
-					if(radio != null) {
+					if(cbDiscipline != null) {
 						DailyActivityItem item = new DailyActivityItem();
 						item.setDailyActivity(dailyActivity);
-						item.setDailyRecordItem(Helper.notNull(dailyItemRepo.findById(new Integer(radio.getId()))));
-						if(!radio.getValue().equals(RadioItem.NOT_APPLICABLE))item.setDone(radio.getValue().equals(RadioItem.DONE));
-						
+						item.setDailyRecordItem(Helper.notNull(dailyItemRepo.findById(new Integer(cbDiscipline.getId()))));
+						item.setDailyRecordDiscipline(cbDiscipline.getValue());
 						item = dailyActivityItemRepo.save(item);
-						
-						if(item.getDone() != null && !item.getDone()) {
-							disciplineIssues++;
-						}
 					}
 				}
 			}
 			
-			dailyActivity.setDisciplineIssues(disciplineIssues);
 			dailyActivity = dailyActivityRepo.save(dailyActivity);
 			
 			if(dailyActivity != null) {
@@ -258,19 +233,19 @@ public class DailyActivityRecordView extends VerticalLayout implements View{
 		});
 		
 		Panel mainPanel = new Panel();
-		mainPanel.setCaption("Kemaskini Rekod Harian");
+		mainPanel.setCaption("Kemaskini Rekod Harian (Sila Kosongkan Jika Pelajar Telah Menyelesaikan)");
 		gridLayout.addComponent(grid);
 		mainPanel.setContent(gridLayout);
 		addComponent(mainPanel);
 		addComponent(new HorizontalLayout(btnSave, btnCancel));
 	}
 	
-	void deleteCurrentDailyRecord(Records records) {
+	void deleteCurrentDailyRecord(Records records, LocalDate date) {
 		
 		if(records == null)
 			return;
 		
-		DailyActivity dailyActivity = dailyActivityRepo.findByRecords(records);
+		DailyActivity dailyActivity = dailyActivityRepo.findByRecords(records, date);
 		if(dailyActivity != null) {
 			List<DailyActivityItem> list = dailyActivityItemRepo.findByDailyActivity(dailyActivity);
 			if(list != null && !list.isEmpty()) {

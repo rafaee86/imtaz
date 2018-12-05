@@ -23,6 +23,6 @@ public interface DailyActivityRepository extends JpaRepository<DailyActivity, In
 			+ "order by a.records.student.name asc")
 	DailyActivity findByClassRoomDetail(@Param("classRoomDetail") ClassRoomDetail classRoomDetail, @Param("student") Student student, @Param(value = "date") LocalDate date);
 	
-	@Query("Select a from DailyActivity a where a.recordUtility.statusFlag = true and a.records = :records")
-	DailyActivity findByRecords(Records records);
+	@Query("Select a from DailyActivity a where a.recordUtility.statusFlag = true and a.records = :records and a.date = :date")
+	DailyActivity findByRecords(Records records, LocalDate date);
 }

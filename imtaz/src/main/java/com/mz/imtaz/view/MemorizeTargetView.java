@@ -114,7 +114,7 @@ public class MemorizeTargetView extends VerticalLayout implements View {
 	    grid.setDataProvider(dataProvider);
 		grid.setEnabled(true);
 		grid.getEditor().setEnabled(true);
-		grid.setSizeFull();
+		grid.setWidth(150, Unit.PERCENTAGE);
 		grid.setHeightUndefined();
 
 		grid.addColumn(MemorizeTarget::getDailyTarget, item ->( item != null ? "Juz " + item.getJuz() + " Muka " + item.getPage() + " Baris " + item.getLine() : ""))
@@ -332,15 +332,34 @@ public class MemorizeTargetView extends VerticalLayout implements View {
         	tfTotalMemorizeLine.setValue(juzuk.getLine()+"");
         }
 
-        TextField tfBalance = new TextField();
-        tfBalance.setReadOnly(true);
-        tfBalance.setWidth(WIDTH, Unit.PIXELS);
+        TextField tfBalanceMemorizeJuz = new TextField();
+        tfBalanceMemorizeJuz.setRequiredIndicatorVisible(false);
+        tfBalanceMemorizeJuz.setWidth(JUZUK_WIDTH, Unit.PIXELS);
+        tfBalanceMemorizeJuz.setMaxLength(3);
+        tfBalanceMemorizeJuz.setPlaceholder("Juz");
+
+        TextField tfBalanceMemorizePage = new TextField();
+        tfBalanceMemorizePage.setRequiredIndicatorVisible(false);
+        tfBalanceMemorizePage.setWidth(JUZUK_WIDTH, Unit.PIXELS);
+        tfBalanceMemorizePage.setMaxLength(3);
+        tfBalanceMemorizePage.setPlaceholder("Muka");
+
+        TextField tfBalanceMemorizeLine = new TextField();
+        tfBalanceMemorizeLine.setRequiredIndicatorVisible(false);
+        tfBalanceMemorizeLine.setWidth(JUZUK_WIDTH, Unit.PIXELS);
+        tfBalanceMemorizeLine.setMaxLength(3);
+        tfBalanceMemorizeLine.setPlaceholder("Baris");
+        
+        if(!isNew && target.getTotalBalance() != null) {
+        	Juzuk juzuk = target.getTotalBalance();
+        	tfBalanceMemorizeJuz.setValue(juzuk.getJuz()+"");
+        	tfBalanceMemorizePage.setValue(juzuk.getPage()+"");
+        	tfBalanceMemorizeLine.setValue(juzuk.getLine()+"");
+        }
 
         if(!isNew) {
         	tfStartPage.setValue(target.getStartPage()+"");
         	tfLastPage.setValue(target.getLastPage()+"");
-        	Juzuk balanceJuzuk = target.getTotalBalance();
-        	tfBalance.setValue(balanceJuzuk != null ? balanceJuzuk.toString() : "");
         }
 
         formLayout.addComponent(tfStudent);
@@ -356,6 +375,9 @@ public class MemorizeTargetView extends VerticalLayout implements View {
         HorizontalLayout hlTotalMemorize = new HorizontalLayout(tfTotalMemorizeJuz, tfTotalMemorizePage, tfTotalMemorizeLine);
         hlTotalMemorize.setCaption("Jumlah Hafazan");
         formLayout.addComponent(hlTotalMemorize);
+        HorizontalLayout hlBalanceMemorize = new HorizontalLayout(tfBalanceMemorizeJuz, tfBalanceMemorizePage, tfBalanceMemorizeLine);
+        hlBalanceMemorize.setCaption("Baki Hafazan");
+        formLayout.addComponent(hlBalanceMemorize);
 
         Button btnSave = new Button("Kemaskini");
         btnSave.addClickListener(evt ->{
@@ -367,7 +389,16 @@ public class MemorizeTargetView extends VerticalLayout implements View {
         		target.setLastPage(Integer.parseInt(tfLastPage.getValue()));
         		target.setTotalDailyTarget(new Juzuk(Integer.parseInt(tfTotalTargetJuz.getValue()), Integer.parseInt(tfTotalTargetPage.getValue()), Integer.parseInt(tfTotalTargetLine.getValue())));
         		target.setTotalMemorize(new Juzuk(Integer.parseInt(tfTotalMemorizeJuz.getValue()), Integer.parseInt(tfTotalMemorizePage.getValue()), Integer.parseInt(tfTotalMemorizeLine.getValue())));
-
+        		
+        		if(
+    				tfBalanceMemorizeJuz.getValue().isEmpty() &&
+    				tfBalanceMemorizePage.getValue().isEmpty() &&
+    				tfBalanceMemorizeLine.getValue().isEmpty()
+        		) {
+        			target.setTotalBalance(Juzuk.substract(target.getTotalMemorize(), target.getTotalDailyTarget()));
+        		}else {
+        			target.setTotalBalance(new Juzuk(Integer.parseInt(tfBalanceMemorizeJuz.getValue()), Integer.parseInt(tfBalanceMemorizePage.getValue()), Integer.parseInt(tfBalanceMemorizeLine.getValue())));
+        		}
         		target.setRecordUtility(new RecordUtility(userContext.getPkid()));
         		MemorizeTarget editedBean = targetRepo.save(target);
         		if(isNew) {

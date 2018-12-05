@@ -39,8 +39,6 @@ public class DailyActivityItem {
 	@OneToOne(fetch = FetchType.EAGER)
 	@Type(type = "org.hibernate.type.IntegerType")
 	private DailyRecordItem dailyRecordItem;
-	@Type(type = "org.hibernate.type.NumericBooleanType")
-	private Boolean done;
 	@JoinColumn(name = "DailyRecordDiscipline", referencedColumnName = "PKID")
 	@OneToOne(fetch = FetchType.EAGER)
 	@Type(type = "org.hibernate.type.IntegerType")
