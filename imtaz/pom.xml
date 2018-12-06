@@ -6,7 +6,7 @@
 	<groupId>com.mz</groupId>
 	<artifactId>imtaz</artifactId>
 	<packaging>war</packaging>
-	<version>1.0-SNAPSHOT</version>
+	<version>0.0.1</version>
 	<name>imtaz</name>
 
 	<prerequisites>
@@ -91,11 +91,6 @@
 		   <groupId>org.springframework.boot</groupId>
 		   <artifactId>spring-boot-starter-tomcat</artifactId>
 		   <scope>provided</scope>
-		</dependency>
-		<dependency>
-		    <groupId>javassist</groupId>
-		    <artifactId>javassist</artifactId>
-		    <version>3.12.1.GA</version>
 		</dependency>
 		
 		<!-- Vaadin -->
