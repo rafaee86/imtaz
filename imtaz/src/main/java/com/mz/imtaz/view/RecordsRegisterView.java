@@ -334,6 +334,8 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
 	        Button btnSave = new Button("Kemaskini");
 	        
 	        btnSave.addClickListener(listener -> {
+	        	
+	        	UserContext userContext = Helper.getUserContext();
 	        	try {
 	        		if(ckbClassRoom.getValue()) {
 		        		ClassRoomDetail classRoomDetail = Helper.notNull(cbClassRoomDetail.getValue());
@@ -343,9 +345,10 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
 						newRecords.setPkid(null);
 						newRecords.setStartDate(new Date());
 						newRecords.getRecordUtility().setCreatedDate(new Date());
-						newRecords.getRecordUtility().enabled(null);						
+						newRecords.getRecordUtility().enabled(userContext.getPkid());						
 						newRecords = recordsRepo.save(newRecords);
 						
+						records.getRecordUtility().disabled(userContext.getPkid());
 						records.setEndDate(new Date());
 						recordsRepo.save(records);
 						

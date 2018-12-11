@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.vaadin.ui.NumberField;
@@ -23,11 +24,13 @@ import com.mz.imtaz.entity.DailyRecordDiscipline;
 import com.mz.imtaz.entity.DailyRecordItem;
 import com.mz.imtaz.entity.Discipline;
 import com.mz.imtaz.entity.GeneralCode;
+import com.mz.imtaz.entity.MiscEntity;
 import com.mz.imtaz.entity.PaymentDescription;
 import com.mz.imtaz.entity.RecordUtility;
 import com.mz.imtaz.entity.School;
 import com.mz.imtaz.entity.Teacher;
 import com.mz.imtaz.entity.UserContext;
+import com.mz.imtaz.enums.MiscEntityCategory;
 import com.mz.imtaz.enums.Salutation;
 import com.mz.imtaz.repository.BankRepository;
 import com.mz.imtaz.repository.ClassRoomDetailRepository;
@@ -35,6 +38,7 @@ import com.mz.imtaz.repository.DailyRecordDisciplineRepository;
 import com.mz.imtaz.repository.DailyRecordItemRepository;
 import com.mz.imtaz.repository.DisciplineRepository;
 import com.mz.imtaz.repository.GeneralCodeRepository;
+import com.mz.imtaz.repository.MiscEntityRepository;
 import com.mz.imtaz.repository.PaymentDescriptionRepository;
 import com.mz.imtaz.repository.SchoolRepository;
 import com.mz.imtaz.repository.TeacherRepository;
@@ -65,7 +69,7 @@ public class ConfigureView extends VerticalLayout implements View {
 	private final Logger logger = Logger.getLogger(ConfigureView.class.getName());
 
 	enum TabType {
-		SCHOOL, CLASSROOM_DETAIL, TEACHER, DISCIPLINE, RECORD_DAILY_DISCIPLINE, STUDENT_ACTIVITY, PAYMENT_DESCRIPTION, BANK, GENERAL;
+		SCHOOL, CLASSROOM_DETAIL, TEACHER, DISCIPLINE, RECORD_DAILY_DISCIPLINE, STUDENT_ACTIVITY, PAYMENT_DESCRIPTION, BANK, GENERAL, MISCENTITY;
 	}
 
 	public enum GeneralCodeCategory {
@@ -105,6 +109,8 @@ public class ConfigureView extends VerticalLayout implements View {
 	private BankRepository bankRepo;
 	@Autowired
 	private GeneralCodeRepository generalCodeRepo;
+	@Autowired
+	private MiscEntityRepository miscEntityRepo;
 		
 	private Map<String, Object> dataProviderMap = new HashMap<String, Object>();
 
@@ -125,6 +131,7 @@ public class ConfigureView extends VerticalLayout implements View {
 		tab.addTab(getTabContent(TabType.PAYMENT_DESCRIPTION.name()), "Perihal Bayaran").setId(TabType.PAYMENT_DESCRIPTION.name());
 		tab.addTab(getTabContent(TabType.BANK.name()), "Bank").setId(TabType.BANK.name());
 		tab.addTab(getTabContent(TabType.GENERAL.name()), "Am").setId(TabType.GENERAL.name());
+		tab.addTab(getTabContent(TabType.MISCENTITY.name()), "Lain-Lain").setId(TabType.MISCENTITY.name());
 		
 		tab.addSelectedTabChangeListener(listener -> {
 			String id = listener.getTabSheet().getId();
@@ -151,6 +158,8 @@ public class ConfigureView extends VerticalLayout implements View {
 			dataProviderMap.put(id, DataProvider.ofCollection(bankRepo.findAllActive(Sort.by(Sort.Direction.ASC, "name"))));
 		}else if(TabType.GENERAL.name().equals(id)) {
 			dataProviderMap.put(id, DataProvider.ofCollection(new ArrayList<GeneralCode>()));
+		}else if(TabType.MISCENTITY.name().equals(id)) {
+			
 		}
 	}
 
@@ -175,6 +184,8 @@ public class ConfigureView extends VerticalLayout implements View {
 			layout = configureBankTab();
 		}else if(TabType.GENERAL.name().equalsIgnoreCase(id)) {
 			layout = configureGeneralTab();
+		}else if(TabType.MISCENTITY.name().equalsIgnoreCase(id)) {
+			layout = configureMiscEntityTab();
 		}
 
 		layout.setId(id);
@@ -997,4 +1008,51 @@ public class ConfigureView extends VerticalLayout implements View {
 
         return mainLayout;
 	}
+
+	private VerticalLayout configureMiscEntityTab() {
+		
+		VerticalLayout mainLayout = new VerticalLayout();
+		
+		FormLayout formLayout = new FormLayout();
+		
+		Binder<MiscEntity> binder1 = new Binder<>();
+		MiscEntity miscEntity1 = miscEntityRepo.findOne(
+				Example.of(
+						MiscEntity.builder()
+						.category(MiscEntityCategory.MAX_DISCIPLINE_ALLOWED_TO_OUTING)
+						.build()
+				)
+		).orElse(new MiscEntity(MiscEntityCategory.MAX_DISCIPLINE_ALLOWED_TO_OUTING));
+		binder1.setBean(miscEntity1);
+		
+		TextField tfDayOfDisciplineAllowed = new TextField("Bil. Kesalahan Maks. Yang Dibenarkan Outing");
+		tfDayOfDisciplineAllowed.setWidth(WIDTH, Unit.PIXELS);
+		tfDayOfDisciplineAllowed.setRequiredIndicatorVisible(true);
+		binder1
+			.forField(tfDayOfDisciplineAllowed)
+	    	.withValidator(input -> input != null && !input.isEmpty(), "Sila masukkan nilai " + tfDayOfDisciplineAllowed.getCaption())
+			.bind(MiscEntity::getValue1, MiscEntity::setValue1);
+		
+		Button btnSave = new Button("Simpan");
+		btnSave.addClickListener(evt -> {
+			Boolean isValid = binder1.writeBeanIfValid(miscEntity1);
+        	if(isValid != null && isValid) {
+        		UserContext userContext = Helper.getUserContext();
+        		miscEntity1.setDescription(tfDayOfDisciplineAllowed.getCaption());
+        		miscEntity1.setRecordUtility(new RecordUtility(userContext.getPkid()));
+        		MiscEntity saveItem = miscEntityRepo.save(miscEntity1);
+        		binder1.setBean(saveItem);
+        		Notification.show("Kemaskini maklumat lain-lain telah berjaya.", Type.HUMANIZED_MESSAGE);
+        	}else {
+        		Notification.show("Kemaskini maklumat lain-lain tidak berjaya.", Type.ERROR_MESSAGE);
+        	}
+		});
+		
+		formLayout.addComponent(tfDayOfDisciplineAllowed);
+		
+		mainLayout.addComponent(formLayout);
+		mainLayout.addComponent(new HorizontalLayout(btnSave));
+		
+		return mainLayout;
+	} 
 }
