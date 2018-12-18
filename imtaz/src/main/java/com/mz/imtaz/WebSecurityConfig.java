@@ -66,6 +66,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .and()
         	.logout()
         	.logoutUrl("/logout")
+        	.logoutSuccessUrl("/login?logout")
 		.and()
 			.authorizeRequests()
 			.antMatchers("/VAADIN/**", "/PUSH/**", "/UIDL/**", "/login", "/login/**", "/error/**", "/accessDenied/**", "/vaadinServlet/**").permitAll()

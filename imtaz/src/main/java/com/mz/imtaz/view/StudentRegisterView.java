@@ -18,7 +18,6 @@ import org.vaadin.ui.NumberField;
 
 import com.mz.imtaz.entity.GeneralCode;
 import com.mz.imtaz.entity.RecordUtility;
-import com.mz.imtaz.entity.RunningNumber;
 import com.mz.imtaz.entity.Student;
 import com.mz.imtaz.entity.UserContext;
 import com.mz.imtaz.enums.GuardianType;
@@ -26,7 +25,6 @@ import com.mz.imtaz.enums.RegistrationType;
 import com.mz.imtaz.enums.RunningNumberCategory;
 import com.mz.imtaz.repository.GeneralCodeRepository;
 import com.mz.imtaz.repository.RecordsHistoryRepository;
-import com.mz.imtaz.repository.RunningNumberRepository;
 import com.mz.imtaz.repository.StudentRepository;
 import com.mz.imtaz.util.Helper;
 import com.mz.imtaz.view.ConfigureView.GeneralCodeCategory;
@@ -65,8 +63,6 @@ public class StudentRegisterView extends VerticalLayout implements View{
 	private StudentRepository studentRepo;
 	@Autowired
 	private RecordsHistoryRepository recordsHistoryRepository;
-	@Autowired
-	private RunningNumberRepository runningNumberRepo;
 	@Autowired
 	private GeneralCodeRepository generalRepo;
 
@@ -164,7 +160,7 @@ public class StudentRegisterView extends VerticalLayout implements View{
 	    	.withValidator(input -> input != null && !input.isEmpty() , "Sila masukkan Nama Pelajar.")
 	    	.bind(Student::getName, Student::setName);
 
-        NumberField tfIcNo = new NumberField("No Kad Pengenalan");
+        TextField tfIcNo = new TextField("No Kad Pengenalan");
         tfIcNo.setRequiredIndicatorVisible(true);
         tfIcNo.setWidth(WIDTH, Unit.PIXELS);
         tfIcNo.setMaxLength(12);
@@ -422,7 +418,7 @@ public class StudentRegisterView extends VerticalLayout implements View{
         	if(isValid != null && isValid) {
         		student.setRecordUtility(new RecordUtility(userContext.getPkid()));
         		if(isNew) {
-        			student.setStudentNo(generateTransactionId());
+        			student.setStudentNo(getStudentRunNumber());
         			
         			GeneralCode studentStatusCode = generalRepo.findByCategoryAndCode(GeneralCodeCategory.STUDENT_STATUS.name(),"N");
         			student.setStatus(Optional.ofNullable(studentStatusCode.getPkid()).orElse(null));
@@ -470,25 +466,10 @@ public class StudentRegisterView extends VerticalLayout implements View{
    	 	UI.getCurrent().addWindow(modal);
 	}
 	
-	private String generateTransactionId() {
-
-		String result = null;
-		RunningNumber runningNumber = runningNumberRepo.findByCategory(RunningNumberCategory.STUDENT);
-		if(runningNumber == null) {
-			runningNumber = new RunningNumber(RunningNumberCategory.STUDENT, 1);
-		}else {
-			if(runningNumber.getRunning() == null) {
-				runningNumber.setRunning(1);
-			}
-		}
-
+	private String getStudentRunNumber(){
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
 		SimpleDateFormat sdfBulan = new SimpleDateFormat("MM");
-		result =  RunningNumberCategory.STUDENT.getCode() + sdf.format(new Date()) + sdfBulan.format(new Date()) + String.format("%07d", runningNumber.getRunning());
-		runningNumber.incrementOne();
-		runningNumberRepo.save(runningNumber);
-
-		return result;
+		return RunningNumberCategory.STUDENT.getCode() + sdf.format(new Date()) + sdfBulan.format(new Date()) + studentRepo.getStudentNoMax();
 	}
 
 }

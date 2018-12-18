@@ -1,5 +1,6 @@
 package com.mz.imtaz;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.vaadin.teemusa.sidemenu.SideMenu;
 
 import com.mz.imtaz.entity.UserContext;
@@ -47,6 +48,9 @@ public class MyUI extends UI implements ViewDisplay{
     private final String menuCaption = "Sistem Imtaz";
     private final String mainTitle = "Sistem Pengurusan IMTAZ";
 
+    @Value("${app.contextRoot}")
+    private String contextRoot;
+    
     @Override
     protected void init(VaadinRequest vaadinRequest) {
     	
@@ -96,7 +100,7 @@ public class MyUI extends UI implements ViewDisplay{
         	getNavigator().navigateTo(ChangePasswordView.NAME);
         });
         sideMenu.addUserMenuItem("Keluar", VaadinIcons.EXIT, () ->{
-        	Page.getCurrent().setLocation("/logout");
+        	Page.getCurrent().setLocation(contextRoot + "logout");
         });
 	}
 }
