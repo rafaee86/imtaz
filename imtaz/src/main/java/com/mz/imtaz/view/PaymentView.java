@@ -23,7 +23,6 @@ import com.mz.imtaz.entity.PaymentItem;
 import com.mz.imtaz.entity.PaymentMonth;
 import com.mz.imtaz.entity.RecordUtility;
 import com.mz.imtaz.entity.Records;
-import com.mz.imtaz.entity.RunningNumber;
 import com.mz.imtaz.entity.Student;
 import com.mz.imtaz.entity.UserContext;
 import com.mz.imtaz.enums.PaymentType;
@@ -36,7 +35,6 @@ import com.mz.imtaz.repository.PaymentMonthRepository;
 import com.mz.imtaz.repository.PaymentRepository;
 import com.mz.imtaz.repository.RecordsHistoryRepository;
 import com.mz.imtaz.repository.RecordsRepository;
-import com.mz.imtaz.repository.RunningNumberRepository;
 import com.mz.imtaz.repository.StudentRepository;
 import com.mz.imtaz.util.Helper;
 import com.vaadin.data.ValidationResult;
@@ -106,8 +104,6 @@ public class PaymentView extends VerticalLayout implements View {
 	@Autowired
 	private PaymentDescriptionRepository paymentDescRepo;
 	@Autowired
-	private RunningNumberRepository runningNumberRepo;
-	@Autowired
 	private BankRepository bankRepo;
 	@Autowired
 	private PaymentMonthRepository paymentMonthRepo;
@@ -129,7 +125,7 @@ public class PaymentView extends VerticalLayout implements View {
 	private void bodySection() {
 		
 		DateField dfTransactionDate = new DateField("Tarikh Transaksi");
-		dfTransactionDate.setEnabled(false);
+		dfTransactionDate.setEnabled(true);
 		dfTransactionDate.setValue(LocalDate.now());
 		
 		NumberField nfYear = new NumberField("Bayaran Untuk Tahun");
@@ -317,7 +313,7 @@ public class PaymentView extends VerticalLayout implements View {
 			payment.setTransactionDate(Helper.localDateToDate(dfTransactionDate.getValue()));
 			payment.setBank(cbBank.getValue());
 			payment.setReferenceId(tfReferenceId.getValue());
-			payment.setTransactionId(generateTransactionId());
+			payment.setTransactionId(getPaymentRunNumber());
 			payment.setTotalAmount(BigDecimal.ZERO);
 			payment.setRecordUtility(new RecordUtility(userContext.getPkid()));
 			payment = paymentRepo.save(payment);
@@ -382,25 +378,10 @@ public class PaymentView extends VerticalLayout implements View {
         addComponent(grid);
         addComponent(new HorizontalLayout(btnSave, btnPrint));
 	}
-
-	private String generateTransactionId() {
-
-		String result = null;
-		RunningNumber runningNumber = runningNumberRepo.findByCategory(RunningNumberCategory.PAYMENT);
-		if(runningNumber == null) {
-			runningNumber = new RunningNumber(RunningNumberCategory.PAYMENT, 1);
-		}else {
-			if(runningNumber.getRunning() == null) {
-				runningNumber.setRunning(1);
-			}
-		}
-
+	
+	private String getPaymentRunNumber(){
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
-		result =  RunningNumberCategory.PAYMENT.getCode() + sdf.format(new Date()) + String.format("%05d", runningNumber.getRunning());
-		runningNumber.incrementOne();
-		runningNumberRepo.save(runningNumber);
-
-		return result;
+		return RunningNumberCategory.PAYMENT.getCode() + sdf.format(new Date()) + paymentRepo.getPaymentNoMax();
 	}
 	
 	private String calculateTotal(ListDataProvider<PaymentItem> provider) {

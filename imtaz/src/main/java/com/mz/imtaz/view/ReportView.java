@@ -16,12 +16,10 @@ import com.mz.imtaz.repository.ReportItemRepository;
 import com.vaadin.navigator.View;
 import com.vaadin.server.ExternalResource;
 import com.vaadin.shared.ui.BorderStyle;
-import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.ui.Accordion;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
-import com.vaadin.ui.ListSelect;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 
@@ -65,9 +63,13 @@ public class ReportView extends VerticalLayout implements View {
             VerticalLayout bodyLayout = new VerticalLayout();
             bodyLayout.setMargin(true); 
             
-            List<ReportItem> reportItemList = Optional.ofNullable(reportItemRepo.findByReportHeaderAndActive(reportHeader, Boolean.TRUE, Sort.by(Sort.Direction.ASC, "level"))).orElse(new ArrayList<ReportItem>());
+            List<ReportItem> reportItemList = Optional.ofNullable(reportItemRepo.findByReportHeader(reportHeader, Sort.by(Sort.Direction.ASC, "level"))).orElse(new ArrayList<ReportItem>());
             for (ReportItem reportItem : reportItemList) {
-            	bodyLayout.addComponent(new Link(reportItem.getName(), new ExternalResource(reportItem.getUrl()), "_blank", 0, 0, BorderStyle.DEFAULT));
+            	if(reportItem.getActive()) {
+            		bodyLayout.addComponent(new Link(reportItem.getName(), new ExternalResource(reportItem.getUrl()), "_blank", 0, 0, BorderStyle.DEFAULT));
+            	}else {
+            		bodyLayout.addComponent(new Label(reportItem.getName()));
+            	}
             }
             accord.addTab(bodyLayout, reportHeader.getName());
         }

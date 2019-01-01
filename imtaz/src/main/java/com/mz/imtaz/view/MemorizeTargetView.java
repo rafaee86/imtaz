@@ -1,7 +1,11 @@
 package com.mz.imtaz.view;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import javax.annotation.PostConstruct;
 
@@ -103,7 +107,8 @@ public class MemorizeTargetView extends VerticalLayout implements View {
         cbStudent.setWidth(WIDTH, Unit.PIXELS);
         cbStudent.setItemCaptionGenerator(item -> item.getName());
         cbStudent.setEmptySelectionAllowed(false);
-
+        
+        
         cbClassRoomDetail.addSelectionListener(listener -> {
         	if(Helper.notNull(listener.getSelectedItem()) != null)
         		cbStudent.setItems(studentRepo.findByClassRoomDetail(listener.getSelectedItem().get()));
@@ -117,6 +122,12 @@ public class MemorizeTargetView extends VerticalLayout implements View {
 		grid.setWidth(150, Unit.PERCENTAGE);
 		grid.setHeightUndefined();
 
+		grid.addColumn(MemorizeTarget::getYear)
+		.setCaption("Tahun");
+
+		grid.addColumn(MemorizeTarget::getMonth)
+		.setCaption("Bulan");
+		
 		grid.addColumn(MemorizeTarget::getDailyTarget, item ->( item != null ? "Juz " + item.getJuz() + " Muka " + item.getPage() + " Baris " + item.getLine() : ""))
 		.setCaption("Target Harian");
 
@@ -235,6 +246,21 @@ public class MemorizeTargetView extends VerticalLayout implements View {
         modal.center();
         modal.setModal(true);
         modal.setSizeUndefined();
+        
+        Integer curYear = new Integer(new SimpleDateFormat("yyyy").format(new Date()));
+        Integer curMonth = new Integer(new SimpleDateFormat("MM").format(new Date()));
+        
+        ComboBox<Integer> cbYear = new ComboBox<>("Tahun");
+        cbYear.setWidth(WIDTH, Unit.PIXELS);
+        cbYear.setEmptySelectionAllowed(false);
+        cbYear.setItems(IntStream.range(curYear - 5, curYear + 1).boxed().sorted(Collections.reverseOrder()));
+        cbYear.setValue(target.getYear() != null ? target.getYear() : curYear);
+        
+        ComboBox<Integer> cbMonth = new ComboBox<>("Bulan");
+        cbMonth.setWidth(WIDTH, Unit.PIXELS);
+        cbMonth.setEmptySelectionAllowed(false);
+        cbMonth.setItems(IntStream.range(1, 13).boxed());
+        cbMonth.setValue(target.getMonth() != null ? target.getMonth() : curMonth);
 
         TextField tfStudent = new TextField("Nama Pelajar");
         tfStudent.setWidth(WIDTH, Unit.PIXELS);
@@ -362,6 +388,8 @@ public class MemorizeTargetView extends VerticalLayout implements View {
         	tfLastPage.setValue(target.getLastPage()+"");
         }
 
+        formLayout.addComponent(cbYear);
+        formLayout.addComponent(cbMonth);
         formLayout.addComponent(tfStudent);
         formLayout.addComponent(cbIsHafiz);
         HorizontalLayout hlDailyTarget = new HorizontalLayout(tfDailyTargetJuz, tfDailyTargetPage, tfDailyTargetLine);
@@ -384,6 +412,8 @@ public class MemorizeTargetView extends VerticalLayout implements View {
     		UserContext userContext = Helper.getUserContext();
 
         	if(target != null) {
+        		target.setYear(cbYear.getValue());
+        		target.setMonth(cbMonth.getValue());
         		target.setDailyTarget(new Juzuk(Integer.parseInt(tfDailyTargetJuz.getValue()), Integer.parseInt(tfDailyTargetPage.getValue()), Integer.parseInt(tfDailyTargetLine.getValue())));
         		target.setStartPage(Integer.parseInt(tfStartPage.getValue()));
         		target.setLastPage(Integer.parseInt(tfLastPage.getValue()));

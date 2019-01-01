@@ -11,5 +11,5 @@ import com.mz.imtaz.entity.ReportItem;
 
 public interface ReportItemRepository extends JpaRepository<ReportItem, Integer> {
 
-	List<ReportItem> findByReportHeaderAndActive(@Param("reportHeader") ReportHeader reportHeader, @Param("active") Boolean active, Sort sort);
+	List<ReportItem> findByReportHeader(@Param("reportHeader") ReportHeader reportHeader, Sort sort);
 }
