@@ -50,6 +50,18 @@ public class Helper {
 		}
 	}
 	
+	public static <T extends String> T notNull(T t) {
+		try {
+			return t != null && !t.isEmpty() ? t : null;
+		}catch (Exception e) {
+			return null;
+		}
+	}
+	
+	public static <T> Boolean isNotNull(T t) {
+		return notNull(t) != null;
+	}
+	
 	public static <T> T notNull(Optional<T> x) {
 		try {
 			return x.isPresent() ? x.get() : null;

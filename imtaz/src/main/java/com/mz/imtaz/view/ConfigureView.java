@@ -1016,14 +1016,26 @@ public class ConfigureView extends VerticalLayout implements View {
 		FormLayout formLayout = new FormLayout();
 		
 		Binder<MiscEntity> binder1 = new Binder<>();
+		Binder<MiscEntity> binder2 = new Binder<>();
+		
 		MiscEntity miscEntity1 = miscEntityRepo.findOne(
-				Example.of(
-						MiscEntity.builder()
-						.category(MiscEntityCategory.MAX_DISCIPLINE_ALLOWED_TO_OUTING)
-						.build()
-				)
+			Example.of(
+				MiscEntity.builder()
+				.category(MiscEntityCategory.MAX_DISCIPLINE_ALLOWED_TO_OUTING)
+				.build()
+			)
 		).orElse(new MiscEntity(MiscEntityCategory.MAX_DISCIPLINE_ALLOWED_TO_OUTING));
+		
+		MiscEntity miscEntity2 = miscEntityRepo.findOne(
+				Example.of(
+					MiscEntity.builder()
+					.category(MiscEntityCategory.STUDENT_RUNNINGNUM_PREFIX)
+					.build()
+				)
+			).orElse(new MiscEntity(MiscEntityCategory.STUDENT_RUNNINGNUM_PREFIX));
+		
 		binder1.setBean(miscEntity1);
+		binder2.setBean(miscEntity2);
 		
 		TextField tfDayOfDisciplineAllowed = new TextField("Bil. Kesalahan Maks. Yang Dibenarkan Outing");
 		tfDayOfDisciplineAllowed.setWidth(WIDTH, Unit.PIXELS);
@@ -1033,15 +1045,37 @@ public class ConfigureView extends VerticalLayout implements View {
 	    	.withValidator(input -> input != null && !input.isEmpty(), "Sila masukkan nilai " + tfDayOfDisciplineAllowed.getCaption())
 			.bind(MiscEntity::getValue1, MiscEntity::setValue1);
 		
+		TextField tfStudentRunningNumPrefix = new TextField("Awalan Larian Nombor Pelajar");
+		tfStudentRunningNumPrefix.setWidth(WIDTH, Unit.PIXELS);
+		tfStudentRunningNumPrefix.setRequiredIndicatorVisible(true);
+		binder2
+			.forField(tfStudentRunningNumPrefix)
+	    	.withValidator(input -> input != null && !input.isEmpty(), "Sila masukkan nilai " + tfStudentRunningNumPrefix.getCaption())
+			.bind(MiscEntity::getValue1, MiscEntity::setValue1);
+		
 		Button btnSave = new Button("Simpan");
 		btnSave.addClickListener(evt -> {
-			Boolean isValid = binder1.writeBeanIfValid(miscEntity1);
+			Boolean isValid = (
+					binder1.writeBeanIfValid(miscEntity1) &&
+					binder2.writeBeanIfValid(miscEntity2)
+			) && (
+					Helper.isNotNull(tfDayOfDisciplineAllowed.getValue()) && 
+					Helper.isNotNull(tfStudentRunningNumPrefix.getValue())
+			);
+			
         	if(isValid != null && isValid) {
         		UserContext userContext = Helper.getUserContext();
-        		miscEntity1.setDescription(tfDayOfDisciplineAllowed.getCaption());
+        		
+        		miscEntity1.setDescription(tfDayOfDisciplineAllowed.getValue());
         		miscEntity1.setRecordUtility(new RecordUtility(userContext.getPkid()));
         		MiscEntity saveItem = miscEntityRepo.save(miscEntity1);
         		binder1.setBean(saveItem);
+        		
+        		miscEntity2.setDescription(tfStudentRunningNumPrefix.getValue());
+        		miscEntity2.setRecordUtility(new RecordUtility(userContext.getPkid()));
+        		MiscEntity saveItem2 = miscEntityRepo.save(miscEntity2);
+        		binder2.setBean(saveItem2);
+        		
         		Notification.show("Kemaskini maklumat lain-lain telah berjaya.", Type.HUMANIZED_MESSAGE);
         	}else {
         		Notification.show("Kemaskini maklumat lain-lain tidak berjaya.", Type.ERROR_MESSAGE);
@@ -1049,6 +1083,7 @@ public class ConfigureView extends VerticalLayout implements View {
 		});
 		
 		formLayout.addComponent(tfDayOfDisciplineAllowed);
+		formLayout.addComponent(tfStudentRunningNumPrefix);
 		
 		mainLayout.addComponent(formLayout);
 		mainLayout.addComponent(new HorizontalLayout(btnSave));
