@@ -1066,12 +1066,12 @@ public class ConfigureView extends VerticalLayout implements View {
         	if(isValid != null && isValid) {
         		UserContext userContext = Helper.getUserContext();
         		
-        		miscEntity1.setDescription(tfDayOfDisciplineAllowed.getValue());
+        		miscEntity1.setDescription(tfDayOfDisciplineAllowed.getCaption());
         		miscEntity1.setRecordUtility(new RecordUtility(userContext.getPkid()));
         		MiscEntity saveItem = miscEntityRepo.save(miscEntity1);
         		binder1.setBean(saveItem);
         		
-        		miscEntity2.setDescription(tfStudentRunningNumPrefix.getValue());
+        		miscEntity2.setDescription(tfStudentRunningNumPrefix.getCaption());
         		miscEntity2.setRecordUtility(new RecordUtility(userContext.getPkid()));
         		MiscEntity saveItem2 = miscEntityRepo.save(miscEntity2);
         		binder2.setBean(saveItem2);
