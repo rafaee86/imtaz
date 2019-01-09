@@ -186,14 +186,14 @@ public class DailyActivityRecordView extends VerticalLayout implements View{
 				Helper.notNull(cbStudent.getSelectedItem()), 
 				Helper.notNull(dpDate.getValue())
 			);
-			
+						
 			if(dailyActivity == null) {
 				Records records = recordsRepo.findRecordsByClassRoomDetailAndStudent(
 						Helper.notNull(cbClassRoomDetail.getSelectedItem()), 
 						Helper.notNull(cbStudent.getSelectedItem())
 				);
 				
-				deleteCurrentDailyRecord(records, dpDate.getValue());
+				
 				
 				dailyActivity = new DailyActivity();
 				dailyActivity.setRecords(records);
@@ -205,6 +205,8 @@ public class DailyActivityRecordView extends VerticalLayout implements View{
 				dailyActivity.setRecordUtility(new RecordUtility(userContext.getPkid()));
 				dailyActivity.setDate(Helper.notNull(dpDate.getValue()));
 				dailyActivity = dailyActivityRepo.save(dailyActivity);
+			}else {
+				deleteCurrentDailyRecord(dailyActivity.getRecords(), dpDate.getValue());
 			}
 			
 			for(int x = 0; x < grid.getRows() ; x++) {
@@ -241,7 +243,6 @@ public class DailyActivityRecordView extends VerticalLayout implements View{
 	}
 	
 	void deleteCurrentDailyRecord(Records records, LocalDate date) {
-		
 		if(records == null)
 			return;
 		
@@ -251,7 +252,6 @@ public class DailyActivityRecordView extends VerticalLayout implements View{
 			if(list != null && !list.isEmpty()) {
 				dailyActivityItemRepo.deleteAll(list);
 			}
-			dailyActivityRepo.delete(dailyActivity);
 		}
 	}
 }

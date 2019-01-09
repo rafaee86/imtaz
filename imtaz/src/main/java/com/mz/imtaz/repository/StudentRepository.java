@@ -22,6 +22,9 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 	@Query("Select a from Student a where a.recordUtility.statusFlag = true and a.pkid in (Select b.student.pkid from Records b where b.recordUtility.statusFlag = true and b.classRoomDetail = :classRoomDetail)")
 	List<Student> findByClassRoomDetail(@Param("classRoomDetail") ClassRoomDetail classRoomDetail);
 	
+	@Query("Select a from Student a where a.recordUtility.statusFlag = true and a.pkid in (Select b.student.pkid from Records b where (b.recordUtility.statusFlag = true or (b.recordUtility.statusFlag = false and b.status in (select gc.pkid from GeneralCode gc where gc.code in ('Q','E','X')))) and b.classRoomDetail = :classRoomDetail)")
+	List<Student> findByClassRoomDetailForStudentHistory(@Param("classRoomDetail") ClassRoomDetail classRoomDetail);
+	
 	@Query("Select a from Student a where a.recordUtility.statusFlag = true")
 	List<Student> findAllActive(Sort sort);
 	

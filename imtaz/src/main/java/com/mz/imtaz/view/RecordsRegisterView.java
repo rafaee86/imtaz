@@ -370,6 +370,14 @@ public class RecordsRegisterView  extends VerticalLayout implements View{
 	        			GeneralCode status = Helper.notNull(cbStatus.getValue());
 	        			if(status != null) {
 	        				records.getStudent().setStatus(status.getPkid());
+	        				switch(status.getCode()) {
+	        					case "Q":
+	        					case "E":
+	        					case "X":
+	    	        				records.getRecordUtility().disabled(userContext.getPkid());
+	        						break;
+	        				}
+	        				studentRepo.save(records.getStudent());
 	        				recordsRepo.save(records);
 	        				Notification.show("Proses Kemaskini Status Pelajar Telah Berjaya.", Type.HUMANIZED_MESSAGE);
 			        		modal.close();

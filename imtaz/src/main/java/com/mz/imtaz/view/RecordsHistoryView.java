@@ -82,7 +82,7 @@ public class RecordsHistoryView extends VerticalLayout implements View {
 
         cbClassRoomDetail.addSelectionListener(listener -> {
         	if(Helper.notNull(listener.getSelectedItem()) != null)
-        		cbStudent.setItems(studentRepo.findByClassRoomDetail(listener.getSelectedItem().get()));
+        		cbStudent.setItems(studentRepo.findByClassRoomDetailForStudentHistory(listener.getSelectedItem().get()));
         });
         
         DateField dfFromDate = new DateField("Tarikh Dari");
