@@ -11,19 +11,23 @@ import java.util.Optional;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.vaadin.ui.NumberField;
 
 import com.mz.imtaz.entity.GeneralCode;
+import com.mz.imtaz.entity.MiscEntity;
 import com.mz.imtaz.entity.RecordUtility;
 import com.mz.imtaz.entity.Student;
 import com.mz.imtaz.entity.UserContext;
 import com.mz.imtaz.enums.GuardianType;
+import com.mz.imtaz.enums.MiscEntityCategory;
 import com.mz.imtaz.enums.RegistrationType;
 import com.mz.imtaz.enums.RunningNumberCategory;
 import com.mz.imtaz.repository.GeneralCodeRepository;
+import com.mz.imtaz.repository.MiscEntityRepository;
 import com.mz.imtaz.repository.RecordsHistoryRepository;
 import com.mz.imtaz.repository.StudentRepository;
 import com.mz.imtaz.util.Helper;
@@ -58,6 +62,7 @@ public class StudentRegisterView extends VerticalLayout implements View{
 	public static final String NAME = "StudentRegisterView";
 	final int page = 1;
 	final int limit = 10;
+	final int lpadRunningNumLength = 3;
 
 	@Autowired
 	private StudentRepository studentRepo;
@@ -65,6 +70,8 @@ public class StudentRegisterView extends VerticalLayout implements View{
 	private RecordsHistoryRepository recordsHistoryRepository;
 	@Autowired
 	private GeneralCodeRepository generalRepo;
+	@Autowired
+	private MiscEntityRepository miscEntityRepo;
 
 	private ListDataProvider<Student> dataProvider;
 
@@ -469,7 +476,26 @@ public class StudentRegisterView extends VerticalLayout implements View{
 	private String getStudentRunNumber(){
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy");
 		SimpleDateFormat sdfBulan = new SimpleDateFormat("MM");
-		return RunningNumberCategory.STUDENT.getCode() + sdf.format(new Date()) + sdfBulan.format(new Date()) + studentRepo.getStudentNoMax();
+		
+		Optional<MiscEntity> prefixEntity = 
+				miscEntityRepo.findOne(
+						Example.of(
+								MiscEntity.builder()
+								.category(MiscEntityCategory.STUDENT_RUNNINGNUM_PREFIX)
+								.build()
+								)
+				);
+		
+		String prefix =  
+				(prefixEntity.isPresent() ? prefixEntity.get().getValue1() : RunningNumberCategory.STUDENT) + 
+				sdf.format(new Date()) + 
+				sdfBulan.format(new Date());
+		
+		return generateRunningNumber(prefix);
+	}
+	
+	private String generateRunningNumber(String prefix) {
+		return prefix + studentRepo.getStudentNoMax(prefix + "%", lpadRunningNumLength);
 	}
 
 }

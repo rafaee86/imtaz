@@ -31,6 +31,12 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 	@Query("Select a from Student a where a.recordUtility.statusFlag = true order by a.name asc")
 	List<Student> findAllActive(Pageable pageable);
 	
-	@Query(value = "SELECT LPAD(CONVERT(RIGHT(MAX(STUDENT_NO),7), UNSIGNED INTEGER)+1,7,'0') GEN_NUM FROM STUDENT", nativeQuery = true)
-	String getStudentNoMax();
+	@Query(value = "SELECT LPAD( " + 
+			"	CONVERT( " + 
+			"		RIGHT(IFNULL((SELECT MAX(STUDENT_NO) FROM STUDENT  " + 
+			"		WHERE STUDENT_NO LIKE :prefix ),'0'),:lpadLength), " + 
+			"	 UNSIGNED INTEGER " + 
+			"	) " + 
+			"+1,:lpadLength,'0') FROM DUAL", nativeQuery = true)
+	String getStudentNoMax(@Param("prefix") String prefix, @Param("lpadLength") Integer lpadLength);
 }
