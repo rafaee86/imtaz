@@ -414,11 +414,11 @@ public class MemorizeTargetView extends VerticalLayout implements View {
         	if(target != null) {
         		target.setYear(cbYear.getValue());
         		target.setMonth(cbMonth.getValue());
-        		target.setDailyTarget(new Juzuk(Integer.parseInt(tfDailyTargetJuz.getValue()), Integer.parseInt(tfDailyTargetPage.getValue()), Integer.parseInt(tfDailyTargetLine.getValue())));
-        		target.setStartPage(Integer.parseInt(tfStartPage.getValue()));
-        		target.setLastPage(Integer.parseInt(tfLastPage.getValue()));
-        		target.setTotalDailyTarget(new Juzuk(Integer.parseInt(tfTotalTargetJuz.getValue()), Integer.parseInt(tfTotalTargetPage.getValue()), Integer.parseInt(tfTotalTargetLine.getValue())));
-        		target.setTotalMemorize(new Juzuk(Integer.parseInt(tfTotalMemorizeJuz.getValue()), Integer.parseInt(tfTotalMemorizePage.getValue()), Integer.parseInt(tfTotalMemorizeLine.getValue())));
+        		target.setDailyTarget(new Juzuk(getValue(tfDailyTargetJuz), getValue(tfDailyTargetPage), getValue(tfDailyTargetLine)));
+        		target.setStartPage(getValue(tfStartPage));
+        		target.setLastPage(getValue(tfLastPage));
+        		target.setTotalDailyTarget(new Juzuk(getValue(tfTotalTargetJuz), getValue(tfTotalTargetPage), getValue(tfTotalTargetLine)));
+        		target.setTotalMemorize(new Juzuk(getValue(tfTotalMemorizeJuz), getValue(tfTotalMemorizePage), getValue(tfTotalMemorizeLine)));
         		
         		if(
     				tfBalanceMemorizeJuz.getValue().isEmpty() &&
@@ -427,7 +427,7 @@ public class MemorizeTargetView extends VerticalLayout implements View {
         		) {
         			target.setTotalBalance(Juzuk.substract(target.getTotalMemorize(), target.getTotalDailyTarget()));
         		}else {
-        			target.setTotalBalance(new Juzuk(Integer.parseInt(tfBalanceMemorizeJuz.getValue()), Integer.parseInt(tfBalanceMemorizePage.getValue()), Integer.parseInt(tfBalanceMemorizeLine.getValue())));
+        			target.setTotalBalance(new Juzuk(getValue(tfBalanceMemorizeJuz), getValue(tfBalanceMemorizePage), getValue(tfBalanceMemorizeLine)));
         		}
         		target.setRecordUtility(new RecordUtility(userContext.getPkid()));
         		MemorizeTarget editedBean = targetRepo.save(target);
@@ -474,6 +474,17 @@ public class MemorizeTargetView extends VerticalLayout implements View {
 
         modal.setContent(mainLayout);
    	 	UI.getCurrent().addWindow(modal);
+	}
+	
+	private Integer getValue(TextField textField) {
+		Integer result = 0;
+		try {
+			result = Integer.parseInt(textField.getValue());
+		}catch (Exception e) {
+			result = 0;
+		}
+		
+		return result;
 	}
 
 }
