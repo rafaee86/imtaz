@@ -13,9 +13,21 @@ import com.mz.imtaz.entity.Student;
 
 public interface MemorizeTargetRepository extends JpaRepository<MemorizeTarget, Integer>{
 
-	@Query("Select a from MemorizeTarget a where a.recordUtility.statusFlag = true and a.records.classRoomDetail = :classRoomDetail and a.records.student = :student order by a.year, a.month desc")
+	@Query("Select a from MemorizeTarget a "
+			+ "where a.recordUtility.statusFlag = true "
+			+ "and a.records.recordUtility.statusFlag = true " 
+			+ "and a.records.pkid = (select max(ir.pkid) from Records ir where ir.student = a.records.student) "
+			+ "and a.records.classRoomDetail = :classRoomDetail "
+			+ "and a.records.student = :student "
+			+ "order by a.year, a.month desc")
 	List<MemorizeTarget> findByClassRoomDetail(@Param("classRoomDetail") ClassRoomDetail classRoomDetail, @Param("student") Student student);
 
-	@Query("Select a from MemorizeTarget a where a.recordUtility.statusFlag = true and a.records.classRoomDetail = :classRoomDetail and a.records.student = :student order by a.year, a.month desc")
+	@Query("Select a from MemorizeTarget a "
+			+ "where a.recordUtility.statusFlag = true "
+			+ "and a.records.recordUtility.statusFlag = true " 
+			+ "and a.records.pkid = (select max(ir.pkid) from Records ir where ir.student = a.records.student) "
+			+ "and a.records.classRoomDetail = :classRoomDetail "
+			+ "and a.records.student = :student "
+			+ "order by a.year, a.month desc")
 	List<MemorizeTarget> findByClassRoomDetailPageable(@Param("classRoomDetail") ClassRoomDetail classRoomDetail, @Param("student") Student student, Pageable pageable);
 }

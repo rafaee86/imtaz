@@ -13,10 +13,20 @@ import com.mz.imtaz.entity.Student;
 
 public interface DisciplineRecordRepository extends JpaRepository<DisciplineRecord, Integer> {
 	
-	@Query("Select a from DisciplineRecord a where a.recordUtility.statusFlag = true and a.records.classRoomDetail = :classRoomDetail and a.records.student = :student order by a.records.student.name asc")
+	@Query("Select a from DisciplineRecord a "
+			+ "where a.recordUtility.statusFlag = true "
+			+ "and a.records.pkid = (select max(ir.pkid) from Records ir where ir.student = a.records.student) "
+			+ "and a.records.classRoomDetail = :classRoomDetail "
+			+ "and a.records.student = :student "
+			+ "order by a.records.student.name asc")
 	List<DisciplineRecord> findByClassRoomDetail(@Param("classRoomDetail") ClassRoomDetail classRoomDetail, @Param("student") Student student);
 	
-	@Query("Select a from DisciplineRecord a where a.recordUtility.statusFlag = true and a.records.classRoomDetail = :classRoomDetail and a.records.student = :student order by a.records.student.name asc")
+	@Query("Select a from DisciplineRecord a "
+			+ "where a.recordUtility.statusFlag = true "
+			+ "and a.records.pkid = (select max(ir.pkid) from Records ir where ir.student = a.records.student) "
+			+ "and a.records.classRoomDetail = :classRoomDetail "
+			+ "and a.records.student = :student "
+			+ "order by a.records.student.name asc")
 	List<DisciplineRecord> findByClassRoomDetailPageable(@Param("classRoomDetail") ClassRoomDetail classRoomDetail, @Param("student") Student student, Pageable pageable);
 
 }

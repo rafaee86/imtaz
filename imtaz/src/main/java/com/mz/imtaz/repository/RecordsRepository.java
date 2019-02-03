@@ -13,12 +13,25 @@ import com.mz.imtaz.entity.Student;
 
 public interface RecordsRepository extends JpaRepository<Records, Integer> {
 
-	@Query("Select a from Records a where a.recordUtility.statusFlag = true and a.classRoomDetail = :classRoomDetail order by a.student.name asc")
+	@Query("Select a from Records a "
+			+ "where a.recordUtility.statusFlag = true "
+			+ "and a.pkid = (select max(ir.pkid) from Records ir where ir.student = a.student) "
+			+ "and a.classRoomDetail = :classRoomDetail "
+			+ "order by a.student.name asc")
 	List<Records> findRecordsByClassRoomDetail(@Param("classRoomDetail") ClassRoomDetail classRoomDetail);
 
-	@Query("Select a from Records a where a.recordUtility.statusFlag = true and a.classRoomDetail = :classRoomDetail order by a.student.name asc")
+	@Query("Select a from Records a "
+			+ "where a.recordUtility.statusFlag = true "
+			+ "and a.pkid = (select max(ir.pkid) from Records ir where ir.student = a.student) "
+			+ "and a.classRoomDetail = :classRoomDetail "
+			+ "order by a.student.name asc")
 	List<Records> findRecordsByClassRoomDetailPageable(@Param("classRoomDetail") ClassRoomDetail classRoomDetail, Pageable page);
 
-	@Query("Select a from Records a where a.recordUtility.statusFlag = true and a.classRoomDetail = :classRoomDetail and a.student = :student order by a.student.name asc")
+	@Query("Select a from Records "
+			+ "a where a.recordUtility.statusFlag = true "
+			+ "and a.pkid = (select max(ir.pkid) from Records ir where ir.student = a.student) "
+			+ "and a.classRoomDetail = :classRoomDetail "
+			+ "and a.student = :student "
+			+ "order by a.student.name asc")
 	Records findRecordsByClassRoomDetailAndStudent(@Param("classRoomDetail") ClassRoomDetail classRoomDetail, @Param("student") Student student);
 }

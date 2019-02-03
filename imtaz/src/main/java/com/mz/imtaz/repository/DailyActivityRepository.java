@@ -15,7 +15,8 @@ public interface DailyActivityRepository extends JpaRepository<DailyActivity, In
 
 	@Query("Select a from DailyActivity a "
 			+ "where a.recordUtility.statusFlag = true "
-			+ "and a.records.recordUtility.statusFlag = true "
+			+ "and a.records.recordUtility.statusFlag = true " 
+			+ "and a.records.pkid = (select max(ir.pkid) from Records ir where ir.student = a.records.student) "
 			+ "and a.records.classRoomDetail.recordUtility.statusFlag = true "
 			+ "and a.records.classRoomDetail = :classRoomDetail "
 			+ "and a.records.student = :student "
@@ -23,6 +24,10 @@ public interface DailyActivityRepository extends JpaRepository<DailyActivity, In
 			+ "order by a.records.student.name asc")
 	DailyActivity findByClassRoomDetail(@Param("classRoomDetail") ClassRoomDetail classRoomDetail, @Param("student") Student student, @Param(value = "date") LocalDate date);
 	
-	@Query("Select a from DailyActivity a where a.recordUtility.statusFlag = true and a.records = :records and a.date = :date")
+	@Query("Select a from DailyActivity a "
+			+ "where a.recordUtility.statusFlag = true "
+			+ "and a.records.pkid = (select max(ir.pkid) from Records ir where ir.student = a.records.student) "
+			+ "and a.records = :records "
+			+ "and a.date = :date")
 	DailyActivity findByRecords(Records records, LocalDate date);
 }
